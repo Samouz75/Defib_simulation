@@ -177,24 +177,99 @@ const defibinterface: React.FC = () => {
         <div className="w-80 space-y-4">
           {/* Bouton rotatif */}
           <div className="relative flex flex-col items-center">
-            <span className="text-white text-3xl font-bold mb-2">1</span>
+            <span className="text-white text-2xl font-bold mb-2 mr-45">1</span>
             <div className="relative">
+              
+              {/* Graduations et valeurs autour du bouton */}
+              <div className="absolute inset-0 w-32 h-32">
+                {/* Graduations principales avec valeurs */}
+                {[
+                  { value: '1-10', angle: -75},
+                  { value: '15', angle: -56 },
+                  { value: '20', angle: -37 },
+                  { value: '30', angle: -18 },
+                  { value: '50', angle: 1 },
+                  { value: '70', angle: 22 },
+                  { value: '100', angle: 45 },
+                  { value: '120', angle: 66 },
+                  { value: '150', angle: 92 },
+                  { value: '170', angle: 114 },
+                  { value: '200', angle: 135 }
+                ].map(({ value, angle }) => (
+                  <div 
+                    key={value}
+                    className="absolute text-white font-bold"
+                    style={{
+                      transform: `rotate(${angle}deg) translate(75px) rotate(${-angle}deg)`,
+                      transformOrigin: '50% 50%',
+                      left: '50%',
+                      top: '50%',
+                      marginLeft: '-6px',
+                      marginTop: '-6px',
+                      fontSize: '8px'
+                    }}
+                  >
+                    {value}
+                  </div>
+                ))}
+                
+                {/* Petites graduations */}
+                {Array.from({ length: 24 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute bg-gray-400"
+                    style={{
+                      width: '1px',
+                      height: '8px',
+                      left: '50%',
+                      top: '8px',
+                      transformOrigin: '50% 56px',
+                      transform: `translateX(-0.5px) rotate(${-135 + (i * 15)}deg)`
+                    }}
+                  />
+                ))}
+                
+                {/* Graduations principales */}
+                {[
+                  -135, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180, 225
+                ].map((angle, i) => (
+                  <div
+                    key={angle}
+                    className="absolute bg-white"
+                    style={{
+                      width: '2px',
+                      height: '12px',
+                      left: '50%',
+                      top: '6px',
+                      transformOrigin: '50% 58px',
+                      transform: `translateX(-1px) rotate(${angle}deg)`
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Zone verte d'arrière-plan */}
+              <div className="absolute inset-2 bg-green-500 opacity-20 rounded-full"></div>
+
               {/* Bouton rotatif principal */}
               <div
                 ref={rotaryRef}
-                className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full border-4 border-green-300 shadow-lg cursor-grab active:cursor-grabbing relative"
+                className="relative w-32 h-32  rounded-full border-gray-600  cursor-grab active:cursor-grabbing"
                 onMouseDown={handleRotaryMouseDown}
                 style={{
                   transform: `rotate(${rotationAngle}deg)`,
                   transition: isDragging ? 'none' : 'transform 0.1s ease'
                 }}
               >
-                {/* Indicateur */}
-                <div className="absolute top-2 left-1/2 w-1 h-6 bg-white rounded-full transform -translate-x-1/2"></div>
+                {/* Indicateur principal */}
+                <div className="absolute top-2 left-1/2 w-1 h-8 bg-white rounded-full transform -translate-x-1/2 shadow-md"></div>
                 
-                {/* Centre du bouton */}
-                <div className="absolute inset-4 bg-gradient-to-br from-green-500 to-green-700 rounded-full shadow-inner">
-                  <div className="absolute inset-2 bg-gradient-to-br from-green-300 to-green-500 rounded-full"></div>
+                {/* Centre du bouton avec effet 3D */}
+                <div className="absolute inset-6 bg-gradient-to-br from-green,-200 to-green,-400 rounded-full shadow-inner border border-gray-300">
+                  <div className="absolute inset-2 bg-gradient-to-br from-green-100 to-green-300 rounded-full">
+                    {/* Petit indicateur au centre */}
+                    <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-gray-600 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                  </div>
                 </div>
               </div>
             </div>
