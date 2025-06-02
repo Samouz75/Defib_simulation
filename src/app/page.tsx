@@ -7,7 +7,10 @@ const defibinterface: React.FC = () => {
   const [rotaryValue, setRotaryValue] = useState(100);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState(1);
+  const [joystickPosition, setJoystickPosition] = useState<'center' | 'up' | 'down' | 'left' | 'right'>('center');
+  const [isJoystickDragging, setIsJoystickDragging] = useState(false);
   const rotaryRef = useRef<HTMLDivElement>(null);
+  const joystickRef = useRef<HTMLDivElement>(null);
 
   // Gestion bouton rotatif
   const handleRotaryMouseDown = (e: React.MouseEvent) => {
@@ -30,6 +33,41 @@ const defibinterface: React.FC = () => {
     setRotaryValue(Math.max(0, Math.min(200, value)));
   };
 
+  // Gestion du joystick
+  const handleJoystickMouseDown = (e: React.MouseEvent) => {
+    setIsJoystickDragging(true);
+    e.preventDefault();
+  };
+
+  const handleJoystickMove = (e: MouseEvent) => {
+    if (!isJoystickDragging || !joystickRef.current) return;
+
+    const rect = joystickRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const deltaX = e.clientX - centerX;
+    const deltaY = e.clientY - centerY;
+    
+    // Zone morte au centre
+    const deadZone = 15;
+    
+    if (Math.abs(deltaX) < deadZone && Math.abs(deltaY) < deadZone) {
+      setJoystickPosition('center');
+    } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Mouvement horizontal dominant
+      setJoystickPosition(deltaX > 0 ? 'right' : 'left');
+    } else {
+      // Mouvement vertical dominant
+      setJoystickPosition(deltaY > 0 ? 'down' : 'up');
+    }
+  };
+
+  const handleJoystickMouseUp = () => {
+    setIsJoystickDragging(false);
+    setJoystickPosition('center'); // Retour au centre
+  };
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleRotaryMove);
@@ -41,8 +79,33 @@ const defibinterface: React.FC = () => {
     }
   }, [isDragging]);
 
+  useEffect(() => {
+    if (isJoystickDragging) {
+      document.addEventListener('mousemove', handleJoystickMove);
+      document.addEventListener('mouseup', handleJoystickMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleJoystickMove);
+        document.removeEventListener('mouseup', handleJoystickMouseUp);
+      };
+    }
+  }, [isJoystickDragging]);
+
   // Calcul rotation du bouton
   const rotationAngle = (rotaryValue / 200) * 360 - 90;
+
+  // Calcul position du joystick
+  const getJoystickOffset = () => {
+    const offset = 15; // pixels de déplacement
+    switch (joystickPosition) {
+      case 'up': return { x: 0, y: -offset };
+      case 'down': return { x: 0, y: offset };
+      case 'left': return { x: -offset, y: 0 };
+      case 'right': return { x: offset, y: 0 };
+      default: return { x: 0, y: 0 };
+    }
+  };
+
+  const joystickOffset = getJoystickOffset();
 
   return (
     <div className="bg-gray-800 p-6 rounded-2xl w-full max-w-4xl mx-auto shadow-2xl mt-35">
@@ -93,8 +156,18 @@ const defibinterface: React.FC = () => {
             
             {/* joystick */}
             <div className="flex items-center justify-center">
-              <div className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-all">
-                <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700"></div>
+              <div 
+                ref={joystickRef}
+                className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-all"
+                onMouseDown={handleJoystickMouseDown}
+              >
+                <div 
+                  className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700 transition-all duration-150"
+                  style={{
+                    transform: `translate(${joystickOffset.x}px, ${joystickOffset.y}px)`,
+                    backgroundColor: joystickPosition !== 'center' ? '#374151' : '#1f2937'
+                  }}
+                ></div>
               </div>
             </div>
           </div>
