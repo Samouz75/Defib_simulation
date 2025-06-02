@@ -1,103 +1,171 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React, { useState, useRef, useEffect } from 'react';
+import { FlagTriangleRight, Triangle, CopyMinus, Printer, Zap } from 'lucide-react';
+
+const defibinterface: React.FC = () => {
+  const [rotaryValue, setRotaryValue] = useState(100);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedChannel, setSelectedChannel] = useState(1);
+  const rotaryRef = useRef<HTMLDivElement>(null);
+
+  // Gestion bouton rotatif
+  const handleRotaryMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    e.preventDefault();
+  };
+
+  const handleRotaryMove = (e: MouseEvent) => {
+    if (!isDragging || !rotaryRef.current) return;
+
+    const rect = rotaryRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const degrees = (angle * 180 / Math.PI + 90 + 360) % 360;
+    
+    // Mapp l'angle aux valeurs (0-200)
+    const value = Math.round((degrees / 360) * 200);
+    setRotaryValue(Math.max(0, Math.min(200, value)));
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleRotaryMove);
+      document.addEventListener('mouseup', () => setIsDragging(false));
+      return () => {
+        document.removeEventListener('mousemove', handleRotaryMove);
+        document.removeEventListener('mouseup', () => setIsDragging(false));
+      };
+    }
+  }, [isDragging]);
+
+  // Calcul rotation du bouton
+  const rotationAngle = (rotaryValue / 200) * 360 - 90;
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="bg-gray-800 p-6 rounded-2xl w-full max-w-4xl mx-auto shadow-2xl mt-35">
+      <div className="flex gap-6">
+        {/* Section principale */}
+        <div className="flex-1">
+          {/* Écran principal */}
+          <div className="bg-gray-700 rounded-lg border-4 border-gray-600 h-64 mb-6 relative overflow-hidden">
+            <div className="absolute inset-2 bg-gray-900 rounded">
+              <div className="h-full flex items-center justify-center text-green-400 text-lg font-mono">
+                NIVEAU: {rotaryValue}
+              </div>
+            </div>
+          </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+        {/* button transparents */}
+          <div className="flex gap-3 mr-34 mb-4 items-center justify-center">
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+            </button>
+          </div>
+
+          {/* 4 buttons du bas */}
+          <div className="flex gap-3 mr-34 mb-4 items-center justify-center">
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+              <Triangle className="w-5 h-5 text-white" />
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+              <FlagTriangleRight className="w-5 h-5 text-white" />
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+              <CopyMinus className="w-4 h-4 text-white" />
+            </button>
+            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+              <Printer className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+         
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* right side */}
+        <div className="w-80 space-y-4">
+          {/* Bouton rotatif */}
+          <div className="relative flex flex-col items-center">
+            <span className="text-white text-3xl font-bold mb-2">1</span>
+            <div className="relative">
+              {/* Bouton rotatif principal */}
+              <div
+                ref={rotaryRef}
+                className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full border-4 border-green-300 shadow-lg cursor-grab active:cursor-grabbing relative"
+                onMouseDown={handleRotaryMouseDown}
+                style={{
+                  transform: `rotate(${rotationAngle}deg)`,
+                  transition: isDragging ? 'none' : 'transform 0.1s ease'
+                }}
+              >
+                {/* Indicateur */}
+                <div className="absolute top-2 left-1/2 w-1 h-6 bg-white rounded-full transform -translate-x-1/2"></div>
+                
+                {/* Centre du bouton */}
+                <div className="absolute inset-4 bg-gradient-to-br from-green-500 to-green-700 rounded-full shadow-inner">
+                  <div className="absolute inset-2 bg-gradient-to-br from-green-300 to-green-500 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* buttons colorés */}
+          <div className="space-y-3 mt-25">
+            {/* Jaune */}
+            <div className="flex items-center gap-3">
+              <span className="text-white text-xl font-bold">2</span>
+              <button
+                className={`flex-1 h-12 rounded border-2 transition-all ${
+                  selectedChannel === 2
+                    ? 'bg-yellow-400 border-yellow-300 shadow-lg'
+                    : 'bg-yellow-500 border-yellow-400 hover:bg-yellow-400'
+                }`}
+                onClick={() => setSelectedChannel(2)}
+              >
+                <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-yellow-800 rounded"></div>
+                </div>
+              </button>
+            </div>
+
+            {/* Orange */}
+            <div className="flex items-center gap-3">
+              <span className="text-white text-xl font-bold">3</span>
+              <button
+                className={`flex-1 h-12 rounded border-2 transition-all ${
+                  selectedChannel === 3
+                    ? 'bg-orange-400 border-orange-300 shadow-lg'
+                    : 'bg-orange-500 border-orange-400 hover:bg-orange-400'
+                }`}
+                onClick={() => setSelectedChannel(3)}
+              >
+                <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-orange-800 rounded-full flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bouton central
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+        <div className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-all">
+          <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700"></div>
+        </div>
+      </div>*/}
     </div>
   );
-}
+};
+
+export default defibinterface;
