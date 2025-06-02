@@ -56,9 +56,9 @@ const defibinterface: React.FC = () => {
     const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
     const degrees = (angle * 180 / Math.PI + 90 + 360) % 360;
     
-    // Mapp l'angle aux valeurs (0-200)
-    const value = Math.round((degrees / 360) * 200);
-    setRotaryValue(Math.max(0, Math.min(200, value)));
+    
+    const value = Math.round(degrees) ;
+    setRotaryValue(Math.max(0, Math.min(360, value)));
   };
 
   // Gestion du joystick
