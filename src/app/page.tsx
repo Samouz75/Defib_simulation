@@ -58,36 +58,46 @@ const defibinterface: React.FC = () => {
             </div>
           </div>
 
+          {/* Container pour boutons + joystick */}
+          <div className="flex items-center gap-8 mb-4">
+            {/* Colonnes de boutons */}
+            <div className="flex-1">
+              {/* button transparents */}
+              <div className="flex gap-3 mb-4 items-center justify-center">
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
+                </button>
+              </div>
 
-        {/* button transparents */}
-          <div className="flex gap-3 mr-34 mb-4 items-center justify-center">
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all">
-            </button>
+              {/* 4 buttons du bas */}
+              <div className="flex gap-3 items-center justify-center">
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+                  <Triangle className="w-5 h-5 text-white" />
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+                  <FlagTriangleRight className="w-5 h-5 text-white" />
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+                  <CopyMinus className="w-4 h-4 text-white" />
+                </button>
+                <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
+                  <Printer className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </div>
+            
+            {/* joystick */}
+            <div className="flex items-center justify-center">
+              <div className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-all">
+                <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700"></div>
+              </div>
+            </div>
           </div>
-
-          {/* 4 buttons du bas */}
-          <div className="flex gap-3 mr-34 mb-4 items-center justify-center">
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
-              <Triangle className="w-5 h-5 text-white" />
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
-              <FlagTriangleRight className="w-5 h-5 text-white" />
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
-              <CopyMinus className="w-4 h-4 text-white" />
-            </button>
-            <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center">
-              <Printer className="w-5 h-5 text-white" />
-            </button>
-          </div>
-
-         
         </div>
 
         {/* right side */}
@@ -157,13 +167,6 @@ const defibinterface: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Bouton central
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-        <div className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-all">
-          <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700"></div>
-        </div>
-      </div>*/}
     </div>
   );
 };
