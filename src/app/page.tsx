@@ -11,7 +11,35 @@ const defibinterface: React.FC = () => {
   const [isJoystickDragging, setIsJoystickDragging] = useState(false);
   const rotaryRef = useRef<HTMLDivElement>(null);
   const joystickRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
+
+
+  useEffect(() => {
+    const calculateScale = () => {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      
+      // Taille de référence de votre interface (desktop)
+      const baseWidth = 1200;
+      const baseHeight = 800;
+      
+      // Calcul des ratios avec marges
+      const scaleX = (windowWidth - 40) / baseWidth;  // 20px marge de chaque côté
+      const scaleY = (windowHeight - 40) / baseHeight;
+      
+      // Prendre le plus petit ratio pour que tout rentre
+      const newScale = Math.min(scaleX, scaleY, 1);
+      
+      setScale(Math.max(newScale, 0.3)); // minimum 30%
+    };
+
+    calculateScale();
+    window.addEventListener('resize', calculateScale);
+    
+    return () => window.removeEventListener('resize', calculateScale);
+  }, []);
   // Gestion bouton rotatif
   const handleRotaryMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -108,7 +136,15 @@ const defibinterface: React.FC = () => {
   const joystickOffset = getJoystickOffset();
 
   return (
-    <div className="bg-gray-800 p-6 rounded-2xl w-full max-w-4xl mx-auto shadow-2xl mt-35">
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-15">
+    <div 
+      ref={containerRef}
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: 'center center'
+      }}
+      className="bg-gray-800 p-6 rounded-2xl "
+    >
       <div className="flex gap-6">
         {/* Section principale */}
         <div className="flex-1">
@@ -316,6 +352,9 @@ const defibinterface: React.FC = () => {
         </div>
       </div>
     </div>
+    </div>
+    
+    
   );
 };
 
