@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FlagTriangleRight, Triangle, CopyMinus, Printer, Zap } from 'lucide-react';
 
 const defibinterface: React.FC = () => {
-  const [rotaryValue, setRotaryValue] = useState(100);
+  const [rotaryValue, setRotaryValue] = useState(-90);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState(1);
   const [joystickPosition, setJoystickPosition] = useState<'center' | 'up' | 'down' | 'left' | 'right'>('center');
@@ -119,7 +119,7 @@ const defibinterface: React.FC = () => {
   }, [isJoystickDragging]);
 
   // Calcul rotation du bouton
-  const rotationAngle = (rotaryValue / 200) * 360 - 90;
+  const rotationAngle = rotaryValue
 
   // Calcul position du joystick
   const getJoystickOffset = () => {
