@@ -41,19 +41,37 @@ const defibinterface: React.FC = () => {
     return () => window.removeEventListener('resize', calculateScale);
   }, []);
   // Gestion bouton rotatif
+
+  const getEventCoordinates = (e: MouseEvent | TouchEvent) => {
+    if ('touches' in e) {
+      // Événement tactile
+      const touch = e.touches[0] || e.changedTouches[0];
+      return { clientX: touch.clientX, clientY: touch.clientY };
+    } else {
+      // Événement souris
+      return { clientX: e.clientX, clientY: e.clientY };
+    }
+  };
+
   const handleRotaryMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     e.preventDefault();
   };
 
-  const handleRotaryMove = (e: MouseEvent) => {
+  const handleRotaryTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    e.preventDefault();
+  };
+
+  const handleRotaryMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging || !rotaryRef.current) return;
 
+    const { clientX, clientY } = getEventCoordinates(e);
     const rect = rotaryRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const angle = Math.atan2(clientY - centerY, clientX - centerX);
     const degrees = (angle * 180 / Math.PI + 90 + 360) % 360;
     
     
@@ -61,21 +79,35 @@ const defibinterface: React.FC = () => {
     setRotaryValue(Math.max(0, Math.min(360, value)));
   };
 
+  const handleRotaryEnd = () => {
+    setIsDragging(false);
+  };
+
   // Gestion du joystick
   const handleJoystickMouseDown = (e: React.MouseEvent) => {
     setIsJoystickDragging(true);
     e.preventDefault();
   };
+  
+  const handleJoystickTouchStart = (e: React.TouchEvent) => {
+    setIsJoystickDragging(true);
+    e.preventDefault();
+  };
 
-  const handleJoystickMove = (e: MouseEvent) => {
+  const handleJoystickEnd = () => {
+    setIsJoystickDragging(false);
+  };
+
+  const handleJoystickMove = (e: MouseEvent | TouchEvent) => {
     if (!isJoystickDragging || !joystickRef.current) return;
 
+    const { clientX, clientY } = getEventCoordinates(e);
     const rect = joystickRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    const deltaX = e.clientX - centerX;
-    const deltaY = e.clientY - centerY;
+    const deltaX = clientX - centerX;
+    const deltaY = clientY - centerY;
     
     // Zone morte au centre
     const deadZone = 15;
@@ -98,22 +130,44 @@ const defibinterface: React.FC = () => {
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleRotaryMove);
-      document.addEventListener('mouseup', () => setIsDragging(false));
+      const handleMouseMove = (e: MouseEvent) => handleRotaryMove(e);
+      const handleTouchMove = (e: TouchEvent) => {
+        e.preventDefault(); 
+        handleRotaryMove(e);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleRotaryEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleRotaryEnd);
+
       return () => {
-        document.removeEventListener('mousemove', handleRotaryMove);
-        document.removeEventListener('mouseup', () => setIsDragging(false));
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleRotaryEnd);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleRotaryEnd);
       };
     }
   }, [isDragging]);
 
   useEffect(() => {
     if (isJoystickDragging) {
-      document.addEventListener('mousemove', handleJoystickMove);
-      document.addEventListener('mouseup', handleJoystickMouseUp);
+      const handleMouseMove = (e: MouseEvent) => handleJoystickMove(e);
+      const handleTouchMove = (e: TouchEvent) => {
+        e.preventDefault(); // Empêche le scroll sur mobile
+        handleJoystickMove(e);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleJoystickEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleJoystickEnd);
+
       return () => {
-        document.removeEventListener('mousemove', handleJoystickMove);
-        document.removeEventListener('mouseup', handleJoystickMouseUp);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleJoystickEnd);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleJoystickEnd);
       };
     }
   }, [isJoystickDragging]);
