@@ -152,7 +152,21 @@ const defibinterface: React.FC = () => {
           <div className="bg-gray-700 rounded-lg border-4 border-gray-600 h-64 mb-6 relative overflow-hidden">
             <div className="absolute inset-2 bg-gray-900 rounded">
               <div className="h-full flex items-center justify-center text-green-400 text-lg font-mono">
-                NIVEAU: {rotaryValue}
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+
+
+              
+              
               </div>
             </div>
           </div>
