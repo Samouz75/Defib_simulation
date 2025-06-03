@@ -13,21 +13,22 @@ const DefibInterface: React.FC = () => {
   const joystickRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [heartRate, setHeartRate] = useState(75);
 
   useEffect(() => {
     const calculateScale = () => {
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       
-      const baseWidth = 1200;
-      const baseHeight = 800;
+      const baseWidth = 1600;
+      const baseHeight = 1100;
       
       const scaleX = (windowWidth - 40) / baseWidth;
       const scaleY = (windowHeight - 40) / baseHeight;
       
-      const newScale = Math.min(scaleX, scaleY, 1);
+      const newScale = Math.min(scaleX, scaleY, 1.2);
       
-      setScale(Math.max(newScale, 0.3));
+      setScale(Math.max(newScale, 0.4));
     };
 
     calculateScale();
@@ -164,7 +165,7 @@ const DefibInterface: React.FC = () => {
   const rotationAngle = rotaryValue;
 
   const getJoystickOffset = () => {
-    const offset = 15;
+    const offset = 20;
     switch (joystickPosition) {
       case 'up': return { x: 0, y: -offset };
       case 'down': return { x: 0, y: offset };
@@ -177,55 +178,59 @@ const DefibInterface: React.FC = () => {
   const joystickOffset = getJoystickOffset();
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-15">
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20">
       <div 
         ref={containerRef}
         style={{
           transform: `scale(${scale})`,
           transformOrigin: 'center center'
         }}
-        className="bg-gray-800 p-6 rounded-2xl"
+        className="bg-gray-800 p-8 rounded-3xl"
       >
-        <div className="flex gap-6">
+        <div className="flex gap-8">
           {/* Section principale */}
           <div className="flex-1">
             {/* Écran principal */}
-            <div className="bg-gray-700 rounded-lg border-4 border-gray-600 h-64 mb-6 relative overflow-hidden">
-              <div className="absolute inset-2 bg-gray-900 rounded">
-                <div className="h-full flex items-center justify-center text-green-400 text-lg font-mono">
-                  {/* Contenu de l'écran */}
+            <div className="bg-gray-700 rounded-xl border-4 border-gray-600 h-80 mb-8 relative overflow-hidden">
+              <div className="absolute inset-3 bg-gray-900 rounded-lg">
+                <div className="h-full flex items-center justify-center text-green-400 text-xl font-mono">
+                  <div className="text-center">
+                    <div className="text-base text-green-300 mb-3">FRÉQUENCE CARDIAQUE</div>
+                    <div className="text-5xl font-bold">{heartRate}</div>
+                    <div className="text-base text-green-300 mt-2">BPM</div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Container pour boutons + joystick */}
-            <div className="flex items-center gap-8 mb-4">
+            <div className="flex items-center gap-10 mb-6">
               {/* Colonnes de boutons */}
               <div className="flex-1">
                 {/* Boutons transparents */}
-                <div className="flex gap-3 mb-4 items-center justify-center">
+                <div className="flex gap-4 mb-6 items-center justify-center">
                   {[...Array(4)].map((_, i) => (
                     <button 
                       key={i}
-                      className="w-20 h-10 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-3 rounded border-2 border-gray-500 transition-all touch-manipulation"
+                      className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
                     >
                     </button>
                   ))}
                 </div>
 
                 {/* 4 boutons du bas */}
-                <div className="flex gap-3 items-center justify-center">
-                  <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                    <Triangle className="w-5 h-5 text-white" />
+                <div className="flex gap-4 items-center justify-center">
+                  <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                    <Triangle className="w-7 h-7 text-white" />
                   </button>
-                  <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                    <FlagTriangleRight className="w-5 h-5 text-white" />
+                  <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                    <FlagTriangleRight className="w-7 h-7 text-white" />
                   </button>
-                  <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                    <CopyMinus className="w-4 h-4 text-white" />
+                  <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                    <CopyMinus className="w-6 h-6 text-white" />
                   </button>
-                  <button className="w-20 h-10 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-3 rounded border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                    <Printer className="w-5 h-5 text-white" />
+                  <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                    <Printer className="w-7 h-7 text-white" />
                   </button>
                 </div>
               </div>
@@ -234,13 +239,13 @@ const DefibInterface: React.FC = () => {
               <div className="flex items-center justify-center">
                 <div 
                   ref={joystickRef}
-                  className="w-20 h-20 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-all touch-manipulation select-none"
+                  className="w-28 h-28 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-all touch-manipulation select-none"
                   onMouseDown={handleJoystickMouseDown}
                   onTouchStart={handleJoystickTouchStart}
-                  style={{ touchAction: 'none' }} // Empêche le scroll/zoom sur l'élément
+                  style={{ touchAction: 'none' }}
                 >
                   <div 
-                    className="w-8 h-8 bg-gray-800 rounded-full border-2 border-gray-700 transition-all duration-150"
+                    className="w-10 h-10 bg-gray-800 rounded-full border-2 border-gray-700 transition-all duration-150"
                     style={{
                       transform: `translate(${joystickOffset.x}px, ${joystickOffset.y}px)`,
                       backgroundColor: joystickPosition !== 'center' ? '#374151' : '#1f2937'
@@ -252,14 +257,14 @@ const DefibInterface: React.FC = () => {
           </div>
 
           {/* Côté droit */}
-          <div className="w-80 space-y-4">
+          <div className="w-96 space-y-6">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
-              <span className="text-white text-2xl font-bold mb-2 mr-45">1</span>
+              <span className="text-white text-3xl font-bold mb-3 mr-60">1</span>
               <div className="relative">
                 
                 {/* Graduations et valeurs autour du bouton */}
-                <div className="absolute inset-0 w-32 h-32">
+                <div className="absolute inset-0 w-40 h-40">
                   {/* Graduations principales avec valeurs */}
                   {[
                     { value: '1-10', angle: -75},
@@ -278,13 +283,13 @@ const DefibInterface: React.FC = () => {
                       key={value}
                       className="absolute text-white font-bold"
                       style={{
-                        transform: `rotate(${angle}deg) translate(75px) rotate(${-angle}deg)`,
+                        transform: `rotate(${angle}deg) translate(95px) rotate(${-angle}deg)`,
                         transformOrigin: '50% 50%',
                         left: '50%',
                         top: '50%',
-                        marginLeft: '-6px',
-                        marginTop: '-6px',
-                        fontSize: '8px'
+                        marginLeft: '-8px',
+                        marginTop: '-8px',
+                        fontSize: '10px'
                       }}
                     >
                       {value}
@@ -297,12 +302,12 @@ const DefibInterface: React.FC = () => {
                       key={i}
                       className="absolute bg-gray-400"
                       style={{
-                        width: '1px',
-                        height: '8px',
+                        width: '1.5px',
+                        height: '10px',
                         left: '50%',
-                        top: '8px',
-                        transformOrigin: '50% 56px',
-                        transform: `translateX(-0.5px) rotate(${-135 + (i * 15)}deg)`
+                        top: '10px',
+                        transformOrigin: '50% 70px',
+                        transform: `translateX(-0.75px) rotate(${-135 + (i * 15)}deg)`
                       }}
                     />
                   ))}
@@ -315,40 +320,40 @@ const DefibInterface: React.FC = () => {
                       key={angle}
                       className="absolute bg-white"
                       style={{
-                        width: '2px',
-                        height: '12px',
+                        width: '3px',
+                        height: '15px',
                         left: '50%',
-                        top: '6px',
-                        transformOrigin: '50% 58px',
-                        transform: `translateX(-1px) rotate(${angle}deg)`
+                        top: '8px',
+                        transformOrigin: '50% 72px',
+                        transform: `translateX(-1.5px) rotate(${angle}deg)`
                       }}
                     />
                   ))}
                 </div>
 
                 {/* Zone verte d'arrière-plan */}
-                <div className="absolute inset-2 bg-green-500 opacity-20 rounded-full"></div>
+                <div className="absolute inset-3 bg-green-500 opacity-20 rounded-full"></div>
 
                 {/* Bouton rotatif principal */}
                 <div
                   ref={rotaryRef}
-                  className="relative w-32 h-32 rounded-full border-gray-600 cursor-grab active:cursor-grabbing touch-manipulation select-none"
+                  className="relative w-40 h-40 rounded-full border-gray-600 cursor-grab active:cursor-grabbing touch-manipulation select-none"
                   onMouseDown={handleRotaryMouseDown}
                   onTouchStart={handleRotaryTouchStart}
                   style={{
                     transform: `rotate(${rotationAngle}deg)`,
                     transition: isDragging ? 'none' : 'transform 0.1s ease',
-                    touchAction: 'none' // Empêche le scroll/zoom sur l'élément
+                    touchAction: 'none'
                   }}
                 >
                   {/* Indicateur principal */}
-                  <div className="absolute top-2 left-1/2 w-1 h-8 bg-white rounded-full transform -translate-x-1/2 shadow-md"></div>
+                  <div className="absolute top-3 left-1/2 w-1.5 h-10 bg-white rounded-full transform -translate-x-1/2 shadow-md"></div>
                   
                   {/* Centre du bouton avec effet 3D */}
-                  <div className="absolute inset-6 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300">
-                    <div className="absolute inset-2 bg-gradient-to-br from-green-100 to-green-300 rounded-full">
+                  <div className="absolute inset-8 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300">
+                    <div className="absolute inset-3 bg-gradient-to-br from-green-100 to-green-300 rounded-full">
                       {/* Petit indicateur au centre */}
-                      <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-gray-600 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                      <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-gray-600 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
                     </div>
                   </div>
                 </div>
@@ -356,38 +361,38 @@ const DefibInterface: React.FC = () => {
             </div>
 
             {/* Boutons colorés */}
-            <div className="space-y-3 mt-25">
+            <div className="space-y-4 mt-32">
               {/* Jaune */}
-              <div className="flex items-center gap-3">
-                <span className="text-white text-xl font-bold">2</span>
+              <div className="flex items-center gap-4">
+                <span className="text-white text-2xl font-bold">2</span>
                 <button
-                  className={`flex-1 h-12 rounded border-2 transition-all touch-manipulation ${
+                  className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
                     selectedChannel === 2
                       ? 'bg-yellow-400 border-yellow-300 shadow-lg'
                       : 'bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300'
                   }`}
                   onClick={() => setSelectedChannel(2)}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-yellow-800 rounded"></div>
+                  <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center">
+                    <div className="w-8 h-8 border-3 border-yellow-800 rounded-lg"></div>
                   </div>
                 </button>
               </div>
 
               {/* Orange */}
-              <div className="flex items-center gap-3">
-                <span className="text-white text-xl font-bold">3</span>
+              <div className="flex items-center gap-4">
+                <span className="text-white text-2xl font-bold">3</span>
                 <button
-                  className={`flex-1 h-12 rounded border-2 transition-all touch-manipulation ${
+                  className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
                     selectedChannel === 3
                       ? 'bg-orange-400 border-orange-300 shadow-lg'
                       : 'bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300'
                   }`}
                   onClick={() => setSelectedChannel(3)}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-orange-800 rounded-full flex items-center justify-center">
-                        <Zap className="w-5 h-5 text-white" />
+                  <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center">
+                    <div className="w-10 h-10 border-3 border-orange-800 rounded-full flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 </button>
