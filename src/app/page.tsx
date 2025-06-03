@@ -375,32 +375,26 @@ const DefibInterface: React.FC = () => {
                   </div>
 
                   {/* Row 3*/}
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-black">
                     <div className="flex items-center gap-2"></div>
                   </div>
 
                   {/* Row  4*/}
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-green-400 text-sm bg-gray-850">
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
                   <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
                     <div className="flex items-center gap-2"></div>
                   </div>
-                    <div className="text-center">
-                    <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
-                    <div className="flex items-center gap-2"></div>
-                  </div>
-                    </div>
-                 
                   </div>
 
                   {/* Row 5 */}
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-gray-900">
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
                   <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
                     <div className="flex items-center gap-2"></div>
                   </div>
                   </div>
 
                   {/* Row 6 */}
-                  <div className="mt-2 bg-black h-1/6 flex items-center justify-between  text-white text-xs ">
+                  <div className=" bg-black h-1/6 flex items-center justify-between  text-white text-xs ">
                     <div className="flex items-center gap-2">
                       <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
                         <span>
@@ -410,11 +404,13 @@ const DefibInterface: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="text-center">
+                    <div className="flex items-center gap-2">
                       <span> </span>
                     </div>
-                    <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
                       <span>Menu</span>
+                      </div>
                     </div>
                   </div>
                 </div>
