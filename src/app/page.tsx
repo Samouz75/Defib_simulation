@@ -1,13 +1,21 @@
-'use client'
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { FlagTriangleRight, Triangle, CopyMinus, Printer, Zap } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  FlagTriangleRight,
+  Triangle,
+  CopyMinus,
+  Printer,
+  Zap,
+} from "lucide-react";
 
 const DefibInterface: React.FC = () => {
   const [rotaryValue, setRotaryValue] = useState(-90);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState(1);
-  const [joystickPosition, setJoystickPosition] = useState<'center' | 'up' | 'down' | 'left' | 'right'>('center');
+  const [joystickPosition, setJoystickPosition] = useState<
+    "center" | "up" | "down" | "left" | "right"
+  >("center");
   const [isJoystickDragging, setIsJoystickDragging] = useState(false);
   const rotaryRef = useRef<HTMLDivElement>(null);
   const joystickRef = useRef<HTMLDivElement>(null);
@@ -19,27 +27,27 @@ const DefibInterface: React.FC = () => {
     const calculateScale = () => {
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
-      
+
       const baseWidth = 1600;
       const baseHeight = 1100;
-      
+
       const scaleX = (windowWidth - 40) / baseWidth;
       const scaleY = (windowHeight - 40) / baseHeight;
-      
+
       const newScale = Math.min(scaleX, scaleY, 1.2);
-      
+
       setScale(Math.max(newScale, 0.4));
     };
 
     calculateScale();
-    window.addEventListener('resize', calculateScale);
-    
-    return () => window.removeEventListener('resize', calculateScale);
+    window.addEventListener("resize", calculateScale);
+
+    return () => window.removeEventListener("resize", calculateScale);
   }, []);
 
   // Fonction utilitaire pour extraire les coordonnées d'un événement (souris ou tactile)
   const getEventCoordinates = (e: MouseEvent | TouchEvent) => {
-    if ('touches' in e) {
+    if ("touches" in e) {
       // Événement tactile
       const touch = e.touches[0] || e.changedTouches[0];
       return { clientX: touch.clientX, clientY: touch.clientY };
@@ -67,10 +75,10 @@ const DefibInterface: React.FC = () => {
     const rect = rotaryRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     const angle = Math.atan2(clientY - centerY, clientX - centerX);
-    const degrees = (angle * 180 / Math.PI + 90 + 360) % 360;
-    
+    const degrees = ((angle * 180) / Math.PI + 90 + 360) % 360;
+
     const value = Math.round(degrees);
     setRotaryValue(Math.max(0, Math.min(360, value)));
   };
@@ -97,24 +105,24 @@ const DefibInterface: React.FC = () => {
     const rect = joystickRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
-    
+
     const deadZone = 15;
-    
+
     if (Math.abs(deltaX) < deadZone && Math.abs(deltaY) < deadZone) {
-      setJoystickPosition('center');
+      setJoystickPosition("center");
     } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      setJoystickPosition(deltaX > 0 ? 'right' : 'left');
+      setJoystickPosition(deltaX > 0 ? "right" : "left");
     } else {
-      setJoystickPosition(deltaY > 0 ? 'down' : 'up');
+      setJoystickPosition(deltaY > 0 ? "down" : "up");
     }
   };
 
   const handleJoystickEnd = () => {
     setIsJoystickDragging(false);
-    setJoystickPosition('center');
+    setJoystickPosition("center");
   };
 
   // === EFFET POUR LES ÉVÉNEMENTS GLOBAUX ===
@@ -126,16 +134,18 @@ const DefibInterface: React.FC = () => {
         handleRotaryMove(e);
       };
 
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleRotaryEnd);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleRotaryEnd);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleRotaryEnd);
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleRotaryEnd);
 
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleRotaryEnd);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleRotaryEnd);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleRotaryEnd);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleRotaryEnd);
       };
     }
   }, [isDragging]);
@@ -148,16 +158,18 @@ const DefibInterface: React.FC = () => {
         handleJoystickMove(e);
       };
 
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleJoystickEnd);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleJoystickEnd);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleJoystickEnd);
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleJoystickEnd);
 
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleJoystickEnd);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleJoystickEnd);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleJoystickEnd);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleJoystickEnd);
       };
     }
   }, [isJoystickDragging]);
@@ -167,11 +179,16 @@ const DefibInterface: React.FC = () => {
   const getJoystickOffset = () => {
     const offset = 20;
     switch (joystickPosition) {
-      case 'up': return { x: 0, y: -offset };
-      case 'down': return { x: 0, y: offset };
-      case 'left': return { x: -offset, y: 0 };
-      case 'right': return { x: offset, y: 0 };
-      default: return { x: 0, y: 0 };
+      case "up":
+        return { x: 0, y: -offset };
+      case "down":
+        return { x: 0, y: offset };
+      case "left":
+        return { x: -offset, y: 0 };
+      case "right":
+        return { x: offset, y: 0 };
+      default:
+        return { x: 0, y: 0 };
     }
   };
 
@@ -179,25 +196,226 @@ const DefibInterface: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20">
-      <div 
+      <div
         ref={containerRef}
         style={{
           transform: `scale(${scale})`,
-          transformOrigin: 'center center'
+          transformOrigin: "center center",
         }}
         className="bg-gray-800 p-8 rounded-3xl"
       >
         <div className="flex gap-8">
           {/* Section principale */}
-          <div className="flex-1">
+          <div className="flex-1  ">
             {/* Écran principal */}
-            <div className="bg-gray-700 rounded-xl border-4 border-gray-600 h-80 mb-8 relative overflow-hidden">
+
+            {/* screen divised in 6 rows */}
+            <div className="bg-black  rounded-xl border-4 border-gray-600 h-90 mb-8 relative overflow-hidden">
               <div className="absolute inset-3 bg-gray-900 rounded-lg">
-                <div className="h-full flex items-center justify-center text-green-400 text-xl font-mono">
-                  <div className="text-center">
-                    <div className="text-base text-green-300 mb-3">FRÉQUENCE CARDIAQUE</div>
-                    <div className="text-5xl font-bold">{heartRate}</div>
-                    <div className="text-base text-green-300 mt-2">BPM</div>
+                <div className="h-full flex flex-col">
+                  {/* Rangée 1 - En-tête */}
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between bg-black text-white text-sm font-mono">
+                    {/* Section gauche - Info patient */}
+                    <div className="flex items-center h-full">
+                      <div className="bg-orange-500 px-3 py-1 h-full flex flex-col justify-center">
+                        <div className="text-black font-bold text-xs">
+                          Adulte
+                        </div>
+                        <div className="text-black text-xs">≥25 kg</div>
+                      </div>
+                      <div className="px-3 flex flex-col justify-center">
+                        <div className="text-white text-xs">Non stimulé</div>
+                        <div className="text-white text-xs font-semibold">
+                          Dupont, Samuel
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section centrale - Heure */}
+                    <div className="flex items-center justify-center">
+                      <div className="text-white text-3xl font-bold font-mono">
+                        {new Date().toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Section droite - Date et icône */}
+                    <div className="flex items-center gap-2 px-3">
+                      <div className="text-white text-xs">
+                        {new Date()
+                          .toLocaleDateString("fr-FR", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          .replace(".", "")}{" "}
+                        {new Date().toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        })}
+                      </div>
+                      <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
+                        <div className="w-2 h-1.5 bg-white rounded-xs"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rangée 2 - Paramètres médicaux */}
+                  <div className="h-2/6 border-b border-gray-600 flex items-center justify-between  text-sm bg-black">
+                    {/* FC (Fréquence Cardiaque) */}
+                    <div className="flex flex-col items-center">
+                      <div className="flex flex-row items-center gap-x-2">
+                        <div className="text-gray-400 text-xs">FC</div>
+                        <div className="text-gray-400 text-xs">bpm</div>
+                      </div>
+                      <div className="flex flex-row items-center gap-x-2">
+                        <div className="text-green-400 text-4xl font-bold">
+                          70
+                        </div>
+                        <div className="text-green-400 text-xs">120</div>
+                      </div>
+                    </div>
+
+                    {/* SpO2 */}
+                    <div className="flex flex-col items-center">
+                      <div className="flex flex-row items-center gap-x-2">
+                        <div className="text-blue-400 text-2xl font-bold">
+                          SpO2
+                        </div>
+                        <div className="text-blue-400 text-xs">%</div>
+                      </div>
+
+                      {/* SpO2 Value */}
+                      <div className="flex flex-row items-center gap-x-2">
+                        <div className="text-blue-400 text-4xl font-bold">
+                          95
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="text-blue-400 text-xs">100</div>
+                          <div className="text-blue-400 text-xs">90</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pouls */}
+                    <div className="flex flex-row items-center gap-x-2">
+                      <div className="flex flex-col items-center">
+                        <div className="text-blue-400 text-xs">Pouls</div>
+                        <div className="text-blue-400 text-4xl font-bold">
+                          70
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="text-blue-400 text-xs mb-2">bpm</div>
+                        <div className="text-blue-400 text-xs">120</div>
+                        <div className="text-blue-400 text-xs">50</div>
+                      </div>
+                    </div>
+
+                    {/* PNI */}
+                    <div className="flex flex-col items-center px-1">
+                      <div className="flex flex-row items-center gap-x-5">
+                        <div className="text-white text-xs font-bold">PNI</div>
+                        <div className="text-white text-xs font-bold">5min</div>
+                        <div className="text-white text-xs font-bold">
+                          10:20{" "}
+                        </div>
+                        <div className="text-white text-xs font-bold">mmHg</div>
+                      </div>
+                      <div className="flex flex-row items-center gap-x-1 mt-1">
+                        <div className="text-white text-4xl">110/70</div>
+                        <div className=" text-white text-xs">(80)</div>
+                        <div className="flex flex-col items-center gap-x-1">
+                          <div className=" text-white text-xs">MOY</div>
+                          <div className=" text-white text-xs">110</div>
+                          <div className=" text-white text-xs">50</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CO2 */}
+                                        {/* CO2 et FR - Deux colonnes principales */}
+                                        <div className="flex flex-row items-center gap-x-4">
+                      {/* Colonne CO2 */}
+                      <div className="flex flex-col items-center">
+                        
+                        <div className="flex flex-row items-center gap-x-1">
+                          <div className="text-white text-xs font-bold">CO2ie</div>
+                          <div className="text-white text-xs font-bold">mmHg</div>
+                        </div>
+                        <div className="flex flex-row items-center">
+
+                        <div className="text-yellow-400 text-4xl font-bold">38</div>
+                        <div className="flex flex-col items-center ml-2">
+                          <div className="text-yellow-400 text-xs">50</div>
+                          <div className="text-yellow-400 text-xs">30</div>
+                        </div>
+                        </div>
+                      </div>
+
+                      {/* Colonne FR */}
+                      <div className="flex flex-col items-center">
+                        <div className="flex flex-row items-center gap-x-1">
+                          <div className="text-white text-xs font-bold">FR</div>
+                          <div className="text-white text-xs font-bold">rpm</div>
+                        </div>
+                        <div className="flex flex-row items-center">
+                          <div className="text-yellow-400 text-4xl font-bold">18</div>
+                            <div className="flex flex-col items-center ml-2">
+                              <div className="text-yellow-400 text-xs">30</div>
+                              <div className="text-yellow-400 text-xs">8</div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 3*/}
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                    <div className="flex items-center gap-2"></div>
+                  </div>
+
+                  {/* Row  4*/}
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-green-400 text-sm bg-gray-850">
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                    <div className="flex items-center gap-2"></div>
+                  </div>
+                    <div className="text-center">
+                    <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                    <div className="flex items-center gap-2"></div>
+                  </div>
+                    </div>
+                 
+                  </div>
+
+                  {/* Row 5 */}
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-gray-900">
+                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                    <div className="flex items-center gap-2"></div>
+                  </div>
+                  </div>
+
+                  {/* Row 6 */}
+                  <div className="mt-2 bg-black h-1/6 flex items-center justify-between  text-white text-xs ">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
+                        <span>
+                          Début
+                          <br />
+                          PNI
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <span> </span>
+                    </div>
+                    <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
+                      <span>Menu</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -210,11 +428,10 @@ const DefibInterface: React.FC = () => {
                 {/* Boutons transparents */}
                 <div className="flex gap-4 mb-6 items-center justify-center">
                   {[...Array(4)].map((_, i) => (
-                    <button 
+                    <button
                       key={i}
                       className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
-                    >
-                    </button>
+                    ></button>
                   ))}
                 </div>
 
@@ -234,21 +451,22 @@ const DefibInterface: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Joystick */}
               <div className="flex items-center justify-center">
-                <div 
+                <div
                   ref={joystickRef}
                   className="w-28 h-28 bg-gray-900 rounded-full border-4 border-gray-600 shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-all touch-manipulation select-none"
                   onMouseDown={handleJoystickMouseDown}
                   onTouchStart={handleJoystickTouchStart}
-                  style={{ touchAction: 'none' }}
+                  style={{ touchAction: "none" }}
                 >
-                  <div 
+                  <div
                     className="w-10 h-10 bg-gray-800 rounded-full border-2 border-gray-700 transition-all duration-150"
                     style={{
                       transform: `translate(${joystickOffset.x}px, ${joystickOffset.y}px)`,
-                      backgroundColor: joystickPosition !== 'center' ? '#374151' : '#1f2937'
+                      backgroundColor:
+                        joystickPosition !== "center" ? "#374151" : "#1f2937",
                     }}
                   ></div>
                 </div>
@@ -260,75 +478,76 @@ const DefibInterface: React.FC = () => {
           <div className="w-96 space-y-6">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
-              <span className="text-white text-3xl font-bold mb-3 mr-60">1</span>
+              <span className="text-white text-3xl font-bold mb-3 mr-60">
+                1
+              </span>
               <div className="relative">
-                
                 {/* Graduations et valeurs autour du bouton */}
                 <div className="absolute inset-0 w-40 h-40">
                   {/* Graduations principales avec valeurs */}
                   {[
-                    { value: '1-10', angle: -75},
-                    { value: '15', angle: -56 },
-                    { value: '20', angle: -37 },
-                    { value: '30', angle: -18 },
-                    { value: '50', angle: 1 },
-                    { value: '70', angle: 22 },
-                    { value: '100', angle: 45 },
-                    { value: '120', angle: 66 },
-                    { value: '150', angle: 92 },
-                    { value: '170', angle: 114 },
-                    { value: '200', angle: 135 }
+                    { value: "1-10", angle: -75 },
+                    { value: "15", angle: -56 },
+                    { value: "20", angle: -37 },
+                    { value: "30", angle: -18 },
+                    { value: "50", angle: 1 },
+                    { value: "70", angle: 22 },
+                    { value: "100", angle: 45 },
+                    { value: "120", angle: 66 },
+                    { value: "150", angle: 92 },
+                    { value: "170", angle: 114 },
+                    { value: "200", angle: 135 },
                   ].map(({ value, angle }) => (
-                    <div 
+                    <div
                       key={value}
                       className="absolute text-white font-bold"
                       style={{
                         transform: `rotate(${angle}deg) translate(95px) rotate(${-angle}deg)`,
-                        transformOrigin: '50% 50%',
-                        left: '50%',
-                        top: '50%',
-                        marginLeft: '-8px',
-                        marginTop: '-8px',
-                        fontSize: '10px'
+                        transformOrigin: "50% 50%",
+                        left: "50%",
+                        top: "50%",
+                        marginLeft: "-8px",
+                        marginTop: "-8px",
+                        fontSize: "10px",
                       }}
                     >
                       {value}
                     </div>
                   ))}
-                  
+
                   {/* Petites graduations */}
                   {Array.from({ length: 24 }, (_, i) => (
                     <div
                       key={i}
                       className="absolute bg-gray-400"
                       style={{
-                        width: '1.5px',
-                        height: '10px',
-                        left: '50%',
-                        top: '10px',
-                        transformOrigin: '50% 70px',
-                        transform: `translateX(-0.75px) rotate(${-135 + (i * 15)}deg)`
+                        width: "1.5px",
+                        height: "10px",
+                        left: "50%",
+                        top: "10px",
+                        transformOrigin: "50% 70px",
+                        transform: `translateX(-0.75px) rotate(${-135 + i * 15}deg)`,
                       }}
                     />
                   ))}
-                  
+
                   {/* Graduations principales */}
-                  {[
-                    -135, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180, 225
-                  ].map((angle, i) => (
-                    <div
-                      key={angle}
-                      className="absolute bg-white"
-                      style={{
-                        width: '3px',
-                        height: '15px',
-                        left: '50%',
-                        top: '8px',
-                        transformOrigin: '50% 72px',
-                        transform: `translateX(-1.5px) rotate(${angle}deg)`
-                      }}
-                    />
-                  ))}
+                  {[-135, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180, 225].map(
+                    (angle, i) => (
+                      <div
+                        key={angle}
+                        className="absolute bg-white"
+                        style={{
+                          width: "3px",
+                          height: "15px",
+                          left: "50%",
+                          top: "8px",
+                          transformOrigin: "50% 72px",
+                          transform: `translateX(-1.5px) rotate(${angle}deg)`,
+                        }}
+                      />
+                    ),
+                  )}
                 </div>
 
                 {/* Zone verte d'arrière-plan */}
@@ -342,13 +561,13 @@ const DefibInterface: React.FC = () => {
                   onTouchStart={handleRotaryTouchStart}
                   style={{
                     transform: `rotate(${rotationAngle}deg)`,
-                    transition: isDragging ? 'none' : 'transform 0.1s ease',
-                    touchAction: 'none'
+                    transition: isDragging ? "none" : "transform 0.1s ease",
+                    touchAction: "none",
                   }}
                 >
                   {/* Indicateur principal */}
                   <div className="absolute top-3 left-1/2 w-1.5 h-10 bg-white rounded-full transform -translate-x-1/2 shadow-md"></div>
-                  
+
                   {/* Centre du bouton avec effet 3D */}
                   <div className="absolute inset-8 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300">
                     <div className="absolute inset-3 bg-gradient-to-br from-green-100 to-green-300 rounded-full">
@@ -368,8 +587,8 @@ const DefibInterface: React.FC = () => {
                 <button
                   className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
                     selectedChannel === 2
-                      ? 'bg-yellow-400 border-yellow-300 shadow-lg'
-                      : 'bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300'
+                      ? "bg-yellow-400 border-yellow-300 shadow-lg"
+                      : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"
                   }`}
                   onClick={() => setSelectedChannel(2)}
                 >
@@ -385,14 +604,14 @@ const DefibInterface: React.FC = () => {
                 <button
                   className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
                     selectedChannel === 3
-                      ? 'bg-orange-400 border-orange-300 shadow-lg'
-                      : 'bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300'
+                      ? "bg-orange-400 border-orange-300 shadow-lg"
+                      : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
                   onClick={() => setSelectedChannel(3)}
                 >
                   <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center">
                     <div className="w-10 h-10 border-3 border-orange-800 rounded-full flex items-center justify-center">
-                        <Zap className="w-6 h-6 text-white" />
+                      <Zap className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 </button>
