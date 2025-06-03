@@ -415,8 +415,8 @@ const DefibInterface: React.FC = () => {
                       <span> </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
-                        <span>Menu</span>
+                    <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
+                    <span>Menu</span>
                       </div>
                     </div>
                   </div>
