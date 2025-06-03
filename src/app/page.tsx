@@ -9,6 +9,7 @@ import {
   Zap,
 } from "lucide-react";
 import ECGDisplay from "./components/ECGDisplay";
+import PlethDisplay from "./components/PlethDisplay";
 
 const DefibInterface: React.FC = () => {
   const [rotaryValue, setRotaryValue] = useState(-90);
@@ -396,10 +397,8 @@ const DefibInterface: React.FC = () => {
                   </div>
 
                   {/* Row 5 */}
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
-                    <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
-                      <div className="flex items-center gap-2"></div>
-                    </div>
+                  <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
+                    <PlethDisplay width={800} height={45} />
                   </div>
 
                   {/* Row 6 */}
@@ -408,7 +407,7 @@ const DefibInterface: React.FC = () => {
                       <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
                         <span>
                           Début
-                          <br />
+                         
                           PNI
                         </span>
                       </div>
