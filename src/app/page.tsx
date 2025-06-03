@@ -8,6 +8,7 @@ import {
   Printer,
   Zap,
 } from "lucide-react";
+import ECGDisplay from "./components/ECGDisplay";
 
 const DefibInterface: React.FC = () => {
   const [rotaryValue, setRotaryValue] = useState(-90);
@@ -265,7 +266,7 @@ const DefibInterface: React.FC = () => {
                   </div>
 
                   {/* Rangée 2 - Paramètres médicaux */}
-                  <div className="h-2/6 border-b border-gray-600 flex items-center justify-between  text-sm bg-black">
+                  <div className="h-1/4 border-b border-gray-600 flex items-center justify-between  text-sm bg-black">
                     {/* FC (Fréquence Cardiaque) */}
                     <div className="flex flex-col items-center">
                       <div className="flex flex-row items-center gap-x-2">
@@ -338,22 +339,26 @@ const DefibInterface: React.FC = () => {
                     </div>
 
                     {/* CO2 */}
-                                        {/* CO2 et FR - Deux colonnes principales */}
-                                        <div className="flex flex-row items-center gap-x-4">
+                    {/* CO2 et FR - Deux colonnes principales */}
+                    <div className="flex flex-row items-center gap-x-4">
                       {/* Colonne CO2 */}
                       <div className="flex flex-col items-center">
-                        
                         <div className="flex flex-row items-center gap-x-1">
-                          <div className="text-white text-xs font-bold">CO2ie</div>
-                          <div className="text-white text-xs font-bold">mmHg</div>
+                          <div className="text-white text-xs font-bold">
+                            CO2ie
+                          </div>
+                          <div className="text-white text-xs font-bold">
+                            mmHg
+                          </div>
                         </div>
                         <div className="flex flex-row items-center">
-
-                        <div className="text-yellow-400 text-4xl font-bold">38</div>
-                        <div className="flex flex-col items-center ml-2">
-                          <div className="text-yellow-400 text-xs">50</div>
-                          <div className="text-yellow-400 text-xs">30</div>
-                        </div>
+                          <div className="text-yellow-400 text-4xl font-bold">
+                            38
+                          </div>
+                          <div className="flex flex-col items-center ml-2">
+                            <div className="text-yellow-400 text-xs">50</div>
+                            <div className="text-yellow-400 text-xs">30</div>
+                          </div>
                         </div>
                       </div>
 
@@ -361,42 +366,46 @@ const DefibInterface: React.FC = () => {
                       <div className="flex flex-col items-center">
                         <div className="flex flex-row items-center gap-x-1">
                           <div className="text-white text-xs font-bold">FR</div>
-                          <div className="text-white text-xs font-bold">rpm</div>
+                          <div className="text-white text-xs font-bold">
+                            rpm
+                          </div>
                         </div>
                         <div className="flex flex-row items-center">
-                          <div className="text-yellow-400 text-4xl font-bold">18</div>
-                            <div className="flex flex-col items-center ml-2">
-                              <div className="text-yellow-400 text-xs">30</div>
-                              <div className="text-yellow-400 text-xs">8</div>
-                            </div>
+                          <div className="text-yellow-400 text-4xl font-bold">
+                            18
+                          </div>
+                          <div className="flex flex-col items-center ml-2">
+                            <div className="text-yellow-400 text-xs">30</div>
+                            <div className="text-yellow-400 text-xs">8</div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Row 3*/}
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-black">
-                    <div className="flex items-center gap-2"></div>
+                  <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
+                    <ECGDisplay width={800} height={45} />
                   </div>
 
                   {/* Row  4*/}
                   <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
-                    <div className="flex items-center gap-2"></div>
-                  </div>
+                    <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                      <div className="flex items-center gap-2"></div>
+                    </div>
                   </div>
 
                   {/* Row 5 */}
                   <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
-                  <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
-                    <div className="flex items-center gap-2"></div>
-                  </div>
+                    <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
+                      <div className="flex items-center gap-2"></div>
+                    </div>
                   </div>
 
                   {/* Row 6 */}
-                  <div className=" bg-black h-1/6 flex items-center justify-between  text-white text-xs ">
+                  <div className=" bg-black h-1/12 flex items-center justify-between  text-white text-xs ">
                     <div className="flex items-center gap-2">
-                      <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
+                      <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
                         <span>
                           Début
                           <br />
@@ -409,7 +418,7 @@ const DefibInterface: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="bg-gray-500 px-3 py-1 h-full flex flex-col justify-center ">
-                      <span>Menu</span>
+                        <span>Menu</span>
                       </div>
                     </div>
                   </div>
