@@ -228,7 +228,7 @@ const DefibInterface: React.FC = () => {
                       </div>
                       <div className="px-3 flex flex-col justify-center">
                         <div className="text-white text-xs">Non stimulé</div>
-                        <div className="text-white text-xs font-semibold">
+                        <div className="text-white text-xs text-yellow-600 font-semibold ">
                           Dupont, Samuel
                         </div>
                       </div>
@@ -584,6 +584,13 @@ const DefibInterface: React.FC = () => {
 
             {/* Boutons colorés */}
             <div className="space-y-4 mt-32">
+              
+              {/* white */}    
+              <div className="flex items-center gap-4">
+                  <div className=" ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg">
+                  </div>
+              </div>
+              
               {/* Jaune */}
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">2</span>
