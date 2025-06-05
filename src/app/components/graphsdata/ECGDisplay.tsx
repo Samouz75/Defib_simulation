@@ -145,9 +145,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
           style={{ imageRendering: "pixelated", height: height }}
         />
       </div>
-      <div className="text-xs font-bold text-green-400 text-right ">
-        <span>Rythme sinusal</span>
-      </div>
     </div>
   );
 };

@@ -13,6 +13,7 @@ import MonitorDisplay from "./components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "./components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "./components/ScreenDisplay/ARRETDisplay";
 import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
+import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
 
@@ -21,7 +22,8 @@ const DefibInterface: React.FC = () => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [heartRate, setHeartRate] = useState(75);
-  const [displayMode, setDisplayMode] = useState<"DAE" | "ARRET" | "Moniteur" | "Stimulateur">(
+  const [manualFrequency, setManualFrequency] = useState(60); // Fréquence pour le mode manuel
+  const [displayMode, setDisplayMode] = useState<"DAE" | "ARRET" | "Moniteur" | "Stimulateur" | "Manuel">(
     "ARRET",
   );
 
@@ -68,9 +70,65 @@ const DefibInterface: React.FC = () => {
     // space to add logic about position changes 
   };
 
+  // Fonction pour mapper la valeur du rotary (0-360°) vers la fréquence (1-200 BPM)
+  const mapRotaryToFrequency = (rotaryValue: number): number => {
+    // Points de référence basés sur les graduations existantes
+    const mappingPoints = [
+      { angle: -75, frequency: 5 },   // "1-10" -> on prend 5 comme moyenne
+      { angle: -56, frequency: 15 },
+      { angle: -37, frequency: 20 },
+      { angle: -18, frequency: 30 },
+      { angle: 1, frequency: 50 },
+      { angle: 22, frequency: 70 },
+      { angle: 45, frequency: 100 },
+      { angle: 66, frequency: 120 },
+      { angle: 92, frequency: 150 },
+      { angle: 114, frequency: 170 },
+      { angle: 135, frequency: 200 },
+    ];
+
+    // Convertir la valeur rotary (0-360) en angle relatif (-90 à +270)
+    const angle = rotaryValue - 90;
+
+    // Si l'angle est avant le premier point, retourner la fréquence minimale
+    if (angle <= mappingPoints[0].angle) {
+      return mappingPoints[0].frequency;
+    }
+
+    // Si l'angle est après le dernier point, retourner la fréquence maximale
+    if (angle >= mappingPoints[mappingPoints.length - 1].angle) {
+      return mappingPoints[mappingPoints.length - 1].frequency;
+    }
+
+    // Interpolation linéaire entre les points
+    for (let i = 0; i < mappingPoints.length - 1; i++) {
+      const point1 = mappingPoints[i];
+      const point2 = mappingPoints[i + 1];
+
+      if (angle >= point1.angle && angle <= point2.angle) {
+        // Interpolation linéaire
+        const ratio = (angle - point1.angle) / (point2.angle - point1.angle);
+        const frequency = point1.frequency + ratio * (point2.frequency - point1.frequency);
+        return Math.round(frequency);
+      }
+    }
+
+    return 60; // Valeur par défaut
+  };
+
   const handleRotaryValueChange = (value: number) => {
     console.log("Rotary value:", value);
-    // space to add logic about rotary value changes
+    
+    // Calculer la nouvelle fréquence basée sur la valeur du rotary
+    const newFrequency = mapRotaryToFrequency(value);
+    setManualFrequency(newFrequency);
+    
+    // Basculer automatiquement en mode Manuel (Option A)
+    if (displayMode !== "Manuel") {
+      setDisplayMode("Manuel");
+    }
+    
+    console.log(`Rotary: ${value}° -> Frequency: ${newFrequency} BPM`);
   };
 
   const renderScreenContent = () => {
@@ -80,11 +138,22 @@ const DefibInterface: React.FC = () => {
       case "DAE":
         return <DAEDisplay />;
       case "Moniteur":
-        return <MonitorDisplay />;
+        return (
+          <div className="relative w-full h-full">
+            <MonitorDisplay />
+            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
+              <span>Rythme sinusal</span>
+            </div>
+          </div>
+        );
       case "Stimulateur":
         return <StimulateurDisplay />;
+      case "Manuel":
+        return <ManuelDisplay frequency={manualFrequency} />;
       default:
-        return <MonitorDisplay />;
+        return <MonitorDisplay />
+        ;
+        
     }
   };
 
@@ -151,7 +220,7 @@ const DefibInterface: React.FC = () => {
                 onButton2Click={handleARRETClick}
                 onButton3Click={handleMoniteurClick}
                 onButton4Click={handleStimulateurClick}
-                selectedMode={displayMode}
+                selectedMode={displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"}
               />
               <RotativeKnob 
                 initialValue={-90}
