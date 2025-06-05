@@ -72,7 +72,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({ frequency }) => {
                   <div className="text-gray-400 text-xs">bpm</div>
                 </div>
                 <div className="flex flex-row items-center gap-x-2">
-                  <div className="text-green-400 text-4xl font-bold">{frequency}</div>
+                  <div className="text-green-400 text-4xl font-bold">120</div>
                   <div className="text-green-400 text-xs">120</div>
                 </div>
               </div>
@@ -98,7 +98,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({ frequency }) => {
               <div className="flex flex-row  gap-x-2">
                 <div className="flex flex-col ">
                   <div className="text-blue-400 text-xs">Pouls</div>
-                  <div className="text-blue-400 text-4xl font-bold">{frequency}</div>
+                  <div className="text-blue-400 text-4xl font-bold">120</div>
                 </div>
                 <div className="flex flex-col ">
                   <div className="text-blue-400 text-xs mb-2">bpm</div>
@@ -114,6 +114,17 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({ frequency }) => {
               <ECGDisplay width={800} height={65} />
               <div className="w-full text-xs font-bold text-green-400 text-right ">
                   <span>Rythme sinusal</span>
+              </div>
+              <div className="w-full flex justify-between items-center text-xs font-bold text-white">
+                <div className="text-left">
+                  <span>RCP : </span>
+                </div>
+                <div className="text-center">
+                  <span>Chocs : 0</span>
+                </div>
+                <div className="text-right">
+                  <span>En charge : {frequency} joules</span>
+                </div>
               </div>
             </div>
     
