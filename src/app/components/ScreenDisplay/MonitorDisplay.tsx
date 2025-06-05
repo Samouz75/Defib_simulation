@@ -1,7 +1,7 @@
 import React from 'react';
-import ECGDisplay from './ECGDisplay';
-import PlethDisplay from './PlethDisplay';
-import TimerDisplay from './TimerDisplay';
+import ECGDisplay from '../graphsdata/ECGDisplay';
+import PlethDisplay from '../graphsdata/PlethDisplay';
+import TimerDisplay from '../TimerDisplay';
 
 const MonitorDisplay: React.FC = () => {
   return (
