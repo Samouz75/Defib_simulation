@@ -16,16 +16,26 @@ import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
 import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
+import { NotificationService } from "./services/NotificationService";
 
 const DefibInterface: React.FC = () => {
   const [selectedChannel, setSelectedChannel] = useState(1);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [heartRate, setHeartRate] = useState(75);
   const [manualFrequency, setManualFrequency] = useState(60); // Fréquence pour le mode manuel
-  const [displayMode, setDisplayMode] = useState<"DAE" | "ARRET" | "Moniteur" | "Stimulateur" | "Manuel">(
-    "ARRET",
-  );
+  const [displayMode, setDisplayMode] = useState<
+    "DAE" | "ARRET" | "Moniteur" | "Stimulateur" | "Manuel"
+  >("ARRET");
+
+  // États pour la charge et le choc
+  const [isCharging, setIsCharging] = useState(false);
+  const [chargeProgress, setChargeProgress] = useState(0); // 0-100
+  const [shockCount, setShockCount] = useState(0);
+  const [isCharged, setIsCharged] = useState(false);
+
+  // États pour les animations des boutons
+  const [isChargeButtonPressed, setIsChargeButtonPressed] = useState(false);
+  const [isShockButtonPressed, setIsShockButtonPressed] = useState(false);
 
   useEffect(() => {
     const calculateScale = () => {
@@ -65,16 +75,18 @@ const DefibInterface: React.FC = () => {
     setDisplayMode("Stimulateur");
   };
 
-  const handleJoystickPositionChange = (position: "center" | "up" | "down" | "left" | "right") => {
+  const handleJoystickPositionChange = (
+    position: "center" | "up" | "down" | "left" | "right",
+  ) => {
     console.log("Joystick position:", position);
-    // space to add logic about position changes 
+    // space to add logic about position changes
   };
 
   // Fonction pour mapper la valeur du rotary (0-360°) vers la fréquence (1-200 BPM)
   const mapRotaryToFrequency = (rotaryValue: number): number => {
     // Points de référence basés sur les graduations existantes
     const mappingPoints = [
-      { angle: -75, frequency: 5 },   // "1-10" -> on prend 5 comme moyenne
+      { angle: -75, frequency: 5 }, // "1-10" -> on prend 5 comme moyenne
       { angle: -56, frequency: 15 },
       { angle: -37, frequency: 20 },
       { angle: -18, frequency: 30 },
@@ -100,7 +112,6 @@ const DefibInterface: React.FC = () => {
       return mappingPoints[mappingPoints.length - 1].frequency;
     }
 
-    // Interpolation linéaire entre les points
     for (let i = 0; i < mappingPoints.length - 1; i++) {
       const point1 = mappingPoints[i];
       const point2 = mappingPoints[i + 1];
@@ -108,7 +119,8 @@ const DefibInterface: React.FC = () => {
       if (angle >= point1.angle && angle <= point2.angle) {
         // Interpolation linéaire
         const ratio = (angle - point1.angle) / (point2.angle - point1.angle);
-        const frequency = point1.frequency + ratio * (point2.frequency - point1.frequency);
+        const frequency =
+          point1.frequency + ratio * (point2.frequency - point1.frequency);
         return Math.round(frequency);
       }
     }
@@ -118,17 +130,69 @@ const DefibInterface: React.FC = () => {
 
   const handleRotaryValueChange = (value: number) => {
     console.log("Rotary value:", value);
-    
+
     // Calculer la nouvelle fréquence basée sur la valeur du rotary
     const newFrequency = mapRotaryToFrequency(value);
     setManualFrequency(newFrequency);
-    
+
     // Basculer automatiquement en mode Manuel (Option A)
     if (displayMode !== "Manuel") {
       setDisplayMode("Manuel");
     }
-    
+
     console.log(`Rotary: ${value}° -> Frequency: ${newFrequency} BPM`);
+  };
+
+  // Fonctions pour la charge et le choc
+  const startCharging = () => {
+    if (isCharging || isCharged) return; // Empêcher multiple charges
+
+    // Animation du bouton charge
+    setIsChargeButtonPressed(true);
+    setTimeout(() => setIsChargeButtonPressed(false), 300);
+
+    setIsCharging(true);
+    setChargeProgress(0);
+    setIsCharged(false);
+
+    // Optionnel: Notification de début de charge
+    //NotificationService.showChargingStarted(manualFrequency);
+
+    // Animation de charge sur 5 secondes
+    const chargeInterval = setInterval(() => {
+      setChargeProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(chargeInterval);
+          setIsCharging(false);
+          setIsCharged(true);
+          return 100;
+        }
+        return prev + 2; // 2% toutes les 100ms = 5 secondes total
+      });
+    }, 100);
+  };
+
+  const deliverShock = () => {
+    if (!isCharged) return; // Seulement si chargé
+
+    // Animation du bouton choc
+    setIsShockButtonPressed(true);
+    setTimeout(() => setIsShockButtonPressed(false), 500);
+
+    const newShockCount = shockCount + 1;
+    setShockCount(newShockCount);
+    setIsCharged(false);
+    setChargeProgress(0);
+
+    console.log(`Choc délivré ! Total: ${newShockCount}`);
+
+    // Afficher le pop-up via le service
+    NotificationService.showShockDelivered({
+      energy: manualFrequency,
+      shockNumber: newShockCount,
+      patientName: "Dupont, Samuel",
+      frequency: manualFrequency
+    });
   };
 
   const renderScreenContent = () => {
@@ -149,11 +213,16 @@ const DefibInterface: React.FC = () => {
       case "Stimulateur":
         return <StimulateurDisplay />;
       case "Manuel":
-        return <ManuelDisplay frequency={manualFrequency} />;
+        return (
+          <ManuelDisplay
+            frequency={manualFrequency}
+            chargeProgress={chargeProgress}
+            shockCount={shockCount}
+            isCharging={isCharging}
+          />
+        );
       default:
-        return <MonitorDisplay />
-        ;
-        
+        return <MonitorDisplay />;
     }
   };
 
@@ -170,7 +239,6 @@ const DefibInterface: React.FC = () => {
         <div className="flex gap-8">
           {/* Section principale */}
           <div className="flex-1  ">
-
             {/* screen */}
             <div className="bg-black  rounded-xl border-4 border-gray-600 h-90 mb-8 relative overflow-hidden">
               {renderScreenContent()}
@@ -220,9 +288,11 @@ const DefibInterface: React.FC = () => {
                 onButton2Click={handleARRETClick}
                 onButton3Click={handleMoniteurClick}
                 onButton4Click={handleStimulateurClick}
-                selectedMode={displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"}
+                selectedMode={
+                  displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"
+                }
               />
-              <RotativeKnob 
+              <RotativeKnob
                 initialValue={-90}
                 onValueChange={handleRotaryValueChange}
               />
@@ -233,26 +303,40 @@ const DefibInterface: React.FC = () => {
               {/* white */}
               <div className="flex items-center gap-4  ">
                 <div className="flex-row">
-                <div className=" ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
-              </div>
-              <span className="text-white text-xs font-bold">Synchro</span>
+                  <div className=" ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
+                </div>
+                <span className="text-white text-xs font-bold">Synchro</span>
               </div>
 
               {/* Jaune */}
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">2</span>
                 <button
-                  className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
-                    selectedChannel === 2
-                      ? "bg-yellow-400 border-yellow-300 shadow-lg"
-                      : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"
+                  className={`flex-1 h-16 rounded-lg  transition-all touch-manipulation transform ${
+                    isChargeButtonPressed
+                      ? "scale-95 bg-yellow-300 border-yellow-200"
+                      : selectedChannel === 2
+                        ? "bg-yellow-400 border-yellow-300 shadow-lg"
+                        : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"
                   }`}
-                  onClick={() => setSelectedChannel(2)}
+                  onClick={() => {
+                    setSelectedChannel(2);
+                    if (displayMode === "Manuel") {
+                      startCharging();
+                    }
+                  }}
                 >
-                  
-                  <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative">
+                  <div
+                    className={`w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative transition-all ${
+                      isChargeButtonPressed
+                        ? "from-yellow-300 to-yellow-400"
+                        : ""
+                    }`}
+                  >
                     <div className="absolute left-2">
-                      <span className="text-black text-xs font-bold">Charge</span>
+                      <span className="text-black text-xs font-bold">
+                        Charge
+                      </span>
                     </div>
                     <div className="w-10 h-10 border-3 border-yellow-800 rounded-lg"></div>
                   </div>
@@ -263,14 +347,27 @@ const DefibInterface: React.FC = () => {
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">3</span>
                 <button
-                  className={`flex-1 h-16 rounded-lg border-3 transition-all touch-manipulation ${
-                    selectedChannel === 3
-                      ? "bg-orange-400 border-orange-300 shadow-lg"
-                      : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                  className={`flex-1 h-16 rounded-lg  transition-all touch-manipulation transform ${
+                    isShockButtonPressed
+                      ? "scale-95 bg-orange-300 border-orange-200"
+                      : selectedChannel === 3
+                        ? "bg-orange-400 border-orange-300 shadow-lg"
+                        : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
-                  onClick={() => setSelectedChannel(3)}
+                  onClick={() => {
+                    setSelectedChannel(3);
+                    if (displayMode === "Manuel") {
+                      deliverShock();
+                    }
+                  }}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center relative">
+                  <div
+                    className={`w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center relative transition-all ${
+                      isShockButtonPressed
+                        ? "from-orange-300 to-orange-400"
+                        : ""
+                    }`}
+                  >
                     <div className="absolute left-2">
                       <span className="text-black text-xs font-bold">Choc</span>
                     </div>

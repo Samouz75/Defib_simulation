@@ -13,7 +13,8 @@
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-timer-hook": "^4.0.5"
+    "react-timer-hook": "^4.0.5",
+    "sweetalert2": "^11.22.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
