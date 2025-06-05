@@ -8,10 +8,11 @@ import {
   Printer,
   Zap,
 } from "lucide-react";
-import ThreeButtonComponent from "./components/ThreeButtonComponent";
+import ButtonComponent from "./components/ButtonComponent";
 import MonitorDisplay from "./components/MonitorDisplay";
 import DAEDisplay from "./components/DAEDisplay";
 import ARRETDisplay from "./components/ARRETDisplay";
+import StimulateurDisplay from "./components/StimulateurDisplay";
 
 const DefibInterface: React.FC = () => {
   const [rotaryValue, setRotaryValue] = useState(-90);
@@ -26,8 +27,8 @@ const DefibInterface: React.FC = () => {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [heartRate, setHeartRate] = useState(75);
-  const [displayMode, setDisplayMode] = useState<"DAE" | "ARRET" | "Moniteur">(
-    "Moniteur",
+  const [displayMode, setDisplayMode] = useState<"DAE" | "ARRET" | "Moniteur" | "Stimulateur">(
+    "ARRET",
   );
 
   useEffect(() => {
@@ -201,7 +202,7 @@ const DefibInterface: React.FC = () => {
 
   const joystickOffset = getJoystickOffset();
 
-  // Fonctions de gestion des boutons du ThreeButtonComponent
+  // Fonctions de gestion des boutons du ButtonComponent
   const handleDAEClick = () => {
     setDisplayMode("DAE");
   };
@@ -214,6 +215,10 @@ const DefibInterface: React.FC = () => {
     setDisplayMode("Moniteur");
   };
 
+  const handleStimulateurClick = () => {
+    setDisplayMode("Stimulateur");
+  };
+
   // Fonction pour rendre le contenu de l'écran selon le mode
   const renderScreenContent = () => {
     switch (displayMode) {
@@ -222,6 +227,9 @@ const DefibInterface: React.FC = () => {
       case "DAE":
         return <DAEDisplay />;
       case "Moniteur":
+        return <MonitorDisplay />;
+      case "Stimulateur":
+        return <StimulateurDisplay />;
       default:
         return <MonitorDisplay />;
     }
@@ -304,10 +312,11 @@ const DefibInterface: React.FC = () => {
           <div className="w-100 bg-gray-700 rounded-xl p-4">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center ">
-              <ThreeButtonComponent
+              <ButtonComponent
                 onButton1Click={handleDAEClick}
                 onButton2Click={handleARRETClick}
                 onButton3Click={handleMoniteurClick}
+                onButton4Click={handleStimulateurClick}
                 selectedMode={displayMode}
               />
               <div className="relative mt-6">
@@ -411,8 +420,11 @@ const DefibInterface: React.FC = () => {
             {/* Boutons colorés */}
             <div className="space-y-4 mt-26">
               {/* white */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4  ">
+                <div className="flex-row">
                 <div className=" ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
+              </div>
+              <span className="text-white text-xs font-bold">Synchro</span>
               </div>
 
               {/* Jaune */}
@@ -426,8 +438,12 @@ const DefibInterface: React.FC = () => {
                   }`}
                   onClick={() => setSelectedChannel(2)}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center">
-                    <div className="w-8 h-8 border-3 border-yellow-800 rounded-lg"></div>
+                  
+                  <div className="w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative">
+                    <div className="absolute left-2">
+                      <span className="text-black text-xs font-bold">Charge</span>
+                    </div>
+                    <div className="w-10 h-10 border-3 border-yellow-800 rounded-lg"></div>
                   </div>
                 </button>
               </div>
@@ -443,7 +459,10 @@ const DefibInterface: React.FC = () => {
                   }`}
                   onClick={() => setSelectedChannel(3)}
                 >
-                  <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center relative">
+                    <div className="absolute left-2">
+                      <span className="text-black text-xs font-bold">Choc</span>
+                    </div>
                     <div className="w-10 h-10 border-3 border-orange-800 rounded-full flex items-center justify-center">
                       <Zap className="w-6 h-6 text-white" />
                     </div>

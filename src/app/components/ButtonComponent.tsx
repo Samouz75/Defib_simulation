@@ -1,16 +1,18 @@
 import React from 'react';
 import { Play, Pause, Square } from 'lucide-react';
 
-interface ThreeButtonComponentProps {
+interface ButtonComponentProps {
   onButton1Click?: () => void;
   onButton2Click?: () => void;
   onButton3Click?: () => void;
-  selectedMode?: "DAE" | "ARRET" | "Moniteur";
+  onButton4Click?: () => void;
+  selectedMode?: "DAE" | "ARRET" | "Moniteur" | "Stimulateur";
 }
-const ThreeButtonComponent: React.FC<ThreeButtonComponentProps> = ({
+const ButtonComponent: React.FC<ButtonComponentProps> = ({
   onButton1Click,
   onButton2Click,
   onButton3Click,
+  onButton4Click,
   selectedMode
 }) => {
   return (
@@ -24,7 +26,7 @@ const ThreeButtonComponent: React.FC<ThreeButtonComponentProps> = ({
       
       <button
         onClick={onButton2Click}
-        className={`w-11 h-10 ${selectedMode === "ARRET" ? "bg-yellow-400" : "bg-white"} active:bg-yellow-400 p-4  transition-all touch-manipulation flex items-center justify-center`}
+        className={`w-11 h-10 ${selectedMode === "ARRET" ? "bg-yellow-400" : "bg-green-600"} active:bg-yellow-400 p-4  transition-all touch-manipulation flex items-center justify-center`}
       >
         <span className="text-black text-xs font-bold">ARRET</span>
       </button>
@@ -35,8 +37,16 @@ const ThreeButtonComponent: React.FC<ThreeButtonComponentProps> = ({
       >
         <span className="text-black text-xs font-bold">Moniteur</span>
       </button>
+
+      <button
+        onClick={onButton4Click}
+        className={`w-16 h-10 ${selectedMode === "Stimulateur" ? "bg-yellow-400" : "bg-green-600"} active:bg-yellow-400 p-4  transition-all touch-manipulation flex items-center justify-center`}
+      >
+        <span className="text-black text-xs font-bold">Stimulateur</span>
+      </button>
+
     </div>
   );
 };
 
-export default ThreeButtonComponent; 
+export default ButtonComponent; 
