@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import {
   FlagTriangleRight,
   Triangle,
@@ -16,65 +16,16 @@ import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
 import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
-import { NotificationService } from "./services/NotificationService";
+import { useDefibrillator } from "./hooks/useDefibrillator";
+import { useResponsiveScale } from "./hooks/useResponsiveScale";
+import { RotaryMappingService } from "./services/RotaryMappingService";
 
 const DefibInterface: React.FC = () => {
-  const [selectedChannel, setSelectedChannel] = useState(1);
-  const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [manualFrequency, setManualFrequency] = useState(60); // Fréquence pour le mode manuel
-  const [displayMode, setDisplayMode] = useState<
-    "DAE" | "ARRET" | "Moniteur" | "Stimulateur" | "Manuel"
-  >("ARRET");
+  const scale = useResponsiveScale();
+  const defibrillator = useDefibrillator();
 
-  // États pour la charge et le choc
-  const [isCharging, setIsCharging] = useState(false);
-  const [chargeProgress, setChargeProgress] = useState(0); // 0-100
-  const [shockCount, setShockCount] = useState(0);
-  const [isCharged, setIsCharged] = useState(false);
-
-  // États pour les animations des boutons
-  const [isChargeButtonPressed, setIsChargeButtonPressed] = useState(false);
-  const [isShockButtonPressed, setIsShockButtonPressed] = useState(false);
-
-  useEffect(() => {
-    const calculateScale = () => {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-
-      const baseWidth = 1600;
-      const baseHeight = 1100;
-
-      const scaleX = (windowWidth - 40) / baseWidth;
-      const scaleY = (windowHeight - 40) / baseHeight;
-
-      const newScale = Math.min(scaleX, scaleY, 1.2);
-
-      setScale(Math.max(newScale, 0.4));
-    };
-
-    calculateScale();
-    window.addEventListener("resize", calculateScale);
-
-    return () => window.removeEventListener("resize", calculateScale);
-  }, []);
-
-  const handleDAEClick = () => {
-    setDisplayMode("DAE");
-  };
-
-  const handleARRETClick = () => {
-    setDisplayMode("ARRET");
-  };
-
-  const handleMoniteurClick = () => {
-    setDisplayMode("Moniteur");
-  };
-
-  const handleStimulateurClick = () => {
-    setDisplayMode("Stimulateur");
-  };
-
+  // Event handlers
   const handleJoystickPositionChange = (
     position: "center" | "up" | "down" | "left" | "right",
   ) => {
@@ -82,121 +33,31 @@ const DefibInterface: React.FC = () => {
     // space to add logic about position changes
   };
 
-  // Fonction pour mapper la valeur du rotary (0-360°) vers la fréquence (1-200 BPM)
-  const mapRotaryToFrequency = (rotaryValue: number): number => {
-    // Points de référence basés sur les graduations existantes
-    const mappingPoints = [
-      { angle: -75, frequency: 5 }, // "1-10" -> on prend 5 comme moyenne
-      { angle: -56, frequency: 15 },
-      { angle: -37, frequency: 20 },
-      { angle: -18, frequency: 30 },
-      { angle: 1, frequency: 50 },
-      { angle: 22, frequency: 70 },
-      { angle: 45, frequency: 100 },
-      { angle: 66, frequency: 120 },
-      { angle: 92, frequency: 150 },
-      { angle: 114, frequency: 170 },
-      { angle: 135, frequency: 200 },
-    ];
-
-    // Convertir la valeur rotary (0-360) en angle relatif (-90 à +270)
-    const angle = rotaryValue - 90;
-
-    // Si l'angle est avant le premier point, retourner la fréquence minimale
-    if (angle <= mappingPoints[0].angle) {
-      return mappingPoints[0].frequency;
-    }
-
-    // Si l'angle est après le dernier point, retourner la fréquence maximale
-    if (angle >= mappingPoints[mappingPoints.length - 1].angle) {
-      return mappingPoints[mappingPoints.length - 1].frequency;
-    }
-
-    for (let i = 0; i < mappingPoints.length - 1; i++) {
-      const point1 = mappingPoints[i];
-      const point2 = mappingPoints[i + 1];
-
-      if (angle >= point1.angle && angle <= point2.angle) {
-        // Interpolation linéaire
-        const ratio = (angle - point1.angle) / (point2.angle - point1.angle);
-        const frequency =
-          point1.frequency + ratio * (point2.frequency - point1.frequency);
-        return Math.round(frequency);
-      }
-    }
-
-    return 60; // Valeur par défaut
-  };
-
   const handleRotaryValueChange = (value: number) => {
     console.log("Rotary value:", value);
-
-    // Calculer la nouvelle fréquence basée sur la valeur du rotary
-    const newFrequency = mapRotaryToFrequency(value);
-    setManualFrequency(newFrequency);
-
-    // Basculer automatiquement en mode Manuel (Option A)
-    if (displayMode !== "Manuel") {
-      setDisplayMode("Manuel");
-    }
-
+    
+    const newFrequency = RotaryMappingService.mapRotaryToFrequency(value);
+    defibrillator.setManualFrequency(newFrequency);
+    
     console.log(`Rotary: ${value}° -> Frequency: ${newFrequency} BPM`);
   };
 
-  // Fonctions pour la charge et le choc
-  const startCharging = () => {
-    if (isCharging || isCharged) return; // Empêcher multiple charges
-
-    // Animation du bouton charge
-    setIsChargeButtonPressed(true);
-    setTimeout(() => setIsChargeButtonPressed(false), 300);
-
-    setIsCharging(true);
-    setChargeProgress(0);
-    setIsCharged(false);
-
-    // Optionnel: Notification de début de charge
-    //NotificationService.showChargingStarted(manualFrequency);
-
-    // Animation de charge sur 5 secondes
-    const chargeInterval = setInterval(() => {
-      setChargeProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(chargeInterval);
-          setIsCharging(false);
-          setIsCharged(true);
-          return 100;
-        }
-        return prev + 2; // 2% toutes les 100ms = 5 secondes total
-      });
-    }, 100);
+  const handleChargeButtonClick = () => {
+    defibrillator.setSelectedChannel(2);
+    if (defibrillator.displayMode === "Manuel") {
+      defibrillator.startCharging();
+    }
   };
 
-  const deliverShock = () => {
-    if (!isCharged) return; // Seulement si chargé
-
-    // Animation du bouton choc
-    setIsShockButtonPressed(true);
-    setTimeout(() => setIsShockButtonPressed(false), 500);
-
-    const newShockCount = shockCount + 1;
-    setShockCount(newShockCount);
-    setIsCharged(false);
-    setChargeProgress(0);
-
-    console.log(`Choc délivré ! Total: ${newShockCount}`);
-
-    // Afficher le pop-up via le service
-    NotificationService.showShockDelivered({
-      energy: manualFrequency,
-      shockNumber: newShockCount,
-      patientName: "Dupont, Samuel",
-      frequency: manualFrequency
-    });
+  const handleShockButtonClick = () => {
+    defibrillator.setSelectedChannel(3);
+    if (defibrillator.displayMode === "Manuel") {
+      defibrillator.deliverShock();
+    }
   };
 
   const renderScreenContent = () => {
-    switch (displayMode) {
+    switch (defibrillator.displayMode) {
       case "ARRET":
         return <ARRETDisplay />;
       case "DAE":
@@ -215,10 +76,10 @@ const DefibInterface: React.FC = () => {
       case "Manuel":
         return (
           <ManuelDisplay
-            frequency={manualFrequency}
-            chargeProgress={chargeProgress}
-            shockCount={shockCount}
-            isCharging={isCharging}
+            frequency={defibrillator.manualFrequency}
+            chargeProgress={defibrillator.chargeProgress}
+            shockCount={defibrillator.shockCount}
+            isCharging={defibrillator.isCharging}
           />
         );
       default:
@@ -238,9 +99,9 @@ const DefibInterface: React.FC = () => {
       >
         <div className="flex gap-8">
           {/* Section principale */}
-          <div className="flex-1  ">
+          <div className="flex-1">
             {/* screen */}
-            <div className="bg-black  rounded-xl border-4 border-gray-600 h-90 mb-8 relative overflow-hidden">
+            <div className="bg-black rounded-xl border-4 border-gray-600 h-90 mb-8 relative overflow-hidden">
               {renderScreenContent()}
             </div>
 
@@ -282,14 +143,14 @@ const DefibInterface: React.FC = () => {
           {/* Côté droit */}
           <div className="w-100 bg-gray-700 rounded-xl p-4">
             {/* Bouton rotatif */}
-            <div className="relative flex flex-col items-center ">
+            <div className="relative flex flex-col items-center">
               <ButtonComponent
-                onButton1Click={handleDAEClick}
-                onButton2Click={handleARRETClick}
-                onButton3Click={handleMoniteurClick}
-                onButton4Click={handleStimulateurClick}
+                onButton1Click={() => defibrillator.setDisplayMode("DAE")}
+                onButton2Click={() => defibrillator.setDisplayMode("ARRET")}
+                onButton3Click={() => defibrillator.setDisplayMode("Moniteur")}
+                onButton4Click={() => defibrillator.setDisplayMode("Stimulateur")}
                 selectedMode={
-                  displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"
+                  defibrillator.displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"
                 }
               />
               <RotativeKnob
@@ -301,34 +162,29 @@ const DefibInterface: React.FC = () => {
             {/* Boutons colorés */}
             <div className="space-y-4 mt-26">
               {/* white */}
-              <div className="flex items-center gap-4  ">
+              <div className="flex items-center gap-4">
                 <div className="flex-row">
-                  <div className=" ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
+                  <div className="ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
                 </div>
                 <span className="text-white text-xs font-bold">Synchro</span>
               </div>
 
-              {/* Jaune */}
+              {/* Jaune - Charge */}
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">2</span>
                 <button
-                  className={`flex-1 h-16 rounded-lg  transition-all touch-manipulation transform ${
-                    isChargeButtonPressed
+                  className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
+                    defibrillator.isChargeButtonPressed
                       ? "scale-95 bg-yellow-300 border-yellow-200"
-                      : selectedChannel === 2
+                      : defibrillator.selectedChannel === 2
                         ? "bg-yellow-400 border-yellow-300 shadow-lg"
                         : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"
                   }`}
-                  onClick={() => {
-                    setSelectedChannel(2);
-                    if (displayMode === "Manuel") {
-                      startCharging();
-                    }
-                  }}
+                  onClick={handleChargeButtonClick}
                 >
                   <div
                     className={`w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative transition-all ${
-                      isChargeButtonPressed
+                      defibrillator.isChargeButtonPressed
                         ? "from-yellow-300 to-yellow-400"
                         : ""
                     }`}
@@ -343,27 +199,22 @@ const DefibInterface: React.FC = () => {
                 </button>
               </div>
 
-              {/* Orange */}
+              {/* Orange - Choc */}
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">3</span>
                 <button
-                  className={`flex-1 h-16 rounded-lg  transition-all touch-manipulation transform ${
-                    isShockButtonPressed
+                  className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
+                    defibrillator.isShockButtonPressed
                       ? "scale-95 bg-orange-300 border-orange-200"
-                      : selectedChannel === 3
+                      : defibrillator.selectedChannel === 3
                         ? "bg-orange-400 border-orange-300 shadow-lg"
                         : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
-                  onClick={() => {
-                    setSelectedChannel(3);
-                    if (displayMode === "Manuel") {
-                      deliverShock();
-                    }
-                  }}
+                  onClick={handleShockButtonClick}
                 >
                   <div
                     className={`w-full h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-md flex items-center justify-center relative transition-all ${
-                      isShockButtonPressed
+                      defibrillator.isShockButtonPressed
                         ? "from-orange-300 to-orange-400"
                         : ""
                     }`}

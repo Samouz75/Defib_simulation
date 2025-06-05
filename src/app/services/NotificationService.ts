@@ -9,9 +9,7 @@ export interface ShockDeliveryData {
 }
 
 export class NotificationService {
-  /**
-   * Affiche une notification de choc délivré
-   */
+
   static async showShockDelivered(data: ShockDeliveryData): Promise<boolean> {
     const timestamp = data.timestamp || new Date();
     
@@ -19,7 +17,7 @@ export class NotificationService {
       icon: "warning",
       title: "⚡ CHOC DÉLIVRÉ",
       html: this.buildShockDeliveredHTML(data, timestamp),
-      confirmButtonText: "✅ Continuer la RCP",
+      confirmButtonText: "Continuer",
       confirmButtonColor: "#f59e0b",
       background: "#1f2937",
       color: "#fff",
@@ -40,9 +38,7 @@ export class NotificationService {
     return result.isConfirmed;
   }
 
-  /**
-   * Construit le HTML pour la notification de choc
-   */
+
   private static buildShockDeliveredHTML(data: ShockDeliveryData, timestamp: Date): string {
     return `
       <div style="text-align: left; font-family: 'Courier New', monospace; background: #111827; padding: 15px; border-radius: 8px; border: 1px solid #f59e0b;">
@@ -59,7 +55,7 @@ export class NotificationService {
           </div>
           <div>
             <p style="margin: 5px 0; color: #60a5fa;"><strong>Patient:</strong> <span style="color: #fff;">${data.patientName}</span></p>
-            <p style="margin: 5px 0; color: #60a5fa;"><strong>Fréquence:</strong> <span style="color: #fff;">${data.frequency} BPM</span></p>
+            <p style="margin: 5px 0; color: #60a5fa;"><strong>Fréquence:</strong> <span style="color: #fff;">120 BPM</span></p>
             <p style="margin: 5px 0; color: #10b981;"><strong>Status:</strong> <span style="color: #fff;">✅ Délivré</span></p>
           </div>
         </div>
@@ -72,9 +68,7 @@ export class NotificationService {
     `;
   }
 
-  /**
-   * Affiche une notification de charge commencée
-   */
+  
   static async showChargingStarted(energy: number): Promise<void> {
     await Swal.fire({
       icon: "info",
@@ -95,9 +89,7 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Affiche une notification d'erreur
-   */
+
   static async showError(message: string): Promise<void> {
     await Swal.fire({
       icon: "error",
@@ -113,9 +105,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Affiche une notification de succès
-   */
   static async showSuccess(message: string): Promise<void> {
     await Swal.fire({
       icon: "success",
