@@ -13,7 +13,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
   frequency,
   chargeProgress,
   shockCount,
-  isCharging,
+  
 }) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -134,7 +134,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
               <span>Chocs : {shockCount}</span>
             </div>
             <div className="text-right ml-auto">
-              <span>En charge : {frequency} joules</span>
+              <span>Energie sélectionnée : {frequency} joules</span>
             </div>
           </div>
         </div>
