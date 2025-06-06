@@ -26,7 +26,7 @@ const DefibInterface: React.FC = () => {
   const defibrillator = useDefibrillator();
 
   // État pour la synchronisation avec le DAE
-  const [daePhase, setDaePhase] = useState<'placement' | 'analyse' | 'charge' | 'attente_choc' | null>(null);
+  const [daePhase, setDaePhase] = useState<'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc' | null>(null);
   const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(null);
 
   // Event handlers
@@ -68,7 +68,7 @@ const DefibInterface: React.FC = () => {
   };
 
   // Callbacks pour le DAE
-  const handleDaePhaseChange = (phase: 'placement' | 'analyse' | 'charge' | 'attente_choc') => {
+  const handleDaePhaseChange = (phase: 'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc') => {
     setDaePhase(phase);
   };
 

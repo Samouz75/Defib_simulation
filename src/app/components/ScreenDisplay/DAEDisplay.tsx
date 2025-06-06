@@ -8,10 +8,10 @@ interface DAEDisplayProps {
   shockCount: number;
   isCharging: boolean; // État de charge en cours
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
-  onPhaseChange?: (phase: 'placement' | 'analyse' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
+  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
 }
 
-type Phase = 'placement' | 'analyse' | 'charge' | 'attente_choc';
+type Phase = 'placement' | 'preparation' |'analyse' | 'charge' | 'attente_choc';
 
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
     shockCount,
@@ -27,8 +27,21 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   // Gestion du cycle automatique
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    
+    if (phase === 'preparation') {
+      // Préparation avant analyse
+      const startTime = Date.now();
+      const duration = 5 * 1000;
 
-    if (phase === 'analyse') {
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const percent = Math.min((elapsed / duration) * 100, 100);
+
+        if (percent >= 100) {
+          setPhase('analyse');
+        }
+      }, 100);
+    } else if (phase === 'analyse') {
       // Phase 1: Analyse 
       const startTime = Date.now();
       const duration = 10 * 1000;
@@ -85,7 +98,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
 
   const handlePlacementValidate = () => {
     if (phase === 'placement') {
-      setPhase('analyse');
+      setPhase('preparation');
     }
   };
 
@@ -197,6 +210,13 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               </div>
             </div>
             <div className="flex flex-row ">
+                {phase === 'preparation' && (
+                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                    <span className="text-black text-xs">
+                      Écartez-vous du patient, analyse en cours.
+                    </span>
+                  </div>
+                )}
                 {phase === 'analyse' && (
                   <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
                     <span className="text-black text-xs">
@@ -211,7 +231,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                     </span>
                   </div>
                 )}
-                
             </div>
             
 
