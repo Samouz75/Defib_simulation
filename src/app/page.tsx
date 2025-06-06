@@ -47,7 +47,7 @@ const DefibInterface: React.FC = () => {
     console.log("Rotary value:", value);
     
     const newFrequency = RotaryMappingService.mapRotaryToFrequency(value);
-    defibrillator.setManualFrequency(newFrequency);
+    defibrillator.setManualFrequency(newFrequency, handleModeChange);
     
     console.log(`Rotary: ${value}° -> Frequency: ${newFrequency} BPM`);
   };

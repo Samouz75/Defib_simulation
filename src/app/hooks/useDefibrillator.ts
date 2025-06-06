@@ -44,11 +44,11 @@ export const useDefibrillator = () => {
     updateState({ displayMode: mode });
   };
 
-  const setManualFrequency = (frequency: number) => {
+  const setManualFrequency = (frequency: number, onModeChangeCallback?: (mode: DisplayMode) => void) => {
     updateState({ manualFrequency: frequency });
-    // Auto switch to Manuel mode
-    if (state.displayMode !== "Manuel") {
-      setDisplayMode("Manuel");
+    // Notify parent component to handle mode switching
+    if (state.displayMode !== "Manuel" && onModeChangeCallback) {
+      onModeChangeCallback("Manuel");
     }
   };
 
