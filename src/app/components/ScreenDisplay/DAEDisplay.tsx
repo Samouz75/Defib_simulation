@@ -185,7 +185,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
             {/* Rangée 2 - Paramètres médicaux */}
             <div className="text-left h-1/4 border-b border-gray-600 flex items-center gap-8 px-4 text-sm bg-black">
               {/* FC */}
-              <div className="flex flex-col">
+              <div className="flex flex-col mt-1">
                 <div className="flex flex-row items-center gap-x-2">
                   <div className="text-gray-400 text-xs">FC</div>
                   <div className="text-gray-400 text-xs">bpm</div>
@@ -195,8 +195,25 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                   <div className="text-green-400 text-xs">120</div>
                 </div>
               </div>
-
             </div>
+            <div className="flex flex-row ">
+                {phase === 'analyse' && (
+                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                    <span className="text-black text-xs">
+                      Occupez-vous du patient
+                    </span>
+                  </div>
+                )}
+                {phase === 'charge' && (
+                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                    <span className="text-black text-xs">
+                      Éloignez-vous du patient, analyse en cours.
+                    </span>
+                  </div>
+                )}
+                
+            </div>
+            
 
             {/* Row 3*/}
             <div className="h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
