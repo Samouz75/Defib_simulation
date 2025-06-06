@@ -8,6 +8,7 @@ interface DAEDisplayProps {
   shockCount: number;
   isCharging: boolean; // État de charge en cours
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
+  onPhaseChange?: (phase: 'analyse' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
 }
 
 type Phase = 'analyse' | 'charge' | 'attente_choc';
@@ -15,7 +16,7 @@ type Phase = 'analyse' | 'charge' | 'attente_choc';
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
     shockCount,
     onShockReady,
-
+    onPhaseChange,
   }) => {
   
     // États du cycle DAE
@@ -65,6 +66,13 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
       if (interval) clearInterval(interval);
     };
   }, [phase]);
+
+  // Notification du changement de phase au parent
+  useEffect(() => {
+    if (onPhaseChange) {
+      onPhaseChange(phase);
+    }
+  }, [phase, onPhaseChange]);
 
   // Gestion du bouton choc
   const handleShockClick = () => {
@@ -201,18 +209,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                   <div>{Math.floor(10 - (progressBarPercent / 100) * 10)}s</div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Phase 3: Bouton choc (étape intermediaire le button choc sera pas sur lecrant mais sur le bouton orange physique) */}
-          {phase === 'attente_choc' && (
-            <div className="w-full mb-2 flex justify-center">
-              <button
-                onClick={handleShockClick}
-                className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 px-12 rounded-lg text-xl border-4 border-orange-400 animate-pulse shadow-lg transform transition-all hover:scale-105 active:scale-95"
-              >
-                ⚡ CHOC ⚡
-              </button>
             </div>
           )}
         </div>
