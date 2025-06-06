@@ -19,6 +19,7 @@ import RotativeKnob from "./components/buttons/RotativeKnob";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
+import type { DisplayMode } from "./hooks/useDefibrillator";
 
 const DefibInterface: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +29,11 @@ const DefibInterface: React.FC = () => {
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc' | null>(null);
   const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(null);
+  
+  // État pour l'écran de démarrage
+  const [isBooting, setIsBooting] = useState(false);
+  const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
+  const [bootProgress, setBootProgress] = useState(0);
 
   // Event handlers
   const handleJoystickPositionChange = (
@@ -76,7 +82,66 @@ const DefibInterface: React.FC = () => {
     setDaeShockFunction(() => shockFunction);
   };
 
+  // gère changement de mode avec écran de démarrage
+  const handleModeChange = (newMode: DisplayMode) => {
+    if (defibrillator.displayMode === "ARRET" && newMode !== "ARRET") {
+      //mode ARRET à un autre mode = afficher l'écran de démarrage
+      setIsBooting(true);
+      setTargetMode(newMode);
+      setBootProgress(0);
+      
+      const progressInterval = setInterval(() => {
+        setBootProgress(prev => {
+          const newProgress = prev + 2; // 2% toutes les 100ms = 5 secondes
+          if (newProgress >= 100) {
+            clearInterval(progressInterval);
+          }
+          return Math.min(newProgress, 100);
+        });
+      }, 100);
+      
+      // Après 5 secondes, passer au mode ciblé
+      setTimeout(() => {
+        defibrillator.setDisplayMode(newMode);
+        setIsBooting(false);
+        setTargetMode(null);
+        setBootProgress(0);
+        clearInterval(progressInterval);
+      }, 5000);
+    } else {
+      // Changement de mode normaleme,t 
+      defibrillator.setDisplayMode(newMode);
+    }
+  };
+
   const renderScreenContent = () => {
+    if (isBooting) {
+      return (
+        <div className="h-full flex flex-col items-center justify-center bg-black text-white">
+          <div className="flex flex-col items-center space-y-8">
+            <div className="text-center">
+              <h1 className="text-6xl font-bold text-green-400 mb-4">MARIUS</h1>
+              <div className="text-sm text-gray-400">Efficia DFM100</div>
+            </div>
+            
+            {/* Barre de progression */}
+            <div className="w-64 h-2 bg-gray-700 rounded">
+              <div 
+                className="h-full bg-green-500 rounded transition-all duration-100"
+                style={{ width: `${bootProgress}%` }}
+              ></div>
+            </div>
+            
+            {/* Message de démarrage */}
+            <div className="text-center text-sm text-gray-300">
+              <div>Démarrage en cours...</div>
+              <div className="mt-2">Passage en mode {targetMode}</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     switch (defibrillator.displayMode) {
       case "ARRET":
         return <ARRETDisplay />;
@@ -172,10 +237,10 @@ const DefibInterface: React.FC = () => {
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
               <ButtonComponent
-                onButton1Click={() => defibrillator.setDisplayMode("DAE")}
-                onButton2Click={() => defibrillator.setDisplayMode("ARRET")}
-                onButton3Click={() => defibrillator.setDisplayMode("Moniteur")}
-                onButton4Click={() => defibrillator.setDisplayMode("Stimulateur")}
+                onButton1Click={() => handleModeChange("DAE")}
+                onButton2Click={() => handleModeChange("ARRET")}
+                onButton3Click={() => handleModeChange("Moniteur")}
+                onButton4Click={() => handleModeChange("Stimulateur")}
                 selectedMode={
                   defibrillator.displayMode as "DAE" | "ARRET" | "Moniteur" | "Stimulateur"
                 }
