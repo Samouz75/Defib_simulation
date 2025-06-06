@@ -61,7 +61,7 @@ const DefibInterface: React.FC = () => {
       case "ARRET":
         return <ARRETDisplay />;
       case "DAE":
-        return <DAEDisplay />;
+        return <DAEDisplay frequency={defibrillator.manualFrequency} chargeProgress={defibrillator.chargeProgress} shockCount={defibrillator.shockCount} isCharging={defibrillator.isCharging} />;
       case "Moniteur":
         return (
           <div className="relative w-full h-full">
