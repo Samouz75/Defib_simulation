@@ -17,7 +17,7 @@ export class RotaryMappingService {
     { angle: 180, value: "150" },
     { angle: 200, value: "170" },
     { angle: 220, value: "200" },
-    { angle: 240, value: "Simulateur" },
+    { angle: 240, value: "Stimulateur" },
   ];
 
   /**

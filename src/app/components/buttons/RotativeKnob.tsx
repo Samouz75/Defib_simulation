@@ -29,7 +29,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
     { value: "150", angle: 180 },
     { value: "170", angle: 200 },
     { value: "200", angle: 220 },
-    { value: "Simulateur", angle: 240 },
+    { value: "Stimulateur", angle: 240 },
   ];
 
   // Fonction pour trouver l'angle le plus proche
@@ -128,9 +128,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
 
   return (
     <div className="relative mt-6">
-      {/* Graduations et valeurs autour du bouton */}
       <div className="absolute inset-0 w-48 h-48">
-        {/* Graduations principales avec valeurs */}
         {predefinedAngles
           .filter(item => item.value !== "0") // Hide "0" from visual display
           .map((item) => (
@@ -171,9 +169,9 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
         <div className="absolute inset-10 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300 pointer-events-none">
           <div className="absolute inset-3 bg-gradient-to-br from-green-100 to-green-300 rounded-full pointer-events-none">
             {/* Indicateur principal - barre verticale au centre */}
-            <div className="absolute top-1/2 left-1/2 w-3 h-24 bg-green-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 w-4 h-24 bg-green-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md pointer-events-none">
               {/* Petit indicateur oval blanc à l'extrémité de la barre */}
-              <div className="absolute top-1 left-1/2 w-3 h-2 bg-white rounded-full transform -translate-x-1/2 pointer-events-none"></div>
+              <div className="absolute top-1 left-1/2 w-1.5 h-3 bg-white rounded-full transform -translate-x-1/2 pointer-events-none"></div>
             </div>
           </div>
         </div>
