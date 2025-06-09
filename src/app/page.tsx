@@ -27,14 +27,18 @@ const DefibInterface: React.FC = () => {
   const defibrillator = useDefibrillator();
 
   // État pour la synchronisation avec le DAE
-  const [daePhase, setDaePhase] = useState<'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc' | null>(null);
-  const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(null);
-  
+  const [daePhase, setDaePhase] = useState<
+    "placement" | "preparation" | "analyse" | "charge" | "attente_choc" | null
+  >(null);
+  const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(
+    null,
+  );
+
   // État pour l'écran de démarrage
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
-  
+
   // Références pour les timers de boot
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -49,27 +53,21 @@ const DefibInterface: React.FC = () => {
 
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
-    
+
     // Gère les modes d'affichage directs
     if (newValue === "DAE") {
       handleModeChange("DAE");
-    }
-    else if (newValue === "ARRET") {
+    } else if (newValue === "ARRET") {
       handleModeChange("ARRET");
-    }
-    else if (newValue === "Moniteur") {
+    } else if (newValue === "Moniteur") {
       handleModeChange("Moniteur");
-    }
-    else if (newValue === "Stimulateur") {
+    } else if (newValue === "Stimulateur") {
       handleModeChange("Stimulateur");
-    }
-    else {
+    } else {
       // Pour les valeurs numériques, passer en mode Manuel
       defibrillator.setManualFrequency(newValue, handleModeChange);
     }
   };
-
-
 
   const handleChargeButtonClick = () => {
     defibrillator.setSelectedChannel(2);
@@ -80,10 +78,10 @@ const DefibInterface: React.FC = () => {
 
   const handleShockButtonClick = () => {
     defibrillator.setSelectedChannel(3);
-    
+
     if (defibrillator.displayMode === "DAE") {
       // En mode DAE, utiliser la fonction de choc du DAE si disponible
-      if (daePhase === 'attente_choc' && daeShockFunction) {
+      if (daePhase === "attente_choc" && daeShockFunction) {
         daeShockFunction();
       }
     } else if (defibrillator.displayMode === "Manuel") {
@@ -93,13 +91,26 @@ const DefibInterface: React.FC = () => {
   };
 
   // Callbacks pour le DAE
-  const handleDaePhaseChange = useCallback((phase: 'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc') => {
-    setDaePhase(phase);
-  }, []);
+  const handleDaePhaseChange = useCallback(
+    (
+      phase:
+        | "placement"
+        | "preparation"
+        | "analyse"
+        | "charge"
+        | "attente_choc",
+    ) => {
+      setDaePhase(phase);
+    },
+    [],
+  );
 
-  const handleDaeShockReady = useCallback((shockFunction: (() => void) | null) => {
-    setDaeShockFunction(() => shockFunction);
-  }, []);
+  const handleDaeShockReady = useCallback(
+    (shockFunction: (() => void) | null) => {
+      setDaeShockFunction(() => shockFunction);
+    },
+    [],
+  );
 
   // gère changement de mode avec écran de démarrage
   const handleModeChange = (newMode: DisplayMode) => {
@@ -114,22 +125,22 @@ const DefibInterface: React.FC = () => {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
-      
+
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
       defibrillator.setDisplayMode(newMode);
       return;
     }
-    
-     if (defibrillator.displayMode === "ARRET") {
+
+    if (defibrillator.displayMode === "ARRET") {
       //mode ARRET à un autre mode = afficher l'écran de démarrage
       setIsBooting(true);
       setTargetMode(newMode);
       setBootProgress(0);
-      
+
       progressIntervalRef.current = setInterval(() => {
-        setBootProgress(prev => {
+        setBootProgress((prev) => {
           const newProgress = prev + 2; // 2% toutes les 100ms = 5 secondes
           if (newProgress >= 100) {
             if (progressIntervalRef.current) {
@@ -140,7 +151,7 @@ const DefibInterface: React.FC = () => {
           return Math.min(newProgress, 100);
         });
       }, 100);
-      
+
       // Après 5 secondes, passer au mode ciblé
       bootTimeoutRef.current = setTimeout(() => {
         defibrillator.setDisplayMode(newMode);
@@ -154,7 +165,7 @@ const DefibInterface: React.FC = () => {
         bootTimeoutRef.current = null;
       }, 5000);
     } else {
-      // Changement de mode normaleme,t 
+      // Changement de mode normaleme,t
       defibrillator.setDisplayMode(newMode);
     }
   };
@@ -168,15 +179,15 @@ const DefibInterface: React.FC = () => {
               <h1 className="text-6xl font-bold text-green-400 mb-4">MARIUS</h1>
               <div className="text-sm text-gray-400">Efficia DFM100</div>
             </div>
-            
+
             {/* Barre de progression */}
             <div className="w-64 h-2 bg-gray-700 rounded">
-              <div 
+              <div
                 className="h-full bg-green-500 rounded transition-all duration-100"
                 style={{ width: `${bootProgress}%` }}
               ></div>
             </div>
-            
+
             {/* Message de démarrage */}
             <div className="text-center text-sm text-gray-300">
               <div>Démarrage en cours...</div>
@@ -191,14 +202,16 @@ const DefibInterface: React.FC = () => {
       case "ARRET":
         return <ARRETDisplay />;
       case "DAE":
-        return <DAEDisplay 
-          frequency={defibrillator.manualFrequency} 
-          chargeProgress={defibrillator.chargeProgress} 
-          shockCount={defibrillator.shockCount} 
-          isCharging={defibrillator.isCharging}
-          onPhaseChange={handleDaePhaseChange}
-          onShockReady={handleDaeShockReady}
-        />;
+        return (
+          <DAEDisplay
+            frequency={defibrillator.manualFrequency}
+            chargeProgress={defibrillator.chargeProgress}
+            shockCount={defibrillator.shockCount}
+            isCharging={defibrillator.isCharging}
+            onPhaseChange={handleDaePhaseChange}
+            onShockReady={handleDaeShockReady}
+          />
+        );
       case "Moniteur":
         return (
           <div className="relative w-full h-full">
@@ -338,45 +351,61 @@ const DefibInterface: React.FC = () => {
                       ? "scale-95 bg-orange-300 border-orange-200"
                       : defibrillator.selectedChannel === 3
                         ? "bg-orange-400 border-orange-300 shadow-lg"
-                        : defibrillator.displayMode === "DAE" && daePhase === 'attente_choc'
+                        : defibrillator.displayMode === "DAE" &&
+                            daePhase === "attente_choc"
                           ? "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300 animate-pulse shadow-lg shadow-orange-500/50"
-                          : defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'
+                          : defibrillator.displayMode === "DAE" &&
+                              daePhase !== "attente_choc"
                             ? "bg-gray-500 border-gray-400 cursor-not-allowed opacity-50"
                             : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
                   onClick={handleShockButtonClick}
-                  disabled={defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'}
+                  disabled={
+                    defibrillator.displayMode === "DAE" &&
+                    daePhase !== "attente_choc"
+                  }
                 >
                   <div
                     className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
                       defibrillator.isShockButtonPressed
                         ? "from-orange-300 to-orange-400"
-                        : defibrillator.displayMode === "DAE" && daePhase === 'attente_choc'
+                        : defibrillator.displayMode === "DAE" &&
+                            daePhase === "attente_choc"
                           ? "from-orange-400 to-orange-500"
-                          : defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'
+                          : defibrillator.displayMode === "DAE" &&
+                              daePhase !== "attente_choc"
                             ? "from-gray-400 to-gray-500"
                             : "from-orange-400 to-orange-500"
                     }`}
                   >
                     <div className="absolute left-2">
-                      <span className={`text-xs font-bold ${
-                        defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'
-                          ? "text-gray-300"
-                          : "text-black"
-                      }`}>
+                      <span
+                        className={`text-xs font-bold ${
+                          defibrillator.displayMode === "DAE" &&
+                          daePhase !== "attente_choc"
+                            ? "text-gray-300"
+                            : "text-black"
+                        }`}
+                      >
                         Choc
                       </span>
                     </div>
-                    <div className={`w-10 h-10 border-3 rounded-full flex items-center justify-center ${
-                      defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'
-                        ? "border-gray-700"
-                        : "border-orange-800"
-                    }`}>
-                      <Zap className={`w-6 h-6 ${
-                        defibrillator.displayMode === "DAE" && daePhase !== 'attente_choc'
-                          ? "text-gray-300"
-                          : "text-white"
-                      }`} />
+                    <div
+                      className={`w-10 h-10 border-3 rounded-full flex items-center justify-center ${
+                        defibrillator.displayMode === "DAE" &&
+                        daePhase !== "attente_choc"
+                          ? "border-gray-700"
+                          : "border-orange-800"
+                      }`}
+                    >
+                      <Zap
+                        className={`w-6 h-6 ${
+                          defibrillator.displayMode === "DAE" &&
+                          daePhase !== "attente_choc"
+                            ? "text-gray-300"
+                            : "text-white"
+                        }`}
+                      />
                     </div>
                   </div>
                 </button>
