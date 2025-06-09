@@ -127,7 +127,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               {/* Image*/}
               <div className="flex items-center justify-center">
                 <img 
-                  src="/images/placement_electrodes.png" 
+                  src="/images/placement_electrodes.jpg" 
                   alt="Placement des électrodes" 
                   className="max-w-md h-auto"
                 />
