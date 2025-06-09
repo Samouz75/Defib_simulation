@@ -257,7 +257,7 @@ const DefibInterface: React.FC = () => {
           </div>
 
           {/* Côté droit */}
-          <div className="w-100 bg-gray-700 rounded-xl p-4">
+          <div className="w-80 bg-gray-700 rounded-xl p-4">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
               <div className="-mt-0">
@@ -269,7 +269,7 @@ const DefibInterface: React.FC = () => {
             </div>
 
             {/* Boutons colorés */}
-            <div className="space-y-4 mt-8">
+            <div className="space-y-4 mt-18">
               {/* white */}
               <div className="flex items-center gap-4">
                 <div className="flex-row">

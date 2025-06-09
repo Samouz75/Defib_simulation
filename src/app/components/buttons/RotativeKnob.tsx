@@ -194,7 +194,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
               transformOrigin: "50% 50%",
               left: "50%",
               top: "50%",
-              marginLeft: "-10px",
+              marginLeft: item.value === "Moniteur" ? "-20px" : "-10px",
               marginTop: "-10px",
               fontSize: "10px",
               whiteSpace: "pre-line",
@@ -207,7 +207,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
       </div>
 
       {/* Zone verte d'arrière-plan */}
-      <div className="absolute inset-3 bg-green-500 opacity-20 rounded-full"></div>
+      <div className="absolute inset-1 bg-green-500 opacity-20 rounded-full"></div>
 
       {/* Bouton rotatif principal */}
       <div
