@@ -45,7 +45,20 @@ const DefibInterface: React.FC = () => {
 
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
-    defibrillator.setManualFrequency(newValue, handleModeChange);
+    
+    // Si la valeur est "Stimulateur", changer le mode d'affichage
+    if (newValue === "Stimulateur") {
+      handleModeChange("Stimulateur");
+    }
+    
+    else if (newValue === "0") {
+      handleModeChange("ARRET");
+    }
+    
+    else {
+      // Pour les autres valeurs, utiliser la logique existante
+      defibrillator.setManualFrequency(newValue, handleModeChange);
+    }
   };
 
   const handleChargeButtonClick = () => {
@@ -80,7 +93,16 @@ const DefibInterface: React.FC = () => {
 
   // gère changement de mode avec écran de démarrage
   const handleModeChange = (newMode: DisplayMode) => {
-    if (defibrillator.displayMode === "ARRET" && newMode !== "ARRET") {
+    // Si on bascule vers ARRET, arrêter immédiatement toute animation de démarrage
+    if (newMode === "ARRET") {
+      setIsBooting(false);
+      setTargetMode(null);
+      setBootProgress(0);
+      defibrillator.setDisplayMode(newMode);
+      return;
+    }
+    
+     if (defibrillator.displayMode === "ARRET") {
       //mode ARRET à un autre mode = afficher l'écran de démarrage
       setIsBooting(true);
       setTargetMode(newMode);
