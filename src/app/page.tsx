@@ -46,20 +46,26 @@ const DefibInterface: React.FC = () => {
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
     
-    // Si la valeur est "Stimulateur", changer le mode d'affichage
-    if (newValue === "Stimulateur") {
-      handleModeChange("Stimulateur");
+    // Gère les modes d'affichage directs
+    if (newValue === "DAE") {
+      handleModeChange("DAE");
     }
-    
-    else if (newValue === "0") {
+    else if (newValue === "ARRET") {
       handleModeChange("ARRET");
     }
-    
+    else if (newValue === "Moniteur") {
+      handleModeChange("Moniteur");
+    }
+    else if (newValue === "Stimulateur") {
+      handleModeChange("Stimulateur");
+    }
     else {
-      // Pour les autres valeurs, utiliser la logique existante
+      // Pour les valeurs numériques, passer en mode Manuel
       defibrillator.setManualFrequency(newValue, handleModeChange);
     }
   };
+
+
 
   const handleChargeButtonClick = () => {
     defibrillator.setSelectedChannel(2);
@@ -254,16 +260,6 @@ const DefibInterface: React.FC = () => {
           <div className="w-100 bg-gray-700 rounded-xl p-4">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
-              <div className="mt-8">
-                <ButtonComponent
-                  onButton1Click={() => handleModeChange("DAE")}
-                  onButton2Click={() => handleModeChange("ARRET")}
-                  onButton3Click={() => handleModeChange("Moniteur")}
-                  selectedMode={
-                    defibrillator.displayMode as "DAE" | "ARRET" | "Moniteur"
-                  }
-                />
-              </div>
               <div className="-mt-0">
                 <RotativeKnob
                   initialValue={0}
@@ -273,7 +269,7 @@ const DefibInterface: React.FC = () => {
             </div>
 
             {/* Boutons colorés */}
-            <div className="space-y-4 mt-26">
+            <div className="space-y-4 mt-8">
               {/* white */}
               <div className="flex items-center gap-4">
                 <div className="flex-row">

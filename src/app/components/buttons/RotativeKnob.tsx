@@ -24,19 +24,21 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
 
   // Angles prédéfinis pour les crans
   const predefinedAngles: PredefinedAngle[] = [
-    { value: "0", angle: 0 },
-    { value: "1-10", angle: 20 },
-    { value: "15", angle: 40 },
-    { value: "20", angle: 60 },
-    { value: "30", angle: 80 },
-    { value: "50", angle: 100 },
-    { value: "70", angle: 120 },
-    { value: "100", angle: 140 },
-    { value: "120", angle: 160 },
+    { value : "DAE" , angle:-35},
+    { value: "ARRET", angle: 0 },
+    { value: "Moniteur", angle: 35 },
+    { value: "1-10", angle: 60 },
+    { value: "15", angle: 75 },
+    { value: "20", angle: 90 },
+    { value: "30", angle: 105 },
+    { value: "50", angle: 120 },
+    { value: "70", angle: 135 },
+    { value: "100", angle: 150 },
+    { value: "120", angle: 165 },
     { value: "150", angle: 180 },
-    { value: "170", angle: 200 },
-    { value: "200", angle: 220 },
-    { value: "Stimulateur", angle: 240 },
+    { value: "170", angle: 195 },
+    { value: "200", angle: 210 },
+    { value: "Stimu\nlateur", angle: 240 },
   ];
 
   // Fonction pour trouver l'angle le plus proche
@@ -148,6 +150,11 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
     setAccumulatedRotation(0);
   };
 
+  // Déclencher onValueChange lors de l'initialisation
+  useEffect(() => {
+    onValueChange?.(rotaryValue);
+  }, []); // Seulement au montage
+
   useEffect(() => {
     if (isDragging) {
       const handleMouseMove = (e: MouseEvent) => handleRotaryMove(e);
@@ -176,21 +183,22 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
 
   return (
     <div className="relative mt-6">
-      <div className="absolute inset-0 w-48 h-48">
+      <div className="absolute inset-0 w-56 h-56">
         {predefinedAngles
-          .filter(item => item.value !== "0") // Hide "0" from visual display
           .map((item) => (
           <div
             key={item.value}
             className="absolute text-white font-bold"
             style={{
-              transform: `rotate(${item.angle - 90}deg) translate(72px) rotate(${-(item.angle - 90)}deg)`,
+              transform: `rotate(${item.angle - 90}deg) translate(86px) rotate(${-(item.angle - 90)}deg)`,
               transformOrigin: "50% 50%",
               left: "50%",
               top: "50%",
-              marginLeft: "-8px",
-              marginTop: "-8px",
+              marginLeft: "-10px",
+              marginTop: "-10px",
               fontSize: "10px",
+              whiteSpace: "pre-line",
+              textAlign: "center",
             }}
           >
             {item.value}
@@ -199,12 +207,12 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
       </div>
 
       {/* Zone verte d'arrière-plan */}
-      <div className="absolute inset-4 bg-green-500 opacity-20 rounded-full"></div>
+      <div className="absolute inset-3 bg-green-500 opacity-20 rounded-full"></div>
 
       {/* Bouton rotatif principal */}
       <div
         ref={rotaryRef}
-        className="relative w-48 h-48 rounded-full border-gray-600 cursor-grab active:cursor-grabbing touch-manipulation select-none"
+        className="relative w-56 h-56 rounded-full border-gray-600 cursor-grab active:cursor-grabbing touch-manipulation select-none"
         onMouseDown={handleRotaryMouseDown}
         onTouchStart={handleRotaryTouchStart}
         style={{
@@ -214,12 +222,12 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
         }}
       >
         {/* Centre du bouton avec effet 3D */}
-        <div className="absolute inset-10 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300 pointer-events-none">
-          <div className="absolute inset-3 bg-gradient-to-br from-green-100 to-green-300 rounded-full pointer-events-none">
+        <div className="absolute inset-12 bg-gradient-to-br from-green-200 to-green-400 rounded-full shadow-inner border border-gray-300 pointer-events-none">
+          <div className="absolute inset-4 bg-gradient-to-br from-green-100 to-green-300 rounded-full pointer-events-none">
             {/* Indicateur principal - barre verticale au centre */}
-            <div className="absolute top-1/2 left-1/2 w-4 h-24 bg-green-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 w-5 h-28 bg-green-800 rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md pointer-events-none">
               {/* Petit indicateur oval blanc à l'extrémité de la barre */}
-              <div className="absolute top-1 left-1/2 w-1.5 h-3 bg-white rounded-full transform -translate-x-1/2 pointer-events-none"></div>
+              <div className="absolute top-1 left-1/2 w-2 h-4 bg-white rounded-full transform -translate-x-1/2 pointer-events-none"></div>
             </div>
           </div>
         </div>
