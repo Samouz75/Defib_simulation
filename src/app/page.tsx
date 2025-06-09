@@ -34,6 +34,10 @@ const DefibInterface: React.FC = () => {
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
+  
+  // Références pour les timers de boot
+  const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Event handlers
   const handleJoystickPositionChange = (
@@ -101,6 +105,16 @@ const DefibInterface: React.FC = () => {
   const handleModeChange = (newMode: DisplayMode) => {
     // Si on bascule vers ARRET, arrêter immédiatement toute animation de démarrage
     if (newMode === "ARRET") {
+      // Annuler tous les timers en cours
+      if (bootTimeoutRef.current) {
+        clearTimeout(bootTimeoutRef.current);
+        bootTimeoutRef.current = null;
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
@@ -114,23 +128,30 @@ const DefibInterface: React.FC = () => {
       setTargetMode(newMode);
       setBootProgress(0);
       
-      const progressInterval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setBootProgress(prev => {
           const newProgress = prev + 2; // 2% toutes les 100ms = 5 secondes
           if (newProgress >= 100) {
-            clearInterval(progressInterval);
+            if (progressIntervalRef.current) {
+              clearInterval(progressIntervalRef.current);
+              progressIntervalRef.current = null;
+            }
           }
           return Math.min(newProgress, 100);
         });
       }, 100);
       
       // Après 5 secondes, passer au mode ciblé
-      setTimeout(() => {
+      bootTimeoutRef.current = setTimeout(() => {
         defibrillator.setDisplayMode(newMode);
         setIsBooting(false);
         setTargetMode(null);
         setBootProgress(0);
-        clearInterval(progressInterval);
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+        bootTimeoutRef.current = null;
       }, 5000);
     } else {
       // Changement de mode normaleme,t 
