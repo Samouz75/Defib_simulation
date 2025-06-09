@@ -3,11 +3,18 @@ import React, { useRef, useState, useEffect } from 'react';
 interface RotativeKnobProps {
   onValueChange?: (value: number) => void;
   initialValue?: number;
+  rotationSpeed?: number; // New prop to control rotation speed
 }
 
-const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue = 0 }) => {
+const RotativeKnob: React.FC<RotativeKnobProps> = ({ 
+  onValueChange, 
+  initialValue = 0, 
+  rotationSpeed = 0.5 // Default speed factor (0.5 = half speed)
+}) => {
   const [rotaryValue, setRotaryValue] = useState(initialValue);
   const [isDragging, setIsDragging] = useState(false);
+  const [lastMouseAngle, setLastMouseAngle] = useState<number | null>(null);
+  const [accumulatedRotation, setAccumulatedRotation] = useState(0);
   const rotaryRef = useRef<HTMLDivElement>(null);
 
   type PredefinedAngle = {
@@ -70,11 +77,15 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
   // === GESTION DU BOUTON ROTATIF ===
   const handleRotaryMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
+    setAccumulatedRotation(0);
+    setLastMouseAngle(null);
     e.preventDefault();
   };
 
   const handleRotaryTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
+    setAccumulatedRotation(0);
+    setLastMouseAngle(null);
     e.preventDefault();
   };
 
@@ -89,15 +100,52 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
     const angle = Math.atan2(clientY - centerY, clientX - centerX);
     const degrees = (angle * 180) / Math.PI + 90;
 
-    // Trouver l'angle prédéfini le plus proche
-    const snappedAngle = findClosestAngle(degrees);
-    
-    setRotaryValue(snappedAngle);
-    onValueChange?.(snappedAngle);
+    // Normaliser l'angle entre 0 et 360
+    const normalizedDegrees = ((degrees % 360) + 360) % 360;
+
+    if (lastMouseAngle !== null) {
+      // Calculer la différence d'angle depuis la dernière position
+      let angleDiff = normalizedDegrees - lastMouseAngle;
+      
+      // Gérer le passage par 0/360 degrés
+      if (angleDiff > 180) {
+        angleDiff -= 360;
+      } else if (angleDiff < -180) {
+        angleDiff += 360;
+      }
+
+      // Appliquer le facteur de vitesse pour ralentir la rotation
+      const scaledDiff = angleDiff * rotationSpeed;
+      const newAccumulated = accumulatedRotation + scaledDiff;
+      
+      // Seuil pour changer de cran (nécessite plus de mouvement)
+      const threshold = 15; // Augmenter cette valeur pour nécessiter plus de mouvement
+      
+      if (Math.abs(newAccumulated) > threshold) {
+        const direction = newAccumulated > 0 ? 1 : -1;
+        const currentIndex = predefinedAngles.findIndex(item => item.angle === rotaryValue);
+        const nextIndex = currentIndex + direction;
+        
+        if (nextIndex >= 0 && nextIndex < predefinedAngles.length) {
+          const newAngle = predefinedAngles[nextIndex].angle;
+          setRotaryValue(newAngle);
+          onValueChange?.(newAngle);
+          setAccumulatedRotation(0); // Réinitialiser l'accumulation
+        } else {
+          setAccumulatedRotation(newAccumulated); // Garder l'accumulation si on ne peut pas bouger
+        }
+      } else {
+        setAccumulatedRotation(newAccumulated);
+      }
+    }
+
+    setLastMouseAngle(normalizedDegrees);
   };
 
   const handleRotaryEnd = () => {
     setIsDragging(false);
+    setLastMouseAngle(null);
+    setAccumulatedRotation(0);
   };
 
   useEffect(() => {
@@ -122,7 +170,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
         document.removeEventListener("touchend", handleRotaryEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, lastMouseAngle, accumulatedRotation, rotaryValue, rotationSpeed]);
 
   const rotationAngle = rotaryValue;
 
@@ -161,7 +209,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({ onValueChange, initialValue
         onTouchStart={handleRotaryTouchStart}
         style={{
           transform: `rotate(${rotationAngle}deg)`,
-          transition: isDragging ? "none" : "transform 0.1s ease",
+          transition: isDragging ? "none" : "transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)",
           touchAction: "none",
         }}
       >
