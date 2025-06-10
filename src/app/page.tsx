@@ -251,9 +251,9 @@ const DefibInterface: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-4 sm:p-8 lg:p-20 relative">
-      {/* Menu déroulant responsive */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 lg:top-8 lg:right-8 z-50">
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">Add commentMore actions
+      {/* Menu déroulant dans le coin supérieur droit */}
+      <div className="absolute top-6 right-6 z-50">
         <DropdownMenu
           onMenuItemSelect={handleMenuItemSelect}
           onScenarioSelect={handleScenarioSelect}
