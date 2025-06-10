@@ -4,6 +4,8 @@ import ECGDisplay from "../graphsdata/ECGDisplay";
 
 const StimulateurDisplay: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
+  const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
+  const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
 
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -172,14 +174,19 @@ const StimulateurDisplay: React.FC = () => {
         {showMenu && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
             <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
-              {/* En-tête du menu */}
+
               <div className="bg-gray-400 px-4 py-2 border-b border-black">
                 <h3 className="text-black font-bold text-sm">Menu principal</h3>
               </div>
               
-              {/* Items du menu */}
               <div className="flex flex-col">
-                <div className="bg-blue-600 px-4 py-2 border-b border-gray-500">
+                <div 
+                  className="bg-blue-600 px-4 py-2 border-b border-gray-500 hover:bg-blue-700 cursor-pointer"
+                  onClick={() => {
+                    setShowStimulationModeMenu(true);
+                    setShowMenu(false);
+                  }}
+                >
                   <span className="text-white font-medium text-sm">Mode stimulation</span>
                 </div>
                 <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
@@ -201,6 +208,57 @@ const StimulateurDisplay: React.FC = () => {
             <div 
               className="fixed inset-0 bg-black bg-opacity-0 -z-10"
               onClick={() => setShowMenu(false)}
+            ></div>
+          </div>
+        )}
+
+        {/* Menu Mode Stimulation */}
+        {showStimulationModeMenu && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
+              {/* En-tête du sous-menu */}
+              <div className="bg-gray-400 px-4 py-2 border-b border-black">
+                <h3 className="text-black font-bold text-sm">Mode stimulation</h3>
+              </div>
+              
+              <div className="flex flex-col">
+                <div 
+                  className={`px-4 py-2 border-b border-gray-500 cursor-pointer ${
+                    selectedStimulationMode === "Sentinelle" ? "bg-blue-600" : "bg-gray-300 hover:bg-gray-200"
+                  }`}
+                  onClick={() => {
+                    setSelectedStimulationMode("Sentinelle");
+                    setShowStimulationModeMenu(false);
+                  }}
+                >
+                  <span className={`text-sm font-medium ${
+                    selectedStimulationMode === "Sentinelle" ? "text-white" : "text-black"
+                  }`}>
+                    Sentinelle
+                  </span>
+                </div>
+                <div 
+                  className={`px-4 py-2 cursor-pointer ${
+                    selectedStimulationMode === "Fixe" ? "bg-blue-600" : "bg-gray-300 hover:bg-gray-200"
+                  }`}
+                  onClick={() => {
+                    setSelectedStimulationMode("Fixe");
+                    setShowStimulationModeMenu(false);
+                  }}
+                >
+                  <span className={`text-sm font-medium ${
+                    selectedStimulationMode === "Fixe" ? "text-white" : "text-black"
+                  }`}>
+                    Fixe
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Overlay pour fermer le sous-menu */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+              onClick={() => setShowStimulationModeMenu(false)}
             ></div>
           </div>
         )}
