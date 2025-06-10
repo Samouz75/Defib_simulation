@@ -32,7 +32,7 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
         
         <div className="space-y-4 text-gray-300">
           <div>
-            <p className="text-sm mb-3">{scenario.description}</p>
+            <p className="text-sm mb-3 text-justify">{scenario.description}</p>
             
             <div className="grid grid-cols-2 gap-4 mb-4">
           
