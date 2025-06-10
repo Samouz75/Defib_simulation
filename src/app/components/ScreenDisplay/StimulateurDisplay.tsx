@@ -7,7 +7,17 @@ const StimulateurDisplay: React.FC = () => {
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
   const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
 
-  return (
+   
+  const [showReglagesStimulateur, setShowReglagesStimulateur] = useState(false);
+  const [showReglagesStimulateurMenu, setShowReglagesStimulateurMenu] = useState(false);
+  const [selectedFrequenceMode, setSelectedFrequenceMode] = useState("Fixe");
+  const [selectedIntensiteMode, setSelectedIntensiteMode] = useState("Fixe");
+  const [frequenceValue, setFrequenceValue] = useState(70);
+
+
+  
+
+return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
       <div className="h-full flex flex-col">
         {/* Rangée 1 - En-tête */}
@@ -134,7 +144,7 @@ const StimulateurDisplay: React.FC = () => {
             </div>
 
             <div className="flex flex-row gap-4 ml-5 py-3">
-              <span className="font-bold text-xl">70 ppm</span>
+              <span className="font-bold text-xl">{frequenceValue} ppm</span>
               <span className="font-bold text-xl">30 mA</span>
             </div>
           </div>
@@ -157,9 +167,12 @@ const StimulateurDisplay: React.FC = () => {
           <div className="flex">
           
             <div className="flex items-center gap-2">
-            <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
+              <button 
+                className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 hover:bg-gray-400 transition-colors"
+                onClick={() => setShowReglagesStimulateur(!showReglagesStimulateur)}
+              >
                 <span>Réglages stimulateur</span>
-              </div>
+              </button>
                              <button 
                  className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs hover:bg-gray-400 transition-colors"
                  onClick={() => setShowMenu(!showMenu)}
@@ -255,10 +268,93 @@ const StimulateurDisplay: React.FC = () => {
               </div>
             </div>
             
-            {/* Overlay pour fermer le sous-menu */}
             <div 
               className="fixed inset-0 bg-black bg-opacity-0 -z-10"
               onClick={() => setShowStimulationModeMenu(false)}
+            ></div>
+          </div>
+        )}
+
+        {/* Menu Réglages Stimulateur */}
+        {showReglagesStimulateur && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
+              {/* En-tête du menu */}
+              <div className="bg-blue-600 px-4 py-2 border-b border-black">
+                <h3 className="text-black font-bold text-sm ">Réglages stimulateur</h3>
+              </div>
+              
+              <div className="flex flex-col">
+             
+                <div 
+                  className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => {
+                    setShowReglagesStimulateurMenu(true);
+                    setShowReglagesStimulateur(false);
+                  }}
+                >
+                  <span className="text-black text-sm">Fréquence stimulation</span>
+                </div>
+                <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
+                  <span className="text-black text-sm">Intensité stimulation</span>
+                </div>
+                <div 
+                  className="bg-gray-300 px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => setShowReglagesStimulateur(false)}
+                >
+                  <span className="text-black text-sm">Fin</span>
+                </div>
+              </div>
+            </div>
+            
+             <div 
+               className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+               onClick={() => setShowReglagesStimulateur(false)}
+             ></div>
+           </div>
+         )}
+
+        {/* Menu Fréquence Stimulation */}
+        {showReglagesStimulateurMenu && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
+              <div className="bg-blue-600 px-4 py-2 border-b border-black">
+                <h3 className="text-white font-bold text-sm">Fréquence stimulation</h3>
+              </div>
+              
+              <div className="flex flex-col items-center py-4">
+                <button 
+                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-2"
+                  onClick={() => setFrequenceValue(prev => Math.min(prev + 5, 200))}
+                >
+                  ▲
+                </button>
+                
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-black text-3xl font-bold">{frequenceValue}</span>
+                  <span className="text-black text-sm">ppm</span>
+                </div>
+                
+                <button 
+                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-4"
+                  onClick={() => setFrequenceValue(prev => Math.max(prev - 5, 30))}
+                >
+                  ▼
+                </button>
+                
+                <button 
+                  className="bg-gray-400 hover:bg-gray-500 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium"
+                  onClick={() => setShowReglagesStimulateurMenu(false)}
+                >
+                  Fin
+                </button>
+              </div>
+            </div>
+            
+            {/* Overlay pour fermer le sous-menu */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+              onClick={() => setShowReglagesStimulateurMenu(false)}
             ></div>
           </div>
         )}
