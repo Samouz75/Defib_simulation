@@ -251,7 +251,7 @@ const DefibInterface: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">Add commentMore actions
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">
       {/* Menu déroulant dans le coin supérieur droit */}
       <div className="absolute top-6 right-6 z-50">
         <DropdownMenu
