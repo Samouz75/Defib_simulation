@@ -10,9 +10,9 @@ const StimulateurDisplay: React.FC = () => {
    
   const [showReglagesStimulateur, setShowReglagesStimulateur] = useState(false);
   const [showReglagesStimulateurMenu, setShowReglagesStimulateurMenu] = useState(false);
-  const [selectedFrequenceMode, setSelectedFrequenceMode] = useState("Fixe");
-  const [selectedIntensiteMode, setSelectedIntensiteMode] = useState("Fixe");
+  const [showIntensiteMenu, setShowIntensiteMenu] = useState(false);
   const [frequenceValue, setFrequenceValue] = useState(70);
+  const [intensiteValue, setIntensiteValue] = useState(30);
 
 
   
@@ -145,7 +145,7 @@ return (
 
             <div className="flex flex-row gap-4 ml-5 py-3">
               <span className="font-bold text-xl">{frequenceValue} ppm</span>
-              <span className="font-bold text-xl">30 mA</span>
+              <span className="font-bold text-xl">{intensiteValue} mA</span>
             </div>
           </div>
         </div>
@@ -295,7 +295,13 @@ return (
                 >
                   <span className="text-black text-sm">Fréquence stimulation</span>
                 </div>
-                <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
+                <div 
+                  className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => {
+                    setShowIntensiteMenu(true);
+                    setShowReglagesStimulateur(false);
+                  }}
+                >
                   <span className="text-black text-sm">Intensité stimulation</span>
                 </div>
                 <div 
@@ -351,10 +357,53 @@ return (
               </div>
             </div>
             
-            {/* Overlay pour fermer le sous-menu */}
             <div 
               className="fixed inset-0 bg-black bg-opacity-0 -z-10"
               onClick={() => setShowReglagesStimulateurMenu(false)}
+            ></div>
+          </div>
+        )}
+
+        {/* Menu Intensité Stimulation */}
+        {showIntensiteMenu && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
+              <div className="bg-blue-600 px-4 py-2 border-b border-black">
+                <h3 className="text-white font-bold text-sm">Intensité stimulation</h3>
+              </div>
+              
+              <div className="flex flex-col items-center py-4">
+                <button 
+                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-2"
+                  onClick={() => setIntensiteValue(prev => Math.min(prev + 5, 200))}
+                >
+                  ▲
+                </button>
+                
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-black text-3xl font-bold">{intensiteValue}</span>
+                  <span className="text-black text-sm">mA</span>
+                </div>
+                
+                <button 
+                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-4"
+                  onClick={() => setIntensiteValue(prev => Math.max(prev - 5, 5))}
+                >
+                  ▼
+                </button>
+                
+                <button 
+                  className="bg-gray-400 hover:bg-gray-500 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium"
+                  onClick={() => setShowIntensiteMenu(false)}
+                >
+                  Fin
+                </button>
+              </div>
+            </div>
+            
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+              onClick={() => setShowIntensiteMenu(false)}
             ></div>
           </div>
         )}
