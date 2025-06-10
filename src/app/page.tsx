@@ -16,9 +16,11 @@ import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
 import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
+import DropdownMenu from "./components/DropdownMenu";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
+import { NotificationService } from "./services/NotificationService";
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
 const DefibInterface: React.FC = () => {
@@ -170,6 +172,23 @@ const DefibInterface: React.FC = () => {
     }
   };
 
+  // Gestionnaires pour le menu déroulant
+  const handleMenuItemSelect = async (action: string) => {
+    console.log("Menu action:", action);
+  };
+
+  const handleScenarioSelect = async (scenarioId: string) => {
+    const scenarioNames: { [key: string]: string } = {
+      'scenario_1': '',
+      'scenario_2': '',
+      'scenario_3': '',
+      'scenario_4': ''
+    };
+    
+    await NotificationService.showSuccess(`Scénario sélectionné: ${scenarioNames[scenarioId]}`);
+  };
+
+
   const renderScreenContent = () => {
     if (isBooting) {
       return (
@@ -238,7 +257,15 @@ const DefibInterface: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20">
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">
+      {/* Menu déroulant dans le coin supérieur droit */}
+      <div className="absolute top-6 right-6 z-50">
+        <DropdownMenu
+          onMenuItemSelect={handleMenuItemSelect}
+          onScenarioSelect={handleScenarioSelect}
+        />
+      </div>
+
       <div
         ref={containerRef}
         style={{
