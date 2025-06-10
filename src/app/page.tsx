@@ -60,8 +60,8 @@ const DefibInterface: React.FC = () => {
       description: "Observez le tracé ECG sur l'écran pendant quelques secondes",
     },
     {
-      title: "Analyser le rythme : Fibrillation Ventriculaire détectée",
-      description: "Le rythme cardiaque analysé indique une fibrillation ventriculaire",
+      title: "Analyser le rythme",
+      description: "Arrêter le massage pour analyser le rythme: Fibrillation ventriculaire détectée",
     },
     {
       title: "Positionner la mollette sur 150 joules",
