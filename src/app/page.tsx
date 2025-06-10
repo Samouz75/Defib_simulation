@@ -20,7 +20,7 @@ import DropdownMenu from "./components/DropdownMenu";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
-import { NotificationService } from "./services/NotificationService";
+
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
 const DefibInterface: React.FC = () => {
@@ -178,14 +178,8 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleScenarioSelect = async (scenarioId: string) => {
-    const scenarioNames: { [key: string]: string } = {
-      'scenario_1': '',
-      'scenario_2': '',
-      'scenario_3': '',
-      'scenario_4': ''
-    };
-    
-    await NotificationService.showSuccess(`Scénario sélectionné: ${scenarioNames[scenarioId]}`);
+    // Scénario sélectionné - pas de notification
+    console.log(`Scénario sélectionné: ${scenarioId}`);
   };
 
 
