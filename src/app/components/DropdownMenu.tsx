@@ -10,12 +10,14 @@ interface DropdownMenuProps {
   onMenuItemSelect?: (action: string) => void;
   onScenarioSelect?: (scenarioId: string) => void;
   onModeSelect?: (mode: string) => void;
+  onStartScenario?: (scenarioId: string) => void;
 }
 
 const DropdownMenu: React.FC<DropdownMenuProps> = ({ 
   onMenuItemSelect, 
   onScenarioSelect, 
-  onModeSelect 
+  onModeSelect,
+  onStartScenario
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -161,6 +163,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         isOpen={modals.showScenarioModal} 
         onClose={modals.closeScenario}
         scenarioId={modals.selectedScenario}
+        onStartScenario={onStartScenario || (() => {})}
       />
     </>
   );
