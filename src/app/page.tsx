@@ -22,6 +22,7 @@ import DropdownMenu from "./components/DropdownMenu";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
+import ScenarioModal from "./components/modals/ScenarioModal";
 
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
@@ -48,6 +49,8 @@ const DefibInterface: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [showScenarioComplete, setShowScenarioComplete] = useState(false);
   const [showStepHelp, setShowStepHelp] = useState(false);
+  const [showScenarioModal, setShowScenarioModal] = useState(false);
+  const [selectedScenarioForModal, setSelectedScenarioForModal] = useState<string | null>(null);
 
   // Définition des étapes du scénario 1
   const scenario1Steps = [
@@ -82,7 +85,7 @@ const DefibInterface: React.FC = () => {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const stepValidationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  
   // Fonction pour valider une étape du scénario
   const validateScenarioStep = (stepNumber: number) => {
     if (currentScenario === "scenario_1" && currentStep === stepNumber) {
@@ -207,7 +210,6 @@ const DefibInterface: React.FC = () => {
     }
   };
 
-  // Event handlers
   const handleJoystickPositionChange = (
     position: "center" | "up" | "down" | "left" | "right",
   ) => {
@@ -263,7 +265,7 @@ const DefibInterface: React.FC = () => {
       defibrillator.deliverShock();
       
       // Validation scénario 1 - étape 6 : délivrer le choc
-      if (currentScenario === "scenario_1") {
+      if (currentScenario === "scenario_1" && defibrillator.chargeProgress === 100) {
         validateScenarioStep(5);
       }
     }
@@ -297,13 +299,20 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleScenarioSelect = async (scenarioId: string) => {
-    // Scénario sélectionné - démarrer le scénario
-    console.log(`Scénario sélectionné: ${scenarioId}`);
-    if (scenarioId === "scenario_1") {
-      startScenario("scenario_1");
-    }
+    // Scénario sélectionné - ouvrir le modal avec les détails du scénario
+    setSelectedScenarioForModal(scenarioId);
+    setShowScenarioModal(true);
+    // Masquer le scénario courant si un nouveau est sélectionné via le menu
+    setCurrentScenario(null);
+    setCurrentStep(0);
+    setShowScenarioComplete(false);
   };
 
+  const handleStartScenarioFromModal = (scenarioId: string) => {
+    startScenario(scenarioId);
+    setShowScenarioModal(false); 
+    setSelectedScenarioForModal(null);
+  };
 
   const renderScreenContent = () => {
     if (isBooting) {
@@ -382,12 +391,20 @@ const DefibInterface: React.FC = () => {
         />
       </div>
 
+      {/* Popup de scénario en attente */}
+      <ScenarioModal
+        isOpen={showScenarioModal}
+        onClose={() => setShowScenarioModal(false)}
+        scenarioId={selectedScenarioForModal}
+        onStartScenario={handleStartScenarioFromModal}
+      />
+
       {/* Popup de scénario */}
       {currentScenario && (
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
-              Scénario 1 - Étape {currentStep + 1}/{scenario1Steps.length}
+              Scénario 1 - Étape {currentStep}/{scenario1Steps.length}
             </h2>
             <button
               onClick={() => setShowStepHelp(!showStepHelp)}

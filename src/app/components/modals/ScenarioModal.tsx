@@ -6,9 +6,10 @@ interface ScenarioModalProps {
   isOpen: boolean;
   onClose: () => void;
   scenarioId: string | null;
+  onStartScenario: (scenarioId: string) => void;
 }
 
-const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenarioId }) => {
+const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenarioId, onStartScenario }) => {
   if (!isOpen || !scenarioId) return null;
 
   const scenario = SCENARIOS.find(s => s.id === scenarioId);
@@ -62,7 +63,9 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
           </button>
           <button
             onClick={() => {
-              console.log(`Démarrer ${scenarioId}`);
+              if (scenarioId) {
+                onStartScenario(scenarioId);
+              }
               onClose();
             }}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
