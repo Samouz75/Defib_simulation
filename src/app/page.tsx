@@ -23,6 +23,7 @@ import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
 import ScenarioModal from "./components/modals/ScenarioModal";
+import { useScenario } from "./hooks/useScenario";
 
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
@@ -30,6 +31,7 @@ const DefibInterface: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scale = useResponsiveScale();
   const defibrillator = useDefibrillator();
+  const scenario = useScenario();
 
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<
@@ -44,88 +46,12 @@ const DefibInterface: React.FC = () => {
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
 
-  // État pour le scénario
-  const [currentScenario, setCurrentScenario] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [showScenarioComplete, setShowScenarioComplete] = useState(false);
-  const [showStepHelp, setShowStepHelp] = useState(false);
-  const [showScenarioModal, setShowScenarioModal] = useState(false);
-  const [selectedScenarioForModal, setSelectedScenarioForModal] = useState<string | null>(null);
-
-  // Définition des étapes du scénario 1
-  const scenario1Steps = [
-    {
-      title: "Allumer le défibrillateur en position moniteur",
-      description: "Tournez la mollette verte pour passer du mode ARRÊT au mode Moniteur",
-    },
-    {
-      title: "Lire le rythme",
-      description: "Observez le tracé ECG sur l'écran pendant quelques secondes",
-    },
-    {
-      title: "Analyser le rythme",
-      description: "Arrêter le massage pour analyser le rythme: Fibrillation ventriculaire détectée",
-    },
-    {
-      title: "Positionner la mollette sur 150 joules",
-      description: "Tournez la mollette verte pour sélectionner une énergie de 150J",
-    },
-    {
-      title: "Appuyer sur le bouton charge (jaune)",
-      description: "Pressez le bouton jaune marqué 'Charge' pour charger le défibrillateur",
-    },
-    {
-      title: "Délivrer le choc (bouton orange)",
-      description: "Pressez le bouton orange marqué 'Choc' pour délivrer l'énergie",
-    },
-  ];
-
   // Références pour les timers de boot
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const stepValidationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Fonction pour valider une étape du scénario
-  const validateScenarioStep = (stepNumber: number) => {
-    if (currentScenario === "scenario_1" && currentStep === stepNumber) {
-      setCurrentStep(stepNumber + 1);
-      
-      if (stepNumber + 1 >= scenario1Steps.length) {
-        // Scénario terminé - nettoyer les timers
-        if (scenarioTimeoutRef.current) {
-          clearTimeout(scenarioTimeoutRef.current);
-          scenarioTimeoutRef.current = null;
-        }
-        
-        setShowScenarioComplete(true);
-        setTimeout(() => {
-          setCurrentScenario(null);
-          setCurrentStep(0);
-          setShowScenarioComplete(false);
-        }, 3000);
-      }
-    }
-  };
-
-  // Fonction pour valider manuellement l'étape courante
-  const handleManualValidation = () => {
-    if (currentScenario === "scenario_1") {
-      // Pour les étapes 2 et 3 (indices 1 et 2), permettre la validation manuelle
-      if (currentStep === 1 || currentStep === 2) {
-        validateScenarioStep(currentStep);
-      }
-    }
-  };
-
-  // Fonction pour démarrer un scénario
-  const startScenario = (scenarioId: string) => {
-    if (scenarioId === "scenario_1") {
-      setCurrentScenario(scenarioId);
-      setCurrentStep(0);
-      setShowScenarioComplete(false);
-    }
-  };
 
   // Fonction pour gérer la progression automatique après passage en mode Moniteur
   const startMonitoringSteps = () => {
@@ -133,7 +59,6 @@ const DefibInterface: React.FC = () => {
     if (scenarioTimeoutRef.current) {
       clearTimeout(scenarioTimeoutRef.current);
     }
-    
   };
 
   // gère changement de mode avec écran de démarrage
@@ -191,20 +116,24 @@ const DefibInterface: React.FC = () => {
           progressIntervalRef.current = null;
         }
         bootTimeoutRef.current = null;
-        
+
         // Validation scénario 1 - étape 1 : allumer en position moniteur
-        if (currentScenario === "scenario_1" && newMode === "Moniteur") {
-          validateScenarioStep(0);
+        if (scenario.currentScenario === "scenario_1" && newMode === "Moniteur") {
+          scenario.validateScenarioStep(0);
           startMonitoringSteps();
         }
       }, 5000);
     } else {
       // Changement de mode normaleme,t
       defibrillator.setDisplayMode(newMode);
-      
+
       // Validation scénario 1 - étape 1 : allumer en position moniteur (changement direct)
-      if (currentScenario === "scenario_1" && newMode === "Moniteur" && defibrillator.displayMode !== "Moniteur") {
-        validateScenarioStep(0);
+      if (
+        scenario.currentScenario === "scenario_1" &&
+        newMode === "Moniteur" &&
+        defibrillator.displayMode !== "Moniteur"
+      ) {
+        scenario.validateScenarioStep(0);
         startMonitoringSteps();
       }
     }
@@ -232,10 +161,10 @@ const DefibInterface: React.FC = () => {
     } else {
       // Pour les valeurs numériques, passer en mode Manuel
       defibrillator.setManualFrequency(newValue, handleModeChange);
-      
+
       // Validation scénario 1 - étape 4 : position 150J
-      if (currentScenario === "scenario_1" && newValue === "150") {
-        validateScenarioStep(3);
+      if (scenario.currentScenario === "scenario_1" && newValue === "150") {
+        scenario.validateScenarioStep(3);
       }
     }
   };
@@ -244,10 +173,10 @@ const DefibInterface: React.FC = () => {
     defibrillator.setSelectedChannel(2);
     if (defibrillator.displayMode === "Manuel") {
       defibrillator.startCharging();
-      
+
       // Validation scénario 1 - étape 5 : appui bouton charge
-      if (currentScenario === "scenario_1") {
-        validateScenarioStep(4);
+      if (scenario.currentScenario === "scenario_1") {
+        scenario.validateScenarioStep(4);
       }
     }
   };
@@ -263,10 +192,13 @@ const DefibInterface: React.FC = () => {
     } else if (defibrillator.displayMode === "Manuel") {
       // En mode Manuel, utiliser la logique existante
       defibrillator.deliverShock();
-      
+
       // Validation scénario 1 - étape 6 : délivrer le choc
-      if (currentScenario === "scenario_1" && defibrillator.chargeProgress === 100) {
-        validateScenarioStep(5);
+      if (
+        scenario.currentScenario === "scenario_1" &&
+        defibrillator.chargeProgress === 100
+      ) {
+        scenario.validateScenarioStep(5);
       }
     }
   };
@@ -296,22 +228,6 @@ const DefibInterface: React.FC = () => {
   // Gestionnaires pour le menu déroulant
   const handleMenuItemSelect = async (action: string) => {
     console.log("Menu action:", action);
-  };
-
-  const handleScenarioSelect = async (scenarioId: string) => {
-    // Scénario sélectionné - ouvrir le modal avec les détails du scénario
-    setSelectedScenarioForModal(scenarioId);
-    setShowScenarioModal(true);
-    // Masquer le scénario courant si un nouveau est sélectionné via le menu
-    setCurrentScenario(null);
-    setCurrentStep(0);
-    setShowScenarioComplete(false);
-  };
-
-  const handleStartScenarioFromModal = (scenarioId: string) => {
-    startScenario(scenarioId);
-    setShowScenarioModal(false); 
-    setSelectedScenarioForModal(null);
   };
 
   const renderScreenContent = () => {
@@ -387,75 +303,77 @@ const DefibInterface: React.FC = () => {
       <div className="absolute top-6 right-6 z-50">
         <DropdownMenu
           onMenuItemSelect={handleMenuItemSelect}
-          onScenarioSelect={handleScenarioSelect}
+          onScenarioSelect={scenario.handleScenarioSelect}
         />
       </div>
 
       {/* Popup de scénario en attente */}
       <ScenarioModal
-        isOpen={showScenarioModal}
-        onClose={() => setShowScenarioModal(false)}
-        scenarioId={selectedScenarioForModal}
-        onStartScenario={handleStartScenarioFromModal}
+        isOpen={scenario.showScenarioModal}
+        onClose={() => scenario.closeScenarioModal()}
+        scenarioId={scenario.selectedScenarioForModal}
+        onStartScenario={scenario.handleStartScenarioFromModal}
       />
 
       {/* Popup de scénario */}
-      {currentScenario && (
+      {scenario.currentScenario && (
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
-              Scénario 1 - Étape {currentStep}/{scenario1Steps.length}
+              Scénario 1 - Étape {scenario.currentStep}/{scenario.scenario1Steps.length}
             </h2>
             <button
-              onClick={() => setShowStepHelp(!showStepHelp)}
+              onClick={() => scenario.toggleStepHelp()}
               className="p-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
             >
               <HelpCircle size={14} />
             </button>
           </div>
-          
+
           <div className="mb-2">
             <h3 className="font-medium text-gray-700 text-xs mb-1">
-              {scenario1Steps[currentStep]?.title}
+              {scenario.scenario1Steps[scenario.currentStep]?.title}
             </h3>
-            
-            {showStepHelp && (
+
+            {scenario.showStepHelp && (
               <div className="bg-blue-50 border-l-2 border-blue-400 p-2 rounded text-xs">
                 <p className="text-blue-800">
-                  {scenario1Steps[currentStep]?.description}
+                  {scenario.scenario1Steps[scenario.currentStep]?.description}
                 </p>
               </div>
             )}
           </div>
-          
+
           {/* Bouton Valider pour les étapes 2 et 3 */}
-          {(currentStep === 1 || currentStep === 2) && (
+          {(scenario.currentStep === 1 || scenario.currentStep === 2) && (
             <div className="mb-2">
               <button
-                onClick={handleManualValidation}
+                onClick={scenario.handleManualValidation}
                 className="w-full bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1 px-3 rounded transition-colors"
               >
                 Valider cette étape
               </button>
             </div>
           )}
-          
+
           {/* Barre de progression */}
           <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
-            <div 
+            <div
               className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
-              style={{ width: `${((currentStep) / scenario1Steps.length) * 100}%` }}
+              style={{
+                width: `${(scenario.currentStep / scenario.scenario1Steps.length) * 100}%`,
+              }}
             ></div>
           </div>
-          
+
           <div className="text-xs text-gray-500">
-            {currentStep}/{scenario1Steps.length} étapes complétées
+            {scenario.currentStep}/{scenario.scenario1Steps.length} étapes complétées
           </div>
         </div>
       )}
 
       {/* Popup de fin de scénario */}
-      {showScenarioComplete && (
+      {scenario.showScenarioComplete && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-500 text-white rounded-lg shadow-lg p-8 text-center">
           <CheckCircle size={48} className="mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
