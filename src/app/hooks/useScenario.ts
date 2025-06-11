@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import type { RhythmType } from '../components/graphsdata/ECGRhythms';
 
 export interface ScenarioStep {
   title: string;
@@ -12,6 +13,7 @@ export interface ScenarioState {
   showStepHelp: boolean;
   showScenarioModal: boolean;
   selectedScenarioForModal: string | null;
+  currentRhythm: RhythmType; // Nouveau : rythme ECG actuel
 }
 
 export const useScenario = () => {
@@ -22,9 +24,11 @@ export const useScenario = () => {
     showStepHelp: false,
     showScenarioModal: false,
     selectedScenarioForModal: null,
+    currentRhythm: 'sinus', // Par défaut : rythme sinusal
   });
 
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const rhythmTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Définition des étapes du scénario 1
   const scenario1Steps: ScenarioStep[] = [
@@ -63,6 +67,11 @@ export const useScenario = () => {
       const newStep = stepNumber + 1;
       updateState({ currentStep: newStep });
       
+      // Étape 6 terminée (choc délivré) : déclencher le changement de rythme
+      if (stepNumber === 5) { // Index 5 = étape 6
+        triggerRhythmTransition();
+      }
+      
       if (newStep >= scenario1Steps.length) {
         // Scénario terminé - nettoyer les timers
         if (scenarioTimeoutRef.current) {
@@ -76,10 +85,27 @@ export const useScenario = () => {
             currentScenario: null,
             currentStep: 0,
             showScenarioComplete: false,
+            currentRhythm: 'sinus', // Retour au rythme sinusal après le scénario
           });
         }, 3000);
       }
     }
+  };
+
+  const triggerRhythmTransition = () => {
+    // Transition progressive FV → sinusal après le choc
+    console.log('Déclenchement de la transition rythmique : FV → Sinusal');
+    
+    // Nettoyer tout timer de transition existant
+    if (rhythmTransitionTimeoutRef.current) {
+      clearTimeout(rhythmTransitionTimeoutRef.current);
+    }
+    
+    // Transition vers le rythme sinusal après 2 secondes
+    rhythmTransitionTimeoutRef.current = setTimeout(() => {
+      updateState({ currentRhythm: 'sinus' });
+      console.log('Transition rythmique terminée : retour au rythme sinusal');
+    }, 2000);
   };
 
   const handleManualValidation = () => {
@@ -97,7 +123,9 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
+        currentRhythm: 'fibrillation', // Démarrer avec la fibrillation ventriculaire
       });
+      console.log('Scénario 1 démarré : passage en fibrillation ventriculaire');
     }
   };
 
@@ -136,6 +164,10 @@ export const useScenario = () => {
       clearTimeout(scenarioTimeoutRef.current);
       scenarioTimeoutRef.current = null;
     }
+    if (rhythmTransitionTimeoutRef.current) {
+      clearTimeout(rhythmTransitionTimeoutRef.current);
+      rhythmTransitionTimeoutRef.current = null;
+    }
   };
 
   return {
@@ -151,6 +183,7 @@ export const useScenario = () => {
     handleStartScenarioFromModal,
     toggleStepHelp,
     closeScenarioModal,
+    triggerRhythmTransition,
     cleanup,
   };
 };

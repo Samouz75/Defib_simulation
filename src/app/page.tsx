@@ -275,9 +275,11 @@ const DefibInterface: React.FC = () => {
       case "Moniteur":
         return (
           <div className="relative w-full h-full">
-            <MonitorDisplay />
+            <MonitorDisplay rhythmType={scenario.currentRhythm} />
             <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
-              <span>Rythme sinusal</span>
+              <span>
+                {scenario.currentRhythm === 'fibrillation' ? 'Fibrillation ventriculaire' : 'Rythme sinusal'}
+              </span>
             </div>
           </div>
         );
@@ -290,10 +292,11 @@ const DefibInterface: React.FC = () => {
             chargeProgress={defibrillator.chargeProgress}
             shockCount={defibrillator.shockCount}
             isCharging={defibrillator.isCharging}
+            rhythmType={scenario.currentRhythm}
           />
         );
       default:
-        return <MonitorDisplay />;
+        return <MonitorDisplay rhythmType={scenario.currentRhythm} />;
     }
   };
 

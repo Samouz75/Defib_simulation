@@ -1,19 +1,21 @@
 import React from "react";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
+import type { RhythmType } from "../graphsdata/ECGRhythms";
 
 interface ManuelDisplayProps {
   frequency: string; // Fréquence cardiaque manuelle (1-200)
   chargeProgress: number; // 0-100 pour la barre de progression
   shockCount: number; // Nombre de chocs délivrés
   isCharging: boolean; // État de charge en cours
+  rhythmType?: RhythmType; // Nouveau prop pour le rythme ECG
 }
 
 const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
   frequency,
   chargeProgress,
   shockCount,
-  
+  rhythmType = 'sinus', // Par défaut : rythme sinusal
 }) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -76,7 +78,9 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
               <div className="text-gray-400 text-xs">bpm</div>
             </div>
             <div className="flex flex-row items-center gap-x-2">
-              <div className="text-green-400 text-4xl font-bold">120</div>
+              <div className="text-green-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : '120'}
+              </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
           </div>
@@ -102,7 +106,9 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           <div className="flex flex-row  gap-x-2">
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold">120</div>
+              <div className="text-blue-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : '120'}
+              </div>
             </div>
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs mb-2">bpm</div>
@@ -112,11 +118,13 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           </div>
         </div>
 
-        {/* Row 3*/}
+        {/* Row 3 - ECG Display avec rythme dynamique */}
         <div className="h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay width={800} height={65} />
+          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
-            <span>Rythme sinusal</span>
+            <span>
+              {rhythmType === 'fibrillation' ? 'Fibrillation ventriculaire' : 'Rythme sinusal'}
+            </span>
           </div>
           <div className="w-full flex justify-start items-center gap-4 text-xs font-bold text-white">
             <div className="text-left">
@@ -139,9 +147,9 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           </div>
         </div>
 
-        {/* Row  4*/}
+        {/* Row 4 - Deuxième ECG Display avec rythme dynamique */}
         <div className=" h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-blue-400 text-sm bg-black">
-          <ECGDisplay width={800} height={65} />
+          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
         </div>
 
         {/* Row 6 */}

@@ -2,8 +2,15 @@ import React from 'react';
 import ECGDisplay from '../graphsdata/ECGDisplay';
 import PlethDisplay from '../graphsdata/PlethDisplay';
 import TimerDisplay from '../TimerDisplay';
+import type { RhythmType } from '../graphsdata/ECGRhythms';
 
-const MonitorDisplay: React.FC = () => {
+interface MonitorDisplayProps {
+  rhythmType?: RhythmType;
+}
+
+const MonitorDisplay: React.FC<MonitorDisplayProps> = ({ 
+  rhythmType = 'sinus' 
+}) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
       <div className="h-full flex flex-col">
@@ -67,7 +74,9 @@ const MonitorDisplay: React.FC = () => {
               <div className="text-gray-400 text-xs">bpm</div>
             </div>
             <div className="flex flex-row items-center gap-x-2">
-              <div className="text-green-400 text-4xl font-bold">70</div>
+              <div className="text-green-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : '70'}
+              </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
           </div>
@@ -93,7 +102,9 @@ const MonitorDisplay: React.FC = () => {
           <div className="flex flex-row items-center gap-x-2">
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold">70</div>
+              <div className="text-blue-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : '70'}
+              </div>
             </div>
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs mb-2">bpm</div>
@@ -155,9 +166,9 @@ const MonitorDisplay: React.FC = () => {
           </div>
         </div>
 
-        {/* Row 3*/}
+        {/* Row 3 - ECG Display avec rythme dynamique */}
         <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay width={800} height={45} />
+          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
         </div>
 
         {/* Row  4*/}
@@ -193,4 +204,4 @@ const MonitorDisplay: React.FC = () => {
   );
 };
 
-export default MonitorDisplay; 
+export default MonitorDisplay;

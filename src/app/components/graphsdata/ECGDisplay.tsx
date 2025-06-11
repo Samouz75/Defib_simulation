@@ -1,29 +1,25 @@
 import React, { useRef, useEffect } from "react";
+import { getRhythmData, type RhythmType } from "./ECGRhythms";
 
 interface ECGDisplayProps {
   width?: number;
   height?: number;
+  rhythmType?: RhythmType;
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
   width = 800,
   height = 80,
+  rhythmType = 'sinus', // Par défaut : rythme sinusal
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
-
-  // Données du rythme sinusal normal
-  const sinusRhythm = [
-    2, 2, 3, 3, 4, 6, 7, 7, 7, 6, 3, 2, 2, 1, 2, 1, 2, 1, 2, 5, 83, 11, 8, 6, 4,
-    3, 3, 3, 3, 4, 4, 5, 9, 14, 17, 19, 16, 12, 10, 6, 3, 2, 2, 2, 2, 1, 2, 5,
-    7, 7, 6, 3, 2, 2, 2, 3, 86, 14, 9, 6, 5, 4, 5, 7, 7, 7, 9, 12, 16, 20, 22,
-    21, 18, 14, 10, 5, 4, 4, 3, 3, 3,
-  ];
 
   // État de l'animation
   const animationState = useRef({
     offset: 0,
     ecgStream: [] as number[],
+    currentRhythmType: rhythmType,
   });
 
   useEffect(() => {
@@ -33,19 +29,27 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const initializeECGStream = () => {
+    const initializeECGStream = (newRhythmType: RhythmType) => {
       const state = animationState.current;
-      const repeats = Math.ceil(width / sinusRhythm.length) + 2;
+      const rhythmData = getRhythmData(newRhythmType);
+      const repeats = Math.ceil(width / rhythmData.length) + 2;
       state.ecgStream = [];
 
       for (let i = 0; i < repeats; i++) {
-        state.ecgStream = state.ecgStream.concat([...sinusRhythm]);
+        state.ecgStream = state.ecgStream.concat([...rhythmData]);
       }
+      
+      state.currentRhythmType = newRhythmType;
     };
 
-    // IMPORTANT : Appeler l'initialisation une seule fois
-    if (animationState.current.ecgStream.length === 0) {
-      initializeECGStream();
+    // Initialiser ou réinitialiser si le rythme a changé
+    if (
+      animationState.current.ecgStream.length === 0 || 
+      animationState.current.currentRhythmType !== rhythmType
+    ) {
+      initializeECGStream(rhythmType);
+      // Réinitialiser l'offset lors du changement de rythme
+      animationState.current.offset = 0;
     }
 
     const drawECG = () => {
@@ -76,10 +80,13 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       ctx.stroke();
 
       // Avancer l'offset (vitesse du tracé)
-      state.offset += 1;
+      // Vitesse différente selon le rythme 
+      const speed = rhythmType === 'fibrillation' ? 2 : 1;
+      state.offset += speed;
 
-      // Réinitialiser l'offset quand on atteint la fin d'un cycle
-      if (state.offset >= sinusRhythm.length) {
+      // Obtenir la longueur du rythme actuel pour le cycle
+      const currentRhythmData = getRhythmData(rhythmType);
+      if (state.offset >= currentRhythmData.length) {
         state.offset = 0;
       }
 
@@ -132,7 +139,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height]);
+  }, [width, height, rhythmType]); // Ajouter rhythmType aux dépendances
 
   return (
     <div className="flex flex-col bg-black rounded w-full">
