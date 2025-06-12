@@ -93,19 +93,19 @@ export const useScenario = () => {
   };
 
   const triggerRhythmTransition = () => {
-    // Transition progressive FV → sinusal après le choc
-    console.log('Déclenchement de la transition rythmique : FV → Sinusal');
     
     // Nettoyer tout timer de transition existant
     if (rhythmTransitionTimeoutRef.current) {
       clearTimeout(rhythmTransitionTimeoutRef.current);
     }
     
-    // Transition vers le rythme sinusal après 2 secondes
+    // Phase 1: Passage immédiat en asystolie après le choc
+    updateState({ currentRhythm: 'asystole' });
+    
+    // Phase 2: Retour au rythme sinusal après 2 secondes d'asystolie
     rhythmTransitionTimeoutRef.current = setTimeout(() => {
       updateState({ currentRhythm: 'sinus' });
-      console.log('Transition rythmique terminée : retour au rythme sinusal');
-    }, 2000);
+    }, 2500);
   };
 
   const handleManualValidation = () => {

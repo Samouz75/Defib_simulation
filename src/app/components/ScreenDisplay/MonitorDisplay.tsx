@@ -75,7 +75,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillation' ? '--' : '70'}
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '0' : '70'}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
@@ -103,7 +103,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold">
-                {rhythmType === 'fibrillation' ? '--' : '70'}
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '0' : '70'}
               </div>
             </div>
             <div className="flex flex-col items-center">

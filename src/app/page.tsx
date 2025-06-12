@@ -51,7 +51,6 @@ const DefibInterface: React.FC = () => {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const stepValidationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
 
   // Fonction pour gérer la progression automatique après passage en mode Moniteur
   const startMonitoringSteps = () => {
@@ -118,7 +117,10 @@ const DefibInterface: React.FC = () => {
         bootTimeoutRef.current = null;
 
         // Validation scénario 1 - étape 1 : allumer en position moniteur
-        if (scenario.currentScenario === "scenario_1" && newMode === "Moniteur") {
+        if (
+          scenario.currentScenario === "scenario_1" &&
+          newMode === "Moniteur"
+        ) {
           scenario.validateScenarioStep(0);
           startMonitoringSteps();
         }
@@ -278,7 +280,9 @@ const DefibInterface: React.FC = () => {
             <MonitorDisplay rhythmType={scenario.currentRhythm} />
             <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
               <span>
-                {scenario.currentRhythm === 'fibrillation' ? 'Fibrillation ventriculaire' : 'Rythme sinusal'}
+                {scenario.currentRhythm === "fibrillation"
+                  ? "Fibrillation ventriculaire"
+                  : "Rythme sinusal"}
               </span>
             </div>
           </div>
@@ -323,7 +327,8 @@ const DefibInterface: React.FC = () => {
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
-              Scénario 1 - Étape {scenario.currentStep}/{scenario.scenario1Steps.length}
+              Scénario 1 - Étape {scenario.currentStep}/
+              {scenario.scenario1Steps.length}
             </h2>
             <button
               onClick={() => scenario.toggleStepHelp()}
@@ -370,7 +375,8 @@ const DefibInterface: React.FC = () => {
           </div>
 
           <div className="text-xs text-gray-500">
-            {scenario.currentStep}/{scenario.scenario1Steps.length} étapes complétées
+            {scenario.currentStep}/{scenario.scenario1Steps.length} étapes
+            complétées
           </div>
         </div>
       )}
