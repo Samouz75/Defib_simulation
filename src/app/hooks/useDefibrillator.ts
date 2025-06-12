@@ -97,7 +97,6 @@ export const useDefibrillator = () => {
       chargeProgress: 0,
     });
 
-    console.log(`Choc délivré ! Total: ${newShockCount}`);
 
     // Show notification
     NotificationService.showShockDelivered({

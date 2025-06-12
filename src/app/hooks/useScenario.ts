@@ -125,7 +125,6 @@ export const useScenario = () => {
         showScenarioComplete: false,
         currentRhythm: 'fibrillation', // Démarrer avec la fibrillation ventriculaire
       });
-      console.log('Scénario 1 démarré : passage en fibrillation ventriculaire');
     }
   };
 

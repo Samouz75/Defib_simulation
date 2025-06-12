@@ -41,7 +41,6 @@ return (
               onTimeUpdate={(seconds) => {
                 // Optionnel : log toutes les 5 minutes
                 if (seconds % 300 === 0 && seconds > 0) {
-                  console.log(`Intervention: ${Math.floor(seconds / 60)}min`);
                 }
               }}
             />
