@@ -1,5 +1,4 @@
 import React from 'react';
-import { Play, Pause, Square } from 'lucide-react';
 
 interface ButtonComponentProps {
   onButton1Click?: () => void;

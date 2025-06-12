@@ -24,6 +24,7 @@ import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
 import ScenarioModal from "./components/modals/ScenarioModal";
 import { useScenario } from "./hooks/useScenario";
+import Synchro from "./components/buttons/Synchro";
 
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
@@ -456,12 +457,7 @@ const DefibInterface: React.FC = () => {
             {/* Boutons colorés */}
             <div className="space-y-4 mt-18">
               {/* white */}
-              <div className="flex items-center gap-4">
-                <div className="flex-row">
-                  <div className="ml-8 bg-white rounded-md flex center-left w-8 h-6 rounded-lg"></div>
-                </div>
-                <span className="text-white text-xs font-bold">Synchro</span>
-              </div>
+              <Synchro/>
 
               {/* Jaune - Charge */}
               <div className="flex items-center gap-4">
