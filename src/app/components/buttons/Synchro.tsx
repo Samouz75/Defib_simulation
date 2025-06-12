@@ -18,7 +18,7 @@ const Synchro = ({ onClick, isActive = false }: SynchroProps) => {
       onClick={handleClick}
     >
       <div className="flex-row">
-        <div className={`ml-7 rounded-md flex center-left w-8 h-6 rounded-lg relative transition-all duration-400 ${
+        <div className={`ml-7 rounded-md flex items-center justify-center w-8 h-6 rounded-lg relative transition-all duration-400 ${
           isActive 
             ? 'bg-white border-4 border-blue-800 shadow-[0_0_15px_rgba(59,130,246,0.8)]' 
             : 'bg-white'

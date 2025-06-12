@@ -5,14 +5,14 @@ interface ECGDisplayProps {
   width?: number;
   height?: number;
   rhythmType?: RhythmType;
-  showSynchroArrows?: boolean; 
+  showSynchroArrows?: boolean; //afficher les flèches synchro
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
   width = 800,
   height = 80,
   rhythmType = 'sinus',
-  showSynchroArrows = false, 
+  showSynchroArrows = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -24,9 +24,10 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     offset: 0,
     currentRhythmType: rhythmType,
     pendingRhythmChange: false,
-    lastPeakPositions: [] as number[], 
+    lastPeakPositions: [] as number[], //positions des derniers pics détectés
+    peakPositions: [] as number[], // Positions absolues des pics dans ecgStream
+    lastDetectedIndex: 0, // Dernier index analysé pour les pics
   });
-
 
   const detectRPeaks = (data: number[], startIndex: number, endIndex: number): number[] => {
     const peaks: number[] = [];
@@ -43,7 +44,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
           current > data[i - 2] &&
           current > data[i + 2]) {
         
-        if (peaks.length === 0 || i - peaks[peaks.length - 1] > 50) {
+        if (peaks.length === 0 || i - peaks[peaks.length - 1] > 30) {
           peaks.push(i);
         }
       }
@@ -52,40 +53,78 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     return peaks;
   };
 
-  //Fonction pour dessiner les flèches synchro
+  const updatePeakPositions = () => {
+    if (!showSynchroArrows) return;
+    
+    const state = animationState.current;
+    
+    // Analyser seulement la nouvelle portion du stream
+    const searchStart = state.lastDetectedIndex;
+    const searchEnd = state.ecgStream.length;
+    
+    if (searchEnd > searchStart) {
+      // Détecter les nouveaux pics
+      const newPeaks = detectRPeaks(state.ecgStream, searchStart, searchEnd);
+      
+      // Ajouter les nouveaux pics à la liste des positions absolues
+      newPeaks.forEach(peakIndex => {
+        const isNearExisting = state.peakPositions.some(existing => 
+          Math.abs(existing - peakIndex) < 30
+        );
+        
+        if (!isNearExisting) {
+          state.peakPositions.push(peakIndex);
+        }
+      });
+      
+      // Nettoyer les pics qui sont sortis du stream
+      const minKeepIndex = Math.max(0, state.offset - width);
+      state.peakPositions = state.peakPositions.filter(pos => pos > minKeepIndex);
+      
+      state.lastDetectedIndex = searchEnd;
+    }
+  };
+
   const drawSynchroArrows = (ctx: CanvasRenderingContext2D) => {
     if (!showSynchroArrows) return;
     
     const state = animationState.current;
-    const visibleStart = state.offset;
-    const visibleEnd = state.offset + width;
     
-    const peaks = detectRPeaks(state.ecgStream, visibleStart, Math.min(visibleEnd, state.ecgStream.length));
+    updatePeakPositions();
     
-    // Dessiner les flèches sur les pics visibles
-    peaks.forEach(peakIndex => {
-      const x = peakIndex - state.offset;
-      if (x >= 0 && x < width) {
-        const y = height - 10 - state.ecgStream[peakIndex] * 0.6;
+    const arrowHeight = Math.min(12, height * 0.15); 
+    const arrowWidth = Math.min(6, arrowHeight * 0.5); 
+    const stemHeight = Math.min(8, height * 0.1); 
+    
+    state.peakPositions.forEach(peakIndex => {
+      const x = peakIndex - state.offset; // Position à l'écran (bouge avec le tracé)
+      
+      // Seulement si visible à l'écran
+      if (x >= 0 && x < width && peakIndex < state.ecgStream.length) {
+        const peakY = height - 10 - state.ecgStream[peakIndex] * 0.6;
+        const maxArrowTop = Math.max(5, peakY - arrowHeight - stemHeight);
+        const arrowTop = Math.max(maxArrowTop, 5);
+        const arrowBottom = arrowTop + arrowHeight;
         
         // Dessiner la flèche blanche pointant vers le bas
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 1;
         
-        // Flèche simple : triangle pointant vers le bas
         ctx.beginPath();
-        ctx.moveTo(x, y - 15); // Pointe de la flèche
-        ctx.lineTo(x - 5, y - 25); // Coin gauche
-        ctx.lineTo(x + 5, y - 25); // Coin droit
+        ctx.moveTo(x, arrowBottom); // Pointe de la flèche
+        ctx.lineTo(x - arrowWidth, arrowTop); // Coin gauche
+        ctx.lineTo(x + arrowWidth, arrowTop); // Coin droit
         ctx.closePath();
         ctx.fill();
         
-        // Ligne verticale de la flèche
-        ctx.beginPath();
-        ctx.moveTo(x, y - 25);
-        ctx.lineTo(x, y - 35);
-        ctx.stroke();
+        // Ligne verticale de la flèche 
+        if (stemHeight > 2) { 
+          ctx.beginPath();
+          ctx.moveTo(x, arrowTop);
+          ctx.lineTo(x, Math.max(2, arrowTop - stemHeight));
+          ctx.stroke();
+        }
       }
     });
   };
@@ -227,7 +266,15 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height, rhythmType, showSynchroArrows]); //dépendance showSynchroArrows
+  }, [width, height, rhythmType, showSynchroArrows]);
+
+  // Réinitialiser les pics quand le mode synchro change
+  useEffect(() => {
+    if (!showSynchroArrows) {
+      animationState.current.peakPositions = [];
+      animationState.current.lastDetectedIndex = 0;
+    }
+  }, [showSynchroArrows]);
 
   return (
     <div className="flex flex-col bg-black rounded w-full">
