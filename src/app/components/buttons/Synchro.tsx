@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface SynchroProps {
   onClick?: () => void;
+  isActive?: boolean; 
 }
 
-const Synchro = ({onClick}: SynchroProps) => {
-  const [isActive, setIsActive] = useState(false);
-
+const Synchro = ({ onClick, isActive = false }: SynchroProps) => {
   const handleClick = () => {
-    setIsActive(!isActive);
     if (onClick) {
       onClick();
     }

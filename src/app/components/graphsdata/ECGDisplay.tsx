@@ -5,26 +5,91 @@ interface ECGDisplayProps {
   width?: number;
   height?: number;
   rhythmType?: RhythmType;
+  showSynchroArrows?: boolean; 
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
   width = 800,
   height = 80,
   rhythmType = 'sinus',
+  showSynchroArrows = false, 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
 
   const animationState = useRef({
-    baseLoop: getRhythmData('sinus'), // boucle de base 
-    ecgStream: [] as number[], // flux continu qui défile
-    dataBuffer: [] as number[], // buffer pour nouvelles données
+    baseLoop: getRhythmData('sinus'),
+    ecgStream: [] as number[],
+    dataBuffer: [] as number[],
     offset: 0,
     currentRhythmType: rhythmType,
     pendingRhythmChange: false,
+    lastPeakPositions: [] as number[], 
   });
 
-  // Fonction pour déclencher transition de rythme
+
+  const detectRPeaks = (data: number[], startIndex: number, endIndex: number): number[] => {
+    const peaks: number[] = [];
+    const threshold = 80; 
+    
+    for (let i = startIndex + 2; i < endIndex - 2; i++) {
+      const current = data[i];
+      const prev = data[i - 1];
+      const next = data[i + 1];
+      
+      if (current > threshold && 
+          current > prev && 
+          current > next &&
+          current > data[i - 2] &&
+          current > data[i + 2]) {
+        
+        if (peaks.length === 0 || i - peaks[peaks.length - 1] > 50) {
+          peaks.push(i);
+        }
+      }
+    }
+    
+    return peaks;
+  };
+
+  //Fonction pour dessiner les flèches synchro
+  const drawSynchroArrows = (ctx: CanvasRenderingContext2D) => {
+    if (!showSynchroArrows) return;
+    
+    const state = animationState.current;
+    const visibleStart = state.offset;
+    const visibleEnd = state.offset + width;
+    
+    const peaks = detectRPeaks(state.ecgStream, visibleStart, Math.min(visibleEnd, state.ecgStream.length));
+    
+    // Dessiner les flèches sur les pics visibles
+    peaks.forEach(peakIndex => {
+      const x = peakIndex - state.offset;
+      if (x >= 0 && x < width) {
+        const y = height - 10 - state.ecgStream[peakIndex] * 0.6;
+        
+        // Dessiner la flèche blanche pointant vers le bas
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1;
+        
+        // Flèche simple : triangle pointant vers le bas
+        ctx.beginPath();
+        ctx.moveTo(x, y - 15); // Pointe de la flèche
+        ctx.lineTo(x - 5, y - 25); // Coin gauche
+        ctx.lineTo(x + 5, y - 25); // Coin droit
+        ctx.closePath();
+        ctx.fill();
+        
+        // Ligne verticale de la flèche
+        ctx.beginPath();
+        ctx.moveTo(x, y - 25);
+        ctx.lineTo(x, y - 35);
+        ctx.stroke();
+      }
+    });
+  };
+
   const triggerRhythmTransition = (newRhythmType: RhythmType) => {
     const state = animationState.current;
     
@@ -36,20 +101,15 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     let transitionData: number[] = [];
     
     if (state.currentRhythmType === 'fibrillation' && newRhythmType === 'asystole') {
-      // FV → Asystolie : transition directe
-      transitionData = newRhythmData.slice(0, 50); // 50 échantillons d'asystolie
+      transitionData = newRhythmData.slice(0, 50);
     } else if (state.currentRhythmType === 'asystole' && newRhythmType === 'sinus') {
-      // Asystolie → Sinusal : transition directe
-      transitionData = newRhythmData.slice(0, 100); // Plus d'échantillons pour le retour
+      transitionData = newRhythmData.slice(0, 100);
     } else if (state.currentRhythmType === 'sinus' && newRhythmType === 'fibrillation') {
-      // Sinusal → FV : transition directe
       transitionData = newRhythmData.slice(0, 80);
     } else {
-      // Transition générique
       transitionData = newRhythmData.slice(0, 60);
     }
     
-    // Reconstruire le stream : segment visible + nouvelles données
     state.ecgStream = visibleSegment.concat(transitionData);
     state.baseLoop = newRhythmData; 
     state.offset = 0; 
@@ -64,7 +124,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Initialiser le stream
     const initializeECGStream = () => {
       const state = animationState.current;
       const rhythmData = getRhythmData(state.currentRhythmType);
@@ -77,7 +136,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       }
     };
 
-    // Initialisation ou changement de rythme détecté
     if (animationState.current.ecgStream.length === 0) {
       animationState.current.currentRhythmType = rhythmType;
       initializeECGStream();
@@ -88,10 +146,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     const drawECG = () => {
       const state = animationState.current;
 
-      // Effacer le canvas
       ctx.clearRect(0, 0, width, height);
-
-      // Dessiner la grille ECG
       drawGrid(ctx);
 
       // Dessiner le tracé ECG
@@ -112,6 +167,8 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
       ctx.stroke();
 
+      drawSynchroArrows(ctx);
+
       const speed = state.currentRhythmType === 'fibrillation' ? 2 : 1;
       state.offset += speed;
 
@@ -131,7 +188,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       ctx.strokeStyle = "#002200";
       ctx.lineWidth = 0.5;
 
-      // Lignes verticales
       for (let x = 0; x < width; x += 20) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -139,7 +195,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         ctx.stroke();
       }
 
-      // Lignes horizontales
       for (let y = 0; y < height; y += 10) {
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -147,7 +202,6 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         ctx.stroke();
       }
 
-      // Lignes principales plus épaisses
       ctx.strokeStyle = "#004400";
       ctx.lineWidth = 1;
 
@@ -173,7 +227,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height, rhythmType]);
+  }, [width, height, rhythmType, showSynchroArrows]); //dépendance showSynchroArrows
 
   return (
     <div className="flex flex-col bg-black rounded w-full">

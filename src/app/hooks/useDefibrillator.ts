@@ -20,6 +20,8 @@ export interface DefibrillatorState {
   
   // Channel selection
   selectedChannel: number;
+  
+  isSynchroMode: boolean;
 }
 
 export const useDefibrillator = () => {
@@ -33,6 +35,7 @@ export const useDefibrillator = () => {
     isChargeButtonPressed: false,
     isShockButtonPressed: false,
     selectedChannel: 1,
+    isSynchroMode: false, // NOUVEAU : état du mode synchro
   });
 
   const updateState = (updates: Partial<DefibrillatorState>) => {
@@ -97,7 +100,6 @@ export const useDefibrillator = () => {
       chargeProgress: 0,
     });
 
-
     // Show notification
     NotificationService.showShockDelivered({
       energy: 150, // Default energy value for notification
@@ -111,6 +113,10 @@ export const useDefibrillator = () => {
     updateState({ selectedChannel: channel });
   };
 
+  const toggleSynchroMode = () => {
+    updateState({ isSynchroMode: !state.isSynchroMode });
+  };
+
   return {
     // State
     ...state,
@@ -121,5 +127,6 @@ export const useDefibrillator = () => {
     startCharging,
     deliverShock,
     setSelectedChannel,
+    toggleSynchroMode, 
   };
-}; 
+};

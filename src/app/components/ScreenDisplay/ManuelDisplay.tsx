@@ -9,6 +9,7 @@ interface ManuelDisplayProps {
   shockCount: number; // Nombre de chocs délivrés
   isCharging: boolean; // État de charge en cours
   rhythmType?: RhythmType; // Nouveau prop pour le rythme ECG
+  showSynchroArrows?: boolean; //prop pour les flèches synchro
 }
 
 const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
@@ -16,6 +17,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
   chargeProgress,
   shockCount,
   rhythmType = 'sinus', // Par défaut : rythme sinusal
+  showSynchroArrows = false, 
 }) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -117,9 +119,14 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           </div>
         </div>
 
-        {/* Row 3 - ECG Display avec rythme dynamique */}
+        {/* Row 3 - ECG Display avec rythme dynamique et flèches synchro */}
         <div className="h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
+          <ECGDisplay 
+            width={800} 
+            height={65} 
+            rhythmType={rhythmType} 
+            showSynchroArrows={showSynchroArrows} 
+          />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
             <span>
               {rhythmType === 'fibrillation' ? 'Fibrillation ventriculaire' : 
@@ -147,9 +154,14 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           </div>
         </div>
 
-        {/* Row 4 - Deuxième ECG Display avec rythme dynamique */}
+        {/* Row 4 - Deuxième ECG Display avec rythme dynamique et flèches synchro */}
         <div className=" h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-blue-400 text-sm bg-black">
-          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
+          <ECGDisplay 
+            width={800} 
+            height={65} 
+            rhythmType={rhythmType} 
+            showSynchroArrows={showSynchroArrows} 
+          />
         </div>
 
         {/* Row 6 */}

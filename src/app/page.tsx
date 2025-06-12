@@ -275,35 +275,39 @@ const DefibInterface: React.FC = () => {
             onShockReady={handleDaeShockReady}
           />
         );
-      case "Moniteur":
-        return (
-          <div className="relative w-full h-full">
-            <MonitorDisplay rhythmType={scenario.currentRhythm} />
-            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
-              <span>
-                {scenario.currentRhythm === "fibrillation"
-                  ? "Fibrillation ventriculaire"
-                  : "Rythme sinusal"}
-              </span>
+        case "Moniteur":
+          return (
+            <div className="relative w-full h-full">
+              <MonitorDisplay 
+                rhythmType={scenario.currentRhythm} 
+                showSynchroArrows={defibrillator.isSynchroMode} 
+              />
+              <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
+                <span>
+                  {scenario.currentRhythm === "fibrillation"
+                    ? "Fibrillation ventriculaire"
+                    : "Rythme sinusal"}
+                </span>
+              </div>
             </div>
-          </div>
-        );
+          );
       case "Stimulateur":
         return <StimulateurDisplay />;
-      case "Manuel":
-        return (
-          <ManuelDisplay
-            frequency={defibrillator.manualFrequency}
-            chargeProgress={defibrillator.chargeProgress}
-            shockCount={defibrillator.shockCount}
-            isCharging={defibrillator.isCharging}
-            rhythmType={scenario.currentRhythm}
-          />
-        );
-      default:
-        return <MonitorDisplay rhythmType={scenario.currentRhythm} />;
-    }
-  };
+        case "Manuel":
+          return (
+            <ManuelDisplay
+              frequency={defibrillator.manualFrequency}
+              chargeProgress={defibrillator.chargeProgress}
+              shockCount={defibrillator.shockCount}
+              isCharging={defibrillator.isCharging}
+              rhythmType={scenario.currentRhythm}
+              showSynchroArrows={defibrillator.isSynchroMode}
+            />
+          );
+        default:
+          return <MonitorDisplay rhythmType={scenario.currentRhythm} />;
+      }
+    };
 
   return (
     <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">
@@ -457,8 +461,10 @@ const DefibInterface: React.FC = () => {
             {/* Boutons colorés */}
             <div className="space-y-4 mt-18">
               {/* white */}
-              <Synchro/>
-
+              <Synchro
+                onClick={defibrillator.toggleSynchroMode}
+                isActive={defibrillator.isSynchroMode}
+              />
               {/* Jaune - Charge */}
               <div className="flex items-center gap-4">
                 <span className="text-white text-2xl font-bold">2</span>

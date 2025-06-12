@@ -6,10 +6,12 @@ import type { RhythmType } from '../graphsdata/ECGRhythms';
 
 interface MonitorDisplayProps {
   rhythmType?: RhythmType;
+  showSynchroArrows?: boolean; 
 }
 
 const MonitorDisplay: React.FC<MonitorDisplayProps> = ({ 
-  rhythmType = 'sinus' 
+  rhythmType = 'sinus',
+  showSynchroArrows = false 
 }) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -160,9 +162,14 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
           </div>
         </div>
 
-        {/* Row 3 - ECG Display avec rythme dynamique */}
+        {/* Row 3 - ECG Display avec rythme dynamique et flèches synchro */}
         <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay width={800} height={65} rhythmType={rhythmType} />
+          <ECGDisplay 
+            width={800} 
+            height={65} 
+            rhythmType={rhythmType} 
+            showSynchroArrows={showSynchroArrows} 
+          />
         </div>
 
         {/* Row  4*/}
