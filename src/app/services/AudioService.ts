@@ -13,6 +13,10 @@ class AudioService {
     language: 'fr-FR'
   };
   private repetitionTimer: NodeJS.Timeout | null = null;
+  private chargingSound: HTMLAudioElement | null = null;
+  private alarmSound: HTMLAudioElement | null = null;
+  private alarmOscillator: OscillatorNode | null = null;
+  private audioContext: AudioContext | null = null;
 
   constructor() {
     if (typeof window === 'undefined') {
@@ -26,6 +30,13 @@ class AudioService {
     
     const voices = this.synthesis.getVoices();
     const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
+
+    this.chargingSound = new Audio();
+    this.chargingSound.src = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU';
+    
+    this.alarmSound = new Audio();
+    this.alarmSound.src = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU';
+    this.alarmSound.loop = true;
   }
 
   // Configuration des paramètres audio
@@ -108,13 +119,109 @@ class AudioService {
     this.playMessage("Commencer la réanimation cardio pulmonaire", { priority: true });
   }
 
-  // Arrêter tous les messages et répétitions
+  playDAEChoc(): void {
+    this.playMessage("délivrer le choc maintenant", { priority: true });
+  }
+
+  playDAEboutonOrange(): void {
+    this.playMessage("appuyez sur le bouton orange maintenant", { priority: true });
+  }
+
+  playDAEChocDelivre(): void {
+    this.playMessage("choc délivré", { priority: true });
+  }
+
+  // Méthode pour jouer le son de charge
+  playChargingSound(): void {
+    if (this.chargingSound) {
+      this.chargingSound.currentTime = 0;
+      this.chargingSound.play().catch(error => {
+        console.error('Error playing charging sound:', error);
+      });
+    }
+  }
+
+  // Méthode pour jouer l'alarme
+  playAlarmSound(): void {
+    if (this.alarmSound) {
+      this.alarmSound.currentTime = 0;
+      this.alarmSound.play().catch(error => {
+        console.error('Error playing alarm sound:', error);
+      });
+    }
+  }
+
+  // Méthode pour arrêter l'alarme
+  stopAlarmSound(): void {
+    if (this.alarmSound) {
+      this.alarmSound.pause();
+      this.alarmSound.currentTime = 0;
+    }
+  }
+
+  // Méthode pour arrêter l'alarme
+  stopAlarm(): void {
+    if (this.alarmOscillator) {
+      this.alarmOscillator.stop();
+      this.alarmOscillator = null;
+    }
+  }
+
+  playChargingSequence(): void {
+    this.stopAll();
+    
+    this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(440, this.audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(880, this.audioContext.currentTime + 5);
+    
+    gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 5);
+    
+    // Après 5 secondes
+    setTimeout(() => {
+      // Générer une alarme aiguë
+      this.alarmOscillator = this.audioContext!.createOscillator();
+      const alarmGain = this.audioContext!.createGain();
+      
+      this.alarmOscillator.type = 'square';
+      this.alarmOscillator.frequency.setValueAtTime(1000, this.audioContext!.currentTime);
+      
+      alarmGain.gain.setValueAtTime(0.05, this.audioContext!.currentTime);
+      
+      this.alarmOscillator.connect(alarmGain);
+      alarmGain.connect(this.audioContext!.destination);
+      
+      this.alarmOscillator.start();
+      
+      // Jouer les messages vocaux
+      this.playDAEChoc();
+      setTimeout(() => {
+        this.playDAEboutonOrange();
+      }, 2000);
+    }, 5000);
+  }
+
   stopAll(): void {
     if (this.synthesis) {
       this.synthesis.cancel();
     }
     this.clearRepetition();
     this.currentUtterance = null;
+    this.stopAlarmSound();
+    if (this.chargingSound) {
+      this.chargingSound.pause();
+      this.chargingSound.currentTime = 0;
+    }
+    this.stopAlarm();
   }
 
   // Arrêter uniquement les répétitions

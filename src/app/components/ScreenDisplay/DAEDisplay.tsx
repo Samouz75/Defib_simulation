@@ -9,10 +9,10 @@ interface DAEDisplayProps {
   shockCount: number;
   isCharging: boolean; // État de charge en cours
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
-  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'pre-charge' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
+  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'pre-charge' | 'charge' | 'attente_choc' | 'choc') => void; // Callback pour exposer la phase actuelle
 }
 
-type Phase = 'placement' | 'preparation' |'analyse' |'pre-charge'| 'charge' | 'attente_choc';
+type Phase = 'placement' | 'preparation' |'analyse' |'pre-charge'| 'charge' | 'attente_choc' | 'choc';
 
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
     shockCount,
@@ -146,7 +146,14 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     }
 
     if (phase === 'charge') {
-      audioServiceRef.current?.playDAEChocRecommande();
+      audioServiceRef.current?.playChargingSequence();
+    }
+
+    if (phase === 'attente_choc') {
+      audioServiceRef.current?.playDAEChoc();
+      timers.push(setTimeout(() => {
+        audioServiceRef.current?.playDAEboutonOrange();
+      }, 2000));
     }
   
     return () => {
@@ -163,9 +170,16 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
 
   const handleShockClick = () => {
     if (phase === 'attente_choc') {
+      setPhase('choc');
+      audioServiceRef.current?.stopAll(); 
+      audioServiceRef.current?.playDAEChocDelivre();
       setChargePercent(0);
       setProgressBarPercent(0);
-      setPhase('analyse');
+      
+      // Attendre 5 secondes avant de passer à la phase analyse
+      setTimeout(() => {
+        setPhase('analyse');
+      }, 5000);
     }
   };
 
@@ -304,6 +318,13 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                   <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
                     <span className="text-black text-xs">
                       Écartez-vous du patient, analyse en cours.
+                    </span>
+                  </div>
+                )}
+                {phase === 'choc' && (
+                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                    <span className="text-black text-xs">
+                      Choc délivré
                     </span>
                   </div>
                 )}
