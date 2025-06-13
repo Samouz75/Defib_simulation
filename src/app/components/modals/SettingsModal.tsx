@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Settings, X } from 'lucide-react';
+import AudioService from '../../services/AudioService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -10,6 +11,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [volume, setVolume] = useState(50);
   const [language, setLanguage] = useState('fr');
+
+  const audioServiceRef = useRef<AudioService | null>(null);
+
+  useEffect(() => {
+  if (typeof window !== 'undefined' && !audioServiceRef.current) {
+    audioServiceRef.current = new AudioService();
+  }
+}, []);
+
+  // Gestion des changements de paramètres audio
+  const handleSoundToggle = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    audioServiceRef.current?.updateSettings({ enabled });
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    audioServiceRef.current?.updateSettings({ volume: newVolume / 100 });
+  };
 
   if (!isOpen) return null;
 
@@ -37,7 +57,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between">
                 <label className="text-sm">Sons activés</label>
                 <button
-                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  onClick={() => handleSoundToggle(!soundEnabled)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     soundEnabled ? 'bg-blue-600' : 'bg-gray-600'
                   }`}
@@ -57,7 +77,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   min="0"
                   max="100"
                   value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
+                  onChange={(e) => handleVolumeChange(Number(e.target.value))}
                   className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
                 />
               </div>

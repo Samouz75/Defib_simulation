@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ECGDisplay from '../graphsdata/ECGDisplay';
 import TimerDisplay from '../TimerDisplay';
+import AudioService from '../../services/AudioService';
 
 interface DAEDisplayProps {
   frequency: string; 
@@ -19,6 +20,13 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     onPhaseChange,
   }) => {
   
+  const audioServiceRef = useRef<AudioService | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
     // États du cycle DAE
   const [phase, setPhase] = useState<Phase>('placement');
   const [progressBarPercent, setProgressBarPercent] = useState(0);
@@ -31,7 +39,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     if (phase === 'preparation') {
       // Préparation avant analyse
       const startTime = Date.now();
-      const duration = 5 * 1000;
+      const duration = 14 * 1000;
 
       interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -44,7 +52,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     } else if (phase === 'analyse') {
       // Phase 1: Analyse 
       const startTime = Date.now();
-      const duration = 10 * 1000;
+      const duration = 15 * 1000;
 
       interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -80,14 +88,53 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     };
   }, [phase]);
 
-  // Notification du changement de phase au parent
+  useEffect(() => {
+    // Nettoyage des timers à chaque changement de phase
+    let timers: NodeJS.Timeout[] = [];
+    audioServiceRef.current?.clearRepetition();
+  
+    if (phase === 'placement') {
+      audioServiceRef.current?.playDAEModeAdulte();
+      timers.push(setTimeout(() => {
+        audioServiceRef.current?.playDAEInstructions();
+        timers.push(setTimeout(() => {
+          audioServiceRef.current?.playDAEElectrodeReminder();
+        }, 3000));
+      }, 2000));
+    }
+  
+    if (phase === 'preparation') {
+      // « Écartez-vous du patient »
+      audioServiceRef.current?.playDAEEcartezVousduPatient();
+      // « Analyse en cours »
+      timers.push(setTimeout(() => {
+        audioServiceRef.current?.playDAEAnalyse();
+        timers.push(setTimeout(() => {
+          audioServiceRef.current?.playDAEEcartezVous();
+        }, 2000));
+      }, 5000));
+     
+    }
+  
+    if (phase === 'analyse') {
+      audioServiceRef.current?.playPasDeChocIndique();
+      timers.push(setTimeout(() => {
+        audioServiceRef.current?.playCommencerRCP();
+      }, 3000));
+    }
+  
+    return () => {
+      timers.forEach(clearTimeout);
+      audioServiceRef.current?.clearRepetition();
+    };
+  }, [phase]);
+
   useEffect(() => {
     if (onPhaseChange) {
       onPhaseChange(phase);
     }
   }, [phase, onPhaseChange]);
 
-  // Gestion du bouton choc
   const handleShockClick = () => {
     if (phase === 'attente_choc') {
       setChargePercent(0);
@@ -102,7 +149,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     }
   };
 
-  // Exposition de la fonction au composant parent
   useEffect(() => {
     if (onShockReady) {
       if (phase === 'attente_choc') {
