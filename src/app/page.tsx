@@ -36,7 +36,7 @@ const DefibInterface: React.FC = () => {
 
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<
-    "placement" | "preparation" | "analyse" | "charge" | "attente_choc" | null
+    "placement" | "preparation" | "analyse" | "pre-charge" | "charge" | "attente_choc" | null
   >(null);
   const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(
     null,
@@ -213,6 +213,7 @@ const DefibInterface: React.FC = () => {
         | "placement"
         | "preparation"
         | "analyse"
+        | "pre-charge"
         | "charge"
         | "attente_choc",
     ) => {

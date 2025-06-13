@@ -9,10 +9,10 @@ interface DAEDisplayProps {
   shockCount: number;
   isCharging: boolean; // État de charge en cours
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
-  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
+  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'pre-charge' | 'charge' | 'attente_choc') => void; // Callback pour exposer la phase actuelle
 }
 
-type Phase = 'placement' | 'preparation' |'analyse' | 'charge' | 'attente_choc';
+type Phase = 'placement' | 'preparation' |'analyse' |'pre-charge'| 'charge' | 'attente_choc';
 
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
     shockCount,
@@ -60,11 +60,26 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         setProgressBarPercent(percent);
 
         if (percent >= 100) {
-          setPhase('charge');
+          setPhase('pre-charge');
           setProgressBarPercent(0);
         }
       }, 100);
 
+    } else if (phase === 'pre-charge') {
+      // Phase 2.5: Pre-charge 
+      const startTime = Date.now();
+      const duration = 5 * 1000;
+
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const percent = Math.min((elapsed / duration) * 100, 100);
+        setProgressBarPercent(percent);
+
+        if (percent >= 100) {
+        setPhase('charge');
+        setProgressBarPercent(0);
+      }
+      }, 100);  
     } else if (phase === 'charge') {
       // Phase 2: Charge 
       const startTime = Date.now();
@@ -121,6 +136,17 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
       timers.push(setTimeout(() => {
         audioServiceRef.current?.playCommencerRCP();
       }, 3000));
+    }
+
+    if (phase === 'pre-charge') {
+      audioServiceRef.current?.playDAEEcartezVousduPatient();
+      timers.push(setTimeout(() => {
+        audioServiceRef.current?.playDAEAnalyse();
+      }, 2000));
+    }
+
+    if (phase === 'charge') {
+      audioServiceRef.current?.playDAEChocRecommande();
     }
   
     return () => {
@@ -266,10 +292,18 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                     </span>
                   </div>
                 )}
+
+                {phase === 'pre-charge' && (
+                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                    <span className="text-black text-xs">
+                      Écartez-vous du patient, analyse en cours.
+                    </span>
+                  </div>
+                )}
                 {phase === 'charge' && (
                   <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
                     <span className="text-black text-xs">
-                      Éloignez-vous du patient, analyse en cours.
+                      Écartez-vous du patient, analyse en cours.
                     </span>
                   </div>
                 )}

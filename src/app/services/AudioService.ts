@@ -5,7 +5,7 @@ interface AudioSettings {
 }
 
 class AudioService {
-  private synthesis: SpeechSynthesis;
+  private synthesis: SpeechSynthesis | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private settings: AudioSettings = {
     enabled: true,
@@ -15,7 +15,17 @@ class AudioService {
   private repetitionTimer: NodeJS.Timeout | null = null;
 
   constructor() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    
     this.synthesis = window.speechSynthesis;
+    if (!this.synthesis) {
+      return;
+    }
+    
+    const voices = this.synthesis.getVoices();
+    const frenchVoice = voices.find(voice => voice.lang.includes('fr'));
   }
 
   // Configuration des paramètres audio
@@ -24,7 +34,13 @@ class AudioService {
   }
 
   playMessage(text: string, options?: { priority?: boolean; repeat?: boolean; repeatInterval?: number }): void {
-    if (!this.settings.enabled) return;
+    if (!this.settings.enabled) {
+      return;
+    }
+
+    if (!this.synthesis) {
+      return;
+    }
 
     // Si priorité, arrêter le message actuel
     if (options?.priority && this.currentUtterance) {
@@ -35,7 +51,7 @@ class AudioService {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = this.settings.language;
     utterance.volume = this.settings.volume;
-    utterance.rate = 0.9; 
+    utterance.rate = 0.9;
 
     utterance.onend = () => {
       this.currentUtterance = null;
@@ -94,7 +110,9 @@ class AudioService {
 
   // Arrêter tous les messages et répétitions
   stopAll(): void {
-    this.synthesis.cancel();
+    if (this.synthesis) {
+      this.synthesis.cancel();
+    }
     this.clearRepetition();
     this.currentUtterance = null;
   }
@@ -109,7 +127,7 @@ class AudioService {
 
   // Vérifier si un message est en cours
   isSpeaking(): boolean {
-    return this.synthesis.speaking || this.currentUtterance !== null;
+    return this.synthesis ? this.synthesis.speaking : false || this.currentUtterance !== null;
   }
 }
 
