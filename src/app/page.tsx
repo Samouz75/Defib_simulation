@@ -413,6 +413,9 @@ const DefibInterface: React.FC = () => {
             chargeProgress={defibrillator.chargeProgress}
             shockCount={defibrillator.shockCount}
             isCharging={defibrillator.isCharging}
+            rhythmType={effectiveRhythm}
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={scenario.heartRate}
             onPhaseChange={handleDaePhaseChange}
             onShockReady={handleDaeShockReady}
             onElectrodePlacementValidated={() => {

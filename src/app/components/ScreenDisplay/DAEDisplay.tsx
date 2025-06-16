@@ -1,44 +1,66 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ECGDisplay from '../graphsdata/ECGDisplay';
-import TimerDisplay from '../TimerDisplay';
-import AudioService from '../../services/AudioService';
+import React, { useState, useEffect, useRef } from "react";
+import ECGDisplay from "../graphsdata/ECGDisplay";
+import TimerDisplay from "../TimerDisplay";
+import AudioService from "../../services/AudioService";
+import type { RhythmType } from "../graphsdata/ECGRhythms";
 
 interface DAEDisplayProps {
-  frequency: string; 
-  chargeProgress: number; 
+  frequency: string;
+  chargeProgress: number;
   shockCount: number;
   isCharging: boolean; // État de charge en cours
+  rhythmType?: RhythmType; // Type de rythme ECG
+  showSynchroArrows?: boolean; // Afficher les flèches synchro
+  heartRate?: number; // Fréquence cardiaque
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
-  onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'pre-charge' | 'charge' | 'attente_choc' | 'choc') => void; // Callback pour exposer la phase actuelle
+  onPhaseChange?: (
+    phase:
+      | "placement"
+      | "preparation"
+      | "analyse"
+      | "pre-charge"
+      | "charge"
+      | "attente_choc"
+      | "choc",
+  ) => void; // Callback pour exposer la phase actuelle
   onElectrodePlacementValidated?: () => void; // Callback pour la validation du placement des électrodes
 }
 
-type Phase = 'placement' | 'preparation' |'analyse' |'pre-charge'| 'charge' | 'attente_choc' | 'choc';
+type Phase =
+  | "placement"
+  | "preparation"
+  | "analyse"
+  | "pre-charge"
+  | "charge"
+  | "attente_choc"
+  | "choc";
 
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
-    shockCount,
-    onShockReady,
-    onPhaseChange,
-    onElectrodePlacementValidated, 
-  }) => {
-  
+  shockCount,
+  rhythmType = "sinus",
+  showSynchroArrows = false,
+  heartRate = 70,
+  onShockReady,
+  onPhaseChange,
+  onElectrodePlacementValidated,
+}) => {
   const audioServiceRef = useRef<AudioService | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !audioServiceRef.current) {
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
       audioServiceRef.current = new AudioService();
     }
   }, []);
-    // États du cycle DAE
-  const [phase, setPhase] = useState<Phase>('placement');
+  // États du cycle DAE
+  const [phase, setPhase] = useState<Phase>("placement");
   const [progressBarPercent, setProgressBarPercent] = useState(0);
   const [chargePercent, setChargePercent] = useState(0);
 
   // Gestion du cycle automatique
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
-    if (phase === 'preparation') {
+
+    if (phase === "preparation") {
       // Préparation avant analyse
       const startTime = Date.now();
       const duration = 14 * 1000;
@@ -48,11 +70,11 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         const percent = Math.min((elapsed / duration) * 100, 100);
 
         if (percent >= 100) {
-          setPhase('analyse');
+          setPhase("analyse");
         }
       }, 100);
-    } else if (phase === 'analyse') {
-      // Phase 1: Analyse 
+    } else if (phase === "analyse") {
+      // Phase 1: Analyse
       const startTime = Date.now();
       const duration = 15 * 1000;
 
@@ -62,13 +84,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         setProgressBarPercent(percent);
 
         if (percent >= 100) {
-          setPhase('pre-charge');
+          setPhase("pre-charge");
           setProgressBarPercent(0);
         }
       }, 100);
-
-    } else if (phase === 'pre-charge') {
-      // Phase 2.5: Pre-charge 
+    } else if (phase === "pre-charge") {
+      // Phase 2.5: Pre-charge
       const startTime = Date.now();
       const duration = 5 * 1000;
 
@@ -78,12 +99,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         setProgressBarPercent(percent);
 
         if (percent >= 100) {
-        setPhase('charge');
-        setProgressBarPercent(0);
-      }
-      }, 100);  
-    } else if (phase === 'charge') {
-      // Phase 2: Charge 
+          setPhase("charge");
+          setProgressBarPercent(0);
+        }
+      }, 100);
+    } else if (phase === "charge") {
+      // Phase 2: Charge
       const startTime = Date.now();
       const duration = 5 * 1000;
 
@@ -93,12 +114,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         setChargePercent(percent);
 
         if (percent >= 100) {
-          setPhase('attente_choc');
+          setPhase("attente_choc");
           setChargePercent(100);
         }
       }, 50);
     }
-    // Phase 3: Attente du choc 
+    // Phase 3: Attente du choc
 
     return () => {
       if (interval) clearInterval(interval);
@@ -109,55 +130,68 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     // Nettoyage des timers à chaque changement de phase
     let timers: NodeJS.Timeout[] = [];
     audioServiceRef.current?.clearRepetition();
-  
-    if (phase === 'placement') {
+
+    if (phase === "placement") {
       audioServiceRef.current?.playDAEModeAdulte();
-      timers.push(setTimeout(() => {
-        audioServiceRef.current?.playDAEInstructions();
-        timers.push(setTimeout(() => {
-          audioServiceRef.current?.playDAEElectrodeReminder();
-        }, 3000));
-      }, 2000));
+      timers.push(
+        setTimeout(() => {
+          audioServiceRef.current?.playDAEInstructions();
+          timers.push(
+            setTimeout(() => {
+              audioServiceRef.current?.playDAEElectrodeReminder();
+            }, 3000),
+          );
+        }, 2000),
+      );
     }
-  
-    if (phase === 'preparation') {
+
+    if (phase === "preparation") {
       // « Écartez-vous du patient »
       audioServiceRef.current?.playDAEEcartezVousduPatient();
       // « Analyse en cours »
-      timers.push(setTimeout(() => {
-        audioServiceRef.current?.playDAEAnalyse();
-        timers.push(setTimeout(() => {
-          audioServiceRef.current?.playDAEEcartezVous();
-        }, 2000));
-      }, 5000));
-     
+      timers.push(
+        setTimeout(() => {
+          audioServiceRef.current?.playDAEAnalyse();
+          timers.push(
+            setTimeout(() => {
+              audioServiceRef.current?.playDAEEcartezVous();
+            }, 2000),
+          );
+        }, 5000),
+      );
     }
-  
-    if (phase === 'analyse') {
+
+    if (phase === "analyse") {
       audioServiceRef.current?.playPasDeChocIndique();
-      timers.push(setTimeout(() => {
-        audioServiceRef.current?.playCommencerRCP();
-      }, 3000));
+      timers.push(
+        setTimeout(() => {
+          audioServiceRef.current?.playCommencerRCP();
+        }, 3000),
+      );
     }
 
-    if (phase === 'pre-charge') {
+    if (phase === "pre-charge") {
       audioServiceRef.current?.playDAEEcartezVousduPatient();
-      timers.push(setTimeout(() => {
-        audioServiceRef.current?.playDAEAnalyse();
-      }, 2000));
+      timers.push(
+        setTimeout(() => {
+          audioServiceRef.current?.playDAEAnalyse();
+        }, 2000),
+      );
     }
 
-    if (phase === 'charge') {
+    if (phase === "charge") {
       audioServiceRef.current?.playChargingSequence();
     }
 
-    if (phase === 'attente_choc') {
+    if (phase === "attente_choc") {
       audioServiceRef.current?.playDAEChoc();
-      timers.push(setTimeout(() => {
-        audioServiceRef.current?.playDAEboutonOrange();
-      }, 2000));
+      timers.push(
+        setTimeout(() => {
+          audioServiceRef.current?.playDAEboutonOrange();
+        }, 2000),
+      );
     }
-  
+
     return () => {
       timers.forEach(clearTimeout);
       audioServiceRef.current?.clearRepetition();
@@ -171,24 +205,24 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   }, [phase, onPhaseChange]);
 
   const handleShockClick = () => {
-    if (phase === 'attente_choc') {
-      setPhase('choc');
-      audioServiceRef.current?.stopAll(); 
+    if (phase === "attente_choc") {
+      setPhase("choc");
+      audioServiceRef.current?.stopAll();
       audioServiceRef.current?.playDAEChocDelivre();
       setChargePercent(0);
       setProgressBarPercent(0);
-      
+
       // Attendre 5 secondes avant de passer à la phase analyse
       setTimeout(() => {
-        setPhase('analyse');
+        setPhase("analyse");
       }, 5000);
     }
   };
 
   const handlePlacementValidate = () => {
-    if (phase === 'placement') {
-      setPhase('preparation');
-      
+    if (phase === "placement") {
+      setPhase("preparation");
+
       //Déclenche le callback pour valider l'étape 2 du Scenario 2
       if (onElectrodePlacementValidated) {
         onElectrodePlacementValidated();
@@ -198,7 +232,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
 
   useEffect(() => {
     if (onShockReady) {
-      if (phase === 'attente_choc') {
+      if (phase === "attente_choc") {
         onShockReady(handleShockClick);
       } else {
         onShockReady(null);
@@ -210,22 +244,22 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
       <div className="h-full flex flex-col">
         {/* Phase 0: Placement des électrodes */}
-        {phase === 'placement' && (
+        {phase === "placement" && (
           <div className="h-full flex flex-col items-center justify-center bg-black text-white">
             <div className="flex flex-col items-center justify-center space-y-8">
               <h2 className="text-xl font-bold text-center mb-4 mt-6">
                 Placez les électrodes comme indiqué
               </h2>
-              
+
               {/* Image*/}
               <div className="flex items-center justify-center">
-                <img 
-                  src="/images/placement_electrodes.jpg" 
-                  alt="Placement des électrodes" 
+                <img
+                  src="/images/placement_electrodes.jpg"
+                  alt="Placement des électrodes"
                   className="max-w-md h-auto"
                 />
               </div>
-              
+
               {/* Bouton Valider */}
               <button
                 onClick={handlePlacementValidate}
@@ -237,7 +271,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
           </div>
         )}
 
-        {phase !== 'placement' && (
+        {phase !== "placement" && (
           <>
             {/* Rangée 1 - En-tête */}
             <div className="h-1/6 border-b border-gray-600 flex items-center justify-between bg-black text-white text-sm font-mono">
@@ -256,10 +290,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               </div>
 
               <div className="flex items-center justify-center">
-                <TimerDisplay
-                  onTimeUpdate={(seconds) => {
-                  }}
-                />
+                <TimerDisplay onTimeUpdate={(seconds) => {}} />
               </div>
 
               {/* Section droite - Date et icône */}
@@ -293,59 +324,74 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                   <div className="text-gray-400 text-xs">bpm</div>
                 </div>
                 <div className="flex flex-row items-center gap-x-2">
-                  <div className="text-green-400 text-4xl font-bold">120</div>
+                  <div className="text-green-400 text-4xl font-bold">
+                    {rhythmType === "fibrillation"
+                      ? "--"
+                      : rhythmType === "asystole"
+                        ? "0"
+                        : heartRate}
+                  </div>
                   <div className="text-green-400 text-xs">120</div>
                 </div>
               </div>
             </div>
             <div className="flex flex-row ">
-                {phase === 'preparation' && (
-                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
-                    <span className="text-black text-xs">
-                      Écartez-vous du patient, analyse en cours.
-                    </span>
-                  </div>
-                )}
-                {phase === 'analyse' && (
-                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
-                    <span className="text-black text-xs">
-                      Occupez-vous du patient
-                    </span>
-                  </div>
-                )}
+              {phase === "preparation" && (
+                <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                  <span className="text-black text-xs">
+                    Écartez-vous du patient, analyse en cours.
+                  </span>
+                </div>
+              )}
+              {phase === "analyse" && (
+                <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                  <span className="text-black text-xs">
+                    Occupez-vous du patient
+                  </span>
+                </div>
+              )}
 
-                {phase === 'pre-charge' && (
-                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
-                    <span className="text-black text-xs">
-                      Écartez-vous du patient, analyse en cours.
-                    </span>
-                  </div>
-                )}
-                {phase === 'charge' && (
-                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
-                    <span className="text-black text-xs">
-                      Écartez-vous du patient, analyse en cours.
-                    </span>
-                  </div>
-                )}
-                {phase === 'choc' && (
-                  <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
-                    <span className="text-black text-xs">
-                      Choc délivré
-                    </span>
-                  </div>
-                )}
+              {phase === "pre-charge" && (
+                <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                  <span className="text-black text-xs">
+                    Écartez-vous du patient, analyse en cours.
+                  </span>
+                </div>
+              )}
+              {phase === "charge" && (
+                <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                  <span className="text-black text-xs">
+                    Écartez-vous du patient, analyse en cours.
+                  </span>
+                </div>
+              )}
+              {phase === "choc" && (
+                <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1">
+                  <span className="text-black text-xs">Choc délivré</span>
+                </div>
+              )}
             </div>
-            
 
             {/* Row 3*/}
             <div className="h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-              <ECGDisplay width={800} height={65} />
+              <ECGDisplay
+                width={800}
+                height={65}
+                rhythmType={rhythmType}
+                showSynchroArrows={showSynchroArrows}
+                heartRate={heartRate}
+              />
               <div className="w-full text-xs font-bold text-green-400 text-right ">
-                <span>Rythme sinusal</span>
+                <span>
+                  {rhythmType === "fibrillation"
+                    ? "Fibrillation ventriculaire"
+                    : rhythmType === "asystole"
+                      ? "Asystolie"
+                      : "Rythme sinusal"}
+                </span>
               </div>
               {/* Afficher la barre de charge pendant la phase charge ou attente_choc */}
-              {(phase === 'charge' || phase === 'attente_choc') && (
+              {(phase === "charge" || phase === "attente_choc") && (
                 <div className="w-full flex justify-start items-center gap-4 text-xs font-bold text-white">
                   <div className="text-left">
                     <span>RCP :</span>
@@ -371,18 +417,20 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
             {/* Row  4*/}
             <div className=" h-1/3 border-b border-gray-600 flex flex-col items-center justify-center text-blue-400 text-sm bg-black px-4">
               {/* Phase 1: Barre d'analyse */}
-              {phase === 'analyse' && (
+              {phase === "analyse" && (
                 <div className="w-full mb-2">
                   <div className="w-full h-6 bg-gray-700 rounded relative">
                     <div
                       className="h-full bg-green-500 rounded transition-all duration-100"
                       style={{ width: `${progressBarPercent}%` }}
                     />
-     
+
                     <div className="absolute inset-0 flex items-center justify-between px-4 text-white text-sm ">
                       <div></div>
                       <div>Analyse suspendue</div>
-                      <div>{Math.floor(10 - (progressBarPercent / 100) * 10)}s</div>
+                      <div>
+                        {Math.floor(10 - (progressBarPercent / 100) * 10)}s
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -392,9 +440,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
             {/* Row 6 */}
             <div className=" pt-5 pb-2 bg-black h-1/12 flex items-center justify-between  text-white text-xs ">
               <div className="flex">
-                <div className="flex items-center gap-2">
-                 
-                </div>
+                <div className="flex items-center gap-2"></div>
                 <div className="flex items-center gap-2">
                   <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
                     <span>Début RCP</span>

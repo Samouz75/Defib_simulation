@@ -89,7 +89,7 @@ return (
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : '120'}
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : heartRate}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
@@ -117,7 +117,7 @@ return (
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold">
-                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : '120'}
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : heartRate}
               </div>
             </div>
             <div className="flex flex-col ">
@@ -140,6 +140,7 @@ return (
             height={65} 
             rhythmType={rhythmType} 
             showSynchroArrows={showSynchroArrows} 
+            heartRate={heartRate}
           />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
             <span>
