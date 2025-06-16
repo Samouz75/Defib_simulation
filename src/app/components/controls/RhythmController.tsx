@@ -85,13 +85,13 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
             <div className="flex justify-between text-xs text-gray-300">
               <span>30 bpm</span>
               <span className="font-bold text-white">{heartRate} bpm</span>
-              <span>180 bpm</span>
+              <span>170 bpm</span>
             </div>
             
             <input
               type="range"
               min="30"
-              max="180"
+              max="170"
               value={heartRate}
               onChange={(e) => onHeartRateChange(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"

@@ -400,7 +400,7 @@ const DefibInterface: React.FC = () => {
         </div>
       );
     }
-    
+
     const effectiveRhythm = scenario.getEffectiveRhythm();
 
     switch (defibrillator.displayMode) {
@@ -429,6 +429,7 @@ const DefibInterface: React.FC = () => {
               <MonitorDisplay 
                 rhythmType={effectiveRhythm} 
                 showSynchroArrows={defibrillator.isSynchroMode} 
+                heartRate={scenario.heartRate}
               />
               <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
                 <span>
