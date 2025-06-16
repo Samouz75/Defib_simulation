@@ -5,12 +5,14 @@ import type { RhythmType } from "../graphsdata/ECGRhythms";
 
 interface StimulateurDisplayProps {
   rhythmType?: RhythmType; 
-  showSynchroArrows?: boolean; 
+  showSynchroArrows?: boolean;
+  heartRate?: number;
 }
 
 const StimulateurDisplay: React.FC<StimulateurDisplayProps> = ({ 
   rhythmType = 'sinus',
-  showSynchroArrows = false 
+  showSynchroArrows = false,
+  heartRate = 70
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);

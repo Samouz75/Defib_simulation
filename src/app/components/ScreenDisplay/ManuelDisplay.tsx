@@ -10,6 +10,7 @@ interface ManuelDisplayProps {
   isCharging: boolean; // État de charge en cours
   rhythmType?: RhythmType; // Nouveau prop pour le rythme ECG
   showSynchroArrows?: boolean; //prop pour les flèches synchro
+  heartRate?: number; // Fréquence cardiaque
 }
 
 const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
@@ -17,7 +18,8 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
   chargeProgress,
   shockCount,
   rhythmType = 'sinus', // Par défaut : rythme sinusal
-  showSynchroArrows = false, 
+  showSynchroArrows = false,
+  heartRate = 70
 }) => {
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">

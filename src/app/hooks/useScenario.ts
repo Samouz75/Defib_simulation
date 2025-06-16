@@ -14,6 +14,8 @@ export interface ScenarioState {
   showScenarioModal: boolean;
   selectedScenarioForModal: string | null;
   currentRhythm: RhythmType;
+  manualRhythm: RhythmType; 
+  heartRate: number; 
 }
 
 export const useScenario = () => {
@@ -25,6 +27,8 @@ export const useScenario = () => {
     showScenarioModal: false,
     selectedScenarioForModal: null,
     currentRhythm: 'sinus',
+    manualRhythm: 'sinus', 
+    heartRate: 70,
   });
 
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -142,6 +146,30 @@ export const useScenario = () => {
     setState(prev => ({ ...prev, ...updates }));
   };
 
+  //fonction pour gérer le changement de fréquence cardiaque
+  const setHeartRate = (rate: number) => {
+    updateState({ heartRate: rate });
+  };
+
+  //fonction pour gérer le changement manuel du rythme
+  const setManualRhythm = (rhythm: RhythmType) => {
+    updateState({ 
+      manualRhythm: rhythm,
+      // Si aucun scénario n'est actif, appliquer le changement immédiatement
+      currentRhythm: state.currentScenario ? state.currentRhythm : rhythm
+    });
+  };
+
+  // Fonction pour obtenir le rythme effectif (scénario ou manuel)
+  const getEffectiveRhythm = (): RhythmType => {
+    return state.currentScenario ? state.currentRhythm : state.manualRhythm;
+  };
+
+  // Fonction pour vérifier si un scénario est actif
+  const isScenarioActive = (): boolean => {
+    return state.currentScenario !== null;
+  };
+
   const validateScenarioStep = (stepNumber: number) => {
     let currentSteps: ScenarioStep[] = [];
     
@@ -186,7 +214,8 @@ export const useScenario = () => {
             currentScenario: null,
             currentStep: 0,
             showScenarioComplete: false,
-            currentRhythm: 'sinus',
+            // Revenir au rythme manuel après la fin du scénario
+            currentRhythm: state.manualRhythm,
           });
         }, 3000);
       }
@@ -351,5 +380,9 @@ export const useScenario = () => {
     triggerCardioversionSuccess, 
     cleanup,
     getCurrentScenarioSteps,
+    setManualRhythm,
+    setHeartRate,
+    getEffectiveRhythm,
+    isScenarioActive,
   };
 };

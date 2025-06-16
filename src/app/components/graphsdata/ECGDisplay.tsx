@@ -6,6 +6,7 @@ interface ECGDisplayProps {
   height?: number;
   rhythmType?: RhythmType;
   showSynchroArrows?: boolean; //afficher les flèches synchro
+  heartRate?: number; 
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
@@ -13,6 +14,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   height = 80,
   rhythmType = 'sinus',
   showSynchroArrows = false,
+  heartRate = 70, //par défaut
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -23,6 +25,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     dataBuffer: [] as number[],
     offset: 0,
     currentRhythmType: rhythmType,
+    currentHeartRate: heartRate,
     pendingRhythmChange: false,
     lastPeakPositions: [] as number[], //positions des derniers pics détectés
     peakPositions: [] as number[], // Positions absolues des pics dans ecgStream
@@ -129,30 +132,92 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     });
   };
 
-  const triggerRhythmTransition = (newRhythmType: RhythmType) => {
+  //buffer ECG basé sur la fréquence cardiaque
+  const createHeartRateBuffer = (baseData: number[], targetHeartRate: number) => {
+    // Fréquence de base du rythme sinusal (approximativement 70 bpm)
+    const baseHeartRate = 70;
+    
+    // Calculer le facteur de vitesse
+    const speedFactor = targetHeartRate / baseHeartRate;
+    
+    // Pour des fréquences plus élevées, on raccourcit l'intervalle entre les battements
+    // Pour des fréquences plus basses, on l'allonge
+    const targetLength = Math.round(baseData.length / speedFactor);
+    
+    if (speedFactor >= 1) {
+      // Fréquence plus élevée : on raccourcit en supprimant des points
+      const step = baseData.length / targetLength;
+      const newData: number[] = [];
+      
+      for (let i = 0; i < targetLength; i++) {
+        const sourceIndex = Math.round(i * step);
+        if (sourceIndex < baseData.length) {
+          newData.push(baseData[sourceIndex]);
+        }
+      }
+      return newData;
+    } else {
+      // Fréquence plus basse : on allonge en ajoutant des points
+      const newData: number[] = [];
+      const step = (baseData.length - 1) / (targetLength - 1);
+      
+      for (let i = 0; i < targetLength; i++) {
+        const sourceIndex = i * step;
+        const lowerIndex = Math.floor(sourceIndex);
+        const upperIndex = Math.ceil(sourceIndex);
+        
+        if (lowerIndex === upperIndex || upperIndex >= baseData.length) {
+          newData.push(baseData[lowerIndex] || 2);
+        } else {
+          const fraction = sourceIndex - lowerIndex;
+          const interpolated = baseData[lowerIndex] * (1 - fraction) + baseData[upperIndex] * fraction;
+          newData.push(interpolated);
+        }
+      }
+      return newData;
+    }
+  };
+
+  const triggerRhythmTransition = (newRhythmType: RhythmType, newHeartRate?: number) => {
     const state = animationState.current;
     
-    if (state.currentRhythmType === newRhythmType) return;
+    const hasRhythmChanged = state.currentRhythmType !== newRhythmType;
+    const hasHeartRateChanged = newHeartRate !== undefined && state.currentHeartRate !== newHeartRate;
+    
+    if (!hasRhythmChanged && !hasHeartRateChanged) return;
         
     const visibleSegment = state.ecgStream.slice(state.offset, state.offset + width);
     
-    const newRhythmData = getRhythmData(newRhythmType);
+    let newRhythmData = getRhythmData(newRhythmType);
+    
+    // Appliquer la fréquence cardiaque seulement pour le rythme sinusal
+    if (newRhythmType === 'sinus' && newHeartRate !== undefined) {
+      newRhythmData = createHeartRateBuffer(newRhythmData, newHeartRate);
+    }
+    
     let transitionData: number[] = [];
     
-    if (state.currentRhythmType === 'fibrillation' && newRhythmType === 'asystole') {
-      transitionData = newRhythmData.slice(0, 50);
-    } else if (state.currentRhythmType === 'asystole' && newRhythmType === 'sinus') {
-      transitionData = newRhythmData.slice(0, 100);
-    } else if (state.currentRhythmType === 'sinus' && newRhythmType === 'fibrillation') {
-      transitionData = newRhythmData.slice(0, 80);
+    if (hasRhythmChanged) {
+      if (state.currentRhythmType === 'fibrillation' && newRhythmType === 'asystole') {
+        transitionData = newRhythmData.slice(0, 50);
+      } else if (state.currentRhythmType === 'asystole' && newRhythmType === 'sinus') {
+        transitionData = newRhythmData.slice(0, 100);
+      } else if (state.currentRhythmType === 'sinus' && newRhythmType === 'fibrillation') {
+        transitionData = newRhythmData.slice(0, 80);
+      } else {
+        transitionData = newRhythmData.slice(0, 60);
+      }
     } else {
-      transitionData = newRhythmData.slice(0, 60);
+      transitionData = newRhythmData.slice(0, Math.min(100, newRhythmData.length));
     }
     
     state.ecgStream = visibleSegment.concat(transitionData);
     state.baseLoop = newRhythmData; 
     state.offset = 0; 
     state.currentRhythmType = newRhythmType;
+    if (newHeartRate !== undefined) {
+      state.currentHeartRate = newHeartRate;
+    }
     state.pendingRhythmChange = false;
   };
 
@@ -165,7 +230,13 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
     const initializeECGStream = () => {
       const state = animationState.current;
-      const rhythmData = getRhythmData(state.currentRhythmType);
+      let rhythmData = getRhythmData(state.currentRhythmType);
+      
+      // Appliquer la fréquence cardiaque pour le rythme sinusal
+      if (state.currentRhythmType === 'sinus') {
+        rhythmData = createHeartRateBuffer(rhythmData, state.currentHeartRate);
+      }
+      
       state.baseLoop = rhythmData;
       
       const repeats = Math.ceil(width / rhythmData.length) + 3;
@@ -177,9 +248,11 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
     if (animationState.current.ecgStream.length === 0) {
       animationState.current.currentRhythmType = rhythmType;
+      animationState.current.currentHeartRate = heartRate;
       initializeECGStream();
-    } else if (animationState.current.currentRhythmType !== rhythmType) {
-      triggerRhythmTransition(rhythmType);
+    } else if (animationState.current.currentRhythmType !== rhythmType || 
+               animationState.current.currentHeartRate !== heartRate) {
+      triggerRhythmTransition(rhythmType, heartRate);
     }
 
     const drawECG = () => {
@@ -208,7 +281,14 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
       drawSynchroArrows(ctx);
 
-      const speed = state.currentRhythmType === 'fibrillation' ? 2 : 1;
+      // Vitesse adaptée selon le rythme et la fréquence cardiaque
+      let speed = state.currentRhythmType === 'fibrillation' ? 2 : 1;
+      
+      // ajuste la vitesse selon la fréquence cardiaque
+      if (state.currentRhythmType === 'sinus') {
+        speed = Math.max(0.5, Math.min(3, state.currentHeartRate / 70));
+      }
+      
       state.offset += speed;
 
       if (state.offset + width >= state.ecgStream.length) {
@@ -266,7 +346,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height, rhythmType, showSynchroArrows]);
+  }, [width, height, rhythmType, showSynchroArrows, heartRate]);
 
   // Réinitialiser les pics quand le mode synchro change
   useEffect(() => {

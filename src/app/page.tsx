@@ -19,6 +19,7 @@ import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
 import DropdownMenu from "./components/DropdownMenu";
+import RhythmController from "./components/controls/RhythmController";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
@@ -399,6 +400,8 @@ const DefibInterface: React.FC = () => {
         </div>
       );
     }
+    
+    const effectiveRhythm = scenario.getEffectiveRhythm();
 
     switch (defibrillator.displayMode) {
       case "ARRET":
@@ -424,18 +427,18 @@ const DefibInterface: React.FC = () => {
           return (
             <div className="relative w-full h-full">
               <MonitorDisplay 
-                rhythmType={scenario.currentRhythm} 
+                rhythmType={effectiveRhythm} 
                 showSynchroArrows={defibrillator.isSynchroMode} 
               />
               <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
                 <span>
-                  {scenario.currentRhythm === "fibrillation" && scenario.currentScenario === "scenario_4"
+                  {effectiveRhythm === "fibrillation" && scenario.currentScenario === "scenario_4"
                     ? "ACFA - 160/min"
-                    : scenario.currentRhythm === "fibrillation"
+                    : effectiveRhythm === "fibrillation"
                     ? "Fibrillation ventriculaire"
-                    : scenario.currentRhythm === "asystole"
+                    : effectiveRhythm === "asystole"
                     ? "BAV 3 - 30/min"
-                    : "Rythme sinusal"}
+                    : `Rythme sinusal - ${scenario.heartRate} bpm`}
                 </span>
               </div>
             </div>
@@ -443,8 +446,9 @@ const DefibInterface: React.FC = () => {
       case "Stimulateur":
         return (
           <StimulateurDisplay 
-            rhythmType={scenario.currentRhythm} 
-            showSynchroArrows={defibrillator.isSynchroMode} 
+            rhythmType={effectiveRhythm} 
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={scenario.heartRate}
           />
         );
         case "Manuel":
@@ -454,12 +458,13 @@ const DefibInterface: React.FC = () => {
               chargeProgress={defibrillator.chargeProgress}
               shockCount={defibrillator.shockCount}
               isCharging={defibrillator.isCharging}
-              rhythmType={scenario.currentRhythm}
+              rhythmType={effectiveRhythm}
               showSynchroArrows={defibrillator.isSynchroMode}
+              heartRate={scenario.heartRate}
             />
           );
         default:
-          return <MonitorDisplay rhythmType={scenario.currentRhythm} />;
+          return <MonitorDisplay rhythmType={effectiveRhythm} heartRate={scenario.heartRate} />;
       }
     };
 
@@ -470,6 +475,17 @@ const DefibInterface: React.FC = () => {
         <DropdownMenu
           onMenuItemSelect={handleMenuItemSelect}
           onScenarioSelect={scenario.handleScenarioSelect}
+        />
+      </div>
+
+      {/* Contrôleur de rythme dans le coin supérieur gauche */}
+      <div className="absolute top-6 left-6 z-50">
+        <RhythmController
+          currentRhythm={scenario.manualRhythm}
+          onRhythmChange={scenario.setManualRhythm}
+          isScenarioActive={scenario.isScenarioActive()}
+          heartRate={scenario.heartRate}
+          onHeartRateChange={scenario.setHeartRate}
         />
       </div>
 
