@@ -125,6 +125,14 @@ const DefibInterface: React.FC = () => {
           scenario.validateScenarioStep(0);
           startMonitoringSteps();
         }
+
+        // Validation scénario 2 - étape 1 : allumer en mode DAE
+        if (
+          scenario.currentScenario === "scenario_2" &&
+          newMode === "DAE"
+        ) {
+          scenario.validateScenarioStep(0);
+        }
       }, 5000);
     } else {
       // Changement de mode normaleme,t
@@ -138,6 +146,15 @@ const DefibInterface: React.FC = () => {
       ) {
         scenario.validateScenarioStep(0);
         startMonitoringSteps();
+      }
+
+      // Validation scénario 2 - étape 1 : allumer en mode DAE (changement direct)
+      if (
+        scenario.currentScenario === "scenario_2" &&
+        newMode === "DAE" &&
+        defibrillator.displayMode !== "DAE"
+      ) {
+        scenario.validateScenarioStep(0);
       }
     }
   };
@@ -191,6 +208,11 @@ const DefibInterface: React.FC = () => {
       // En mode DAE, utiliser la fonction de choc du DAE si disponible
       if (daePhase === "attente_choc" && daeShockFunction) {
         daeShockFunction();
+        
+        // Validation scénario 2 - étape 5 : délivrer le choc en mode DAE
+        if (scenario.currentScenario === "scenario_2") {
+          scenario.validateScenarioStep(4);
+        }
       }
     } else if (defibrillator.displayMode === "Manuel") {
       // En mode Manuel, utiliser la logique existante
@@ -219,8 +241,26 @@ const DefibInterface: React.FC = () => {
         | "choc",
     ) => {
       setDaePhase(phase);
+      
+      // Validation automatique des étapes du scénario 2 selon les phases DAE
+      if (scenario.currentScenario === "scenario_2") {
+        switch (phase) {
+          case "analyse":
+            // Étape 3 : Analyse du rythme
+            if (scenario.currentStep === 2) {
+              scenario.validateScenarioStep(2);
+            }
+            break;
+          case "attente_choc":
+            // Étape 4 : Charge automatique terminée
+            if (scenario.currentStep === 3) {
+              scenario.validateScenarioStep(3);
+            }
+            break;
+        }
+      }
     },
-    [],
+    [scenario],
   );
 
   const handleDaeShockReady = useCallback(
@@ -275,6 +315,12 @@ const DefibInterface: React.FC = () => {
             isCharging={defibrillator.isCharging}
             onPhaseChange={handleDaePhaseChange}
             onShockReady={handleDaeShockReady}
+            onElectrodePlacementValidated={() => {
+              // Validation automatique de l'étape 2 du Scenario 2
+              if (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) {
+                scenario.validateScenarioStep(1);
+              }
+            }}
           />
         );
         case "Moniteur":
@@ -334,8 +380,8 @@ const DefibInterface: React.FC = () => {
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
-              Scénario 1 - Étape {scenario.currentStep}/
-              {scenario.scenario1Steps.length}
+              {scenario.currentScenario === "scenario_1" ? "Scénario 1" : "Scénario 2"} - Étape {scenario.currentStep }/
+              {scenario.getCurrentScenarioSteps().length}
             </h2>
             <button
               onClick={() => scenario.toggleStepHelp()}
@@ -347,20 +393,21 @@ const DefibInterface: React.FC = () => {
 
           <div className="mb-2">
             <h3 className="font-medium text-gray-700 text-xs mb-1">
-              {scenario.scenario1Steps[scenario.currentStep]?.title}
+              {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.title}
             </h3>
 
             {scenario.showStepHelp && (
               <div className="bg-blue-50 border-l-2 border-blue-400 p-2 rounded text-xs">
                 <p className="text-blue-800">
-                  {scenario.scenario1Steps[scenario.currentStep]?.description}
+                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Bouton Valider pour les étapes 2 et 3 */}
-          {(scenario.currentStep === 1 || scenario.currentStep === 2) && (
+          {/* Bouton Valider pour certaines étapes */}
+          {((scenario.currentScenario === "scenario_1" && (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
+            (scenario.currentScenario === "scenario_2" && (scenario.currentStep === 1))) && (
             <div className="mb-2">
               <button
                 onClick={scenario.handleManualValidation}
@@ -376,13 +423,13 @@ const DefibInterface: React.FC = () => {
             <div
               className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
               style={{
-                width: `${(scenario.currentStep / scenario.scenario1Steps.length) * 100}%`,
+                width: `${(scenario.currentStep / scenario.getCurrentScenarioSteps().length) * 100}%`,
               }}
             ></div>
           </div>
 
           <div className="text-xs text-gray-500">
-            {scenario.currentStep}/{scenario.scenario1Steps.length} étapes
+            {scenario.currentStep}/{scenario.getCurrentScenarioSteps().length} étapes
             complétées
           </div>
         </div>
@@ -393,7 +440,9 @@ const DefibInterface: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-500 text-white rounded-lg shadow-lg p-8 text-center">
           <CheckCircle size={48} className="mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
-          <p className="text-lg">Scénario 1 terminé avec succès</p>
+          <p className="text-lg">
+            {scenario.currentScenario === "scenario_1" ? "Scénario 1" : "Scénario 2"} terminé avec succès
+          </p>
         </div>
       )}
 

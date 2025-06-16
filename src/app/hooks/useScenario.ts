@@ -13,7 +13,7 @@ export interface ScenarioState {
   showStepHelp: boolean;
   showScenarioModal: boolean;
   selectedScenarioForModal: string | null;
-  currentRhythm: RhythmType; // Nouveau : rythme ECG actuel
+  currentRhythm: RhythmType;
 }
 
 export const useScenario = () => {
@@ -24,13 +24,13 @@ export const useScenario = () => {
     showStepHelp: false,
     showScenarioModal: false,
     selectedScenarioForModal: null,
-    currentRhythm: 'sinus', // Par défaut : rythme sinusal
+    currentRhythm: 'sinus',
   });
 
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rhythmTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Définition des étapes du scénario 1
+  //étapes du scénario 1
   const scenario1Steps: ScenarioStep[] = [
     {
       title: "Allumer le défibrillateur en position moniteur",
@@ -58,21 +58,47 @@ export const useScenario = () => {
     },
   ];
 
+  //étapes du scénario 2
+  const scenario2Steps: ScenarioStep[] = [
+    {
+      title: "Allumer le défibrillateur en mode DAE",
+      description: "Tournez la mollette verte pour passer du mode ARRÊT au mode DAE",
+    },
+    {
+      title: "Connecter les électrodes et vérifier le positionnement",
+      description: "Placez les électrodes selon l'image affichée et validez",
+    },
+    {
+      title: "Laisser le DAE analyser le rythme",
+      description: "Attendez que l'analyse du rythme soit terminée",
+    },
+    {
+      title: "Choc recommandé - Charge automatique",
+      description: "Le DAE charge automatiquement à 150 joules",
+    },
+    {
+      title: "Délivrer le choc (bouton orange)",
+      description: "Pressez le bouton orange clignotant pour délivrer le choc",
+    },
+  ];
+
   const updateState = (updates: Partial<ScenarioState>) => {
     setState(prev => ({ ...prev, ...updates }));
   };
 
   const validateScenarioStep = (stepNumber: number) => {
-    if (state.currentScenario === "scenario_1" && state.currentStep === stepNumber) {
+    const currentSteps = state.currentScenario === "scenario_1" ? scenario1Steps : scenario2Steps;
+    
+    if ((state.currentScenario === "scenario_1" || state.currentScenario === "scenario_2") && state.currentStep === stepNumber) {
       const newStep = stepNumber + 1;
       updateState({ currentStep: newStep });
       
-      // Étape 6 terminée (choc délivré) : déclencher le changement de rythme
-      if (stepNumber === 5) { // Index 5 = étape 6
+      // Étape finale terminée (choc délivré) : déclencher le changement de rythme
+      if (stepNumber === currentSteps.length - 1) {
         triggerRhythmTransition();
       }
       
-      if (newStep >= scenario1Steps.length) {
+      if (newStep >= currentSteps.length) {
         // Scénario terminé - nettoyer les timers
         if (scenarioTimeoutRef.current) {
           clearTimeout(scenarioTimeoutRef.current);
@@ -85,7 +111,7 @@ export const useScenario = () => {
             currentScenario: null,
             currentStep: 0,
             showScenarioComplete: false,
-            currentRhythm: 'sinus', // Retour au rythme sinusal après le scénario
+            currentRhythm: 'sinus',
           });
         }, 3000);
       }
@@ -93,7 +119,6 @@ export const useScenario = () => {
   };
 
   const triggerRhythmTransition = () => {
-    
     // Nettoyer tout timer de transition existant
     if (rhythmTransitionTimeoutRef.current) {
       clearTimeout(rhythmTransitionTimeoutRef.current);
@@ -102,7 +127,7 @@ export const useScenario = () => {
     // Phase 1: Passage immédiat en asystolie après le choc
     updateState({ currentRhythm: 'asystole' });
     
-    // Phase 2: Retour au rythme sinusal après 2 secondes d'asystolie
+    // Phase 2: Retour au rythme sinusal après 2.5 secondes d'asystolie
     rhythmTransitionTimeoutRef.current = setTimeout(() => {
       updateState({ currentRhythm: 'sinus' });
     }, 2500);
@@ -110,8 +135,11 @@ export const useScenario = () => {
 
   const handleManualValidation = () => {
     if (state.currentScenario === "scenario_1") {
-      // Pour les étapes 2 et 3 (indices 1 et 2), permettre la validation manuelle
       if (state.currentStep === 1 || state.currentStep === 2) {
+        validateScenarioStep(state.currentStep);
+      }
+    } else if (state.currentScenario === "scenario_2") {
+      if (state.currentStep === 1 || state.currentStep === 3) {
         validateScenarioStep(state.currentStep);
       }
     }
@@ -123,7 +151,14 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillation', // Démarrer avec la fibrillation ventriculaire
+        currentRhythm: 'fibrillation',
+      });
+    } else if (scenarioId === "scenario_2") {
+      updateState({
+        currentScenario: scenarioId,
+        currentStep: 0,
+        showScenarioComplete: false,
+        currentRhythm: 'fibrillation', 
       });
     }
   };
@@ -169,10 +204,17 @@ export const useScenario = () => {
     }
   };
 
+  const getCurrentScenarioSteps = () => {
+    if (state.currentScenario === "scenario_1") return scenario1Steps;
+    if (state.currentScenario === "scenario_2") return scenario2Steps;
+    return [];
+  };
+
   return {
     // State
     ...state,
     scenario1Steps,
+    scenario2Steps, 
     
     // Actions
     validateScenarioStep,
@@ -184,5 +226,6 @@ export const useScenario = () => {
     closeScenarioModal,
     triggerRhythmTransition,
     cleanup,
+    getCurrentScenarioSteps, 
   };
 };

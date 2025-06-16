@@ -10,6 +10,7 @@ interface DAEDisplayProps {
   isCharging: boolean; // État de charge en cours
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
   onPhaseChange?: (phase: 'placement' | 'preparation' | 'analyse' | 'pre-charge' | 'charge' | 'attente_choc' | 'choc') => void; // Callback pour exposer la phase actuelle
+  onElectrodePlacementValidated?: () => void; // Callback pour la validation du placement des électrodes
 }
 
 type Phase = 'placement' | 'preparation' |'analyse' |'pre-charge'| 'charge' | 'attente_choc' | 'choc';
@@ -18,6 +19,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     shockCount,
     onShockReady,
     onPhaseChange,
+    onElectrodePlacementValidated, 
   }) => {
   
   const audioServiceRef = useRef<AudioService | null>(null);
@@ -186,6 +188,11 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   const handlePlacementValidate = () => {
     if (phase === 'placement') {
       setPhase('preparation');
+      
+      //Déclenche le callback pour valider l'étape 2 du Scenario 2
+      if (onElectrodePlacementValidated) {
+        onElectrodePlacementValidated();
+      }
     }
   };
 
@@ -414,4 +421,4 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   );
 };
 
-export default DAEDisplay; 
+export default DAEDisplay;
