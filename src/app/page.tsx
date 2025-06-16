@@ -133,6 +133,22 @@ const DefibInterface: React.FC = () => {
         ) {
           scenario.validateScenarioStep(0);
         }
+
+        // Validation scénario 3 - étape 2 : allumer en position moniteur
+        if (
+          scenario.currentScenario === "scenario_3" &&
+          newMode === "Moniteur"
+        ) {
+          scenario.validateScenarioStep(1);
+        }
+
+        // Validation scénario 3 - étape 4 : passer en mode Stimulateur
+        if (
+          scenario.currentScenario === "scenario_3" &&
+          newMode === "Stimulateur"
+        ) {
+          scenario.validateScenarioStep(3);
+        }
       }, 5000);
     } else {
       // Changement de mode normaleme,t
@@ -155,6 +171,24 @@ const DefibInterface: React.FC = () => {
         defibrillator.displayMode !== "DAE"
       ) {
         scenario.validateScenarioStep(0);
+      }
+
+      // Validation scénario 3 - étape 2 : allumer en position moniteur (changement direct)
+      if (
+        scenario.currentScenario === "scenario_3" &&
+        newMode === "Moniteur" &&
+        defibrillator.displayMode !== "Moniteur"
+      ) {
+        scenario.validateScenarioStep(1);
+      }
+
+      // Validation scénario 3 - étape 4 : passer en mode Stimulateur (changement direct)
+      if (
+        scenario.currentScenario === "scenario_3" &&
+        newMode === "Stimulateur" &&
+        defibrillator.displayMode !== "Stimulateur"
+      ) {
+        scenario.validateScenarioStep(3);
       }
     }
   };
@@ -275,6 +309,19 @@ const DefibInterface: React.FC = () => {
     console.log("Menu action:", action);
   };
 
+  const getScenarioTitle = () => {
+    switch (scenario.currentScenario) {
+      case "scenario_1":
+        return "Scénario 1";
+      case "scenario_2":
+        return "Scénario 2";
+      case "scenario_3":
+        return "Scénario 3";
+      default:
+        return "Scénario";
+    }
+  };
+
   const renderScreenContent = () => {
     if (isBooting) {
       return (
@@ -316,7 +363,7 @@ const DefibInterface: React.FC = () => {
             onPhaseChange={handleDaePhaseChange}
             onShockReady={handleDaeShockReady}
             onElectrodePlacementValidated={() => {
-              // Validation automatique de l'étape 2 du Scenario 2
+              // Validation automatique de l'étape 2 du Scenario 2 (placement des électrodes)
               if (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) {
                 scenario.validateScenarioStep(1);
               }
@@ -334,13 +381,20 @@ const DefibInterface: React.FC = () => {
                 <span>
                   {scenario.currentRhythm === "fibrillation"
                     ? "Fibrillation ventriculaire"
+                    : scenario.currentRhythm === "asystole"
+                    ? "BAV 3 - 30/min"
                     : "Rythme sinusal"}
                 </span>
               </div>
             </div>
           );
       case "Stimulateur":
-        return <StimulateurDisplay />;
+        return (
+          <StimulateurDisplay 
+            rhythmType={scenario.currentRhythm} 
+            showSynchroArrows={defibrillator.isSynchroMode} 
+          />
+        );
         case "Manuel":
           return (
             <ManuelDisplay
@@ -380,7 +434,7 @@ const DefibInterface: React.FC = () => {
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
-              {scenario.currentScenario === "scenario_1" ? "Scénario 1" : "Scénario 2"} - Étape {scenario.currentStep }/
+              {getScenarioTitle()} - Étape {scenario.currentStep}/
               {scenario.getCurrentScenarioSteps().length}
             </h2>
             <button
@@ -407,7 +461,8 @@ const DefibInterface: React.FC = () => {
 
           {/* Bouton Valider pour certaines étapes */}
           {((scenario.currentScenario === "scenario_1" && (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
-            (scenario.currentScenario === "scenario_2" && (scenario.currentStep === 1))) && (
+            (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) ||
+            (scenario.currentScenario === "scenario_3" && (scenario.currentStep === 0 || scenario.currentStep === 2 || scenario.currentStep === 4))) && (
             <div className="mb-2">
               <button
                 onClick={scenario.handleManualValidation}
@@ -441,7 +496,7 @@ const DefibInterface: React.FC = () => {
           <CheckCircle size={48} className="mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
           <p className="text-lg">
-            {scenario.currentScenario === "scenario_1" ? "Scénario 1" : "Scénario 2"} terminé avec succès
+            {getScenarioTitle()} terminé avec succès
           </p>
         </div>
       )}

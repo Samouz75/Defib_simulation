@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import TimerDisplay from "../TimerDisplay";
 import ECGDisplay from "../graphsdata/ECGDisplay";
+import type { RhythmType } from "../graphsdata/ECGRhythms";
 
-const StimulateurDisplay: React.FC = () => {
+interface StimulateurDisplayProps {
+  rhythmType?: RhythmType; 
+  showSynchroArrows?: boolean; 
+}
+
+const StimulateurDisplay: React.FC<StimulateurDisplayProps> = ({ 
+  rhythmType = 'sinus',
+  showSynchroArrows = false 
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
   const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
@@ -77,7 +86,9 @@ return (
               <div className="text-gray-400 text-xs">bpm</div>
             </div>
             <div className="flex flex-row items-center gap-x-2">
-              <div className="text-green-400 text-4xl font-bold">120</div>
+              <div className="text-green-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : '120'}
+              </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
           </div>
@@ -103,7 +114,9 @@ return (
           <div className="flex flex-row  gap-x-2">
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold">120</div>
+              <div className="text-blue-400 text-4xl font-bold">
+                {rhythmType === 'fibrillation' ? '--' : rhythmType === 'asystole' ? '30' : '120'}
+              </div>
             </div>
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs mb-2">bpm</div>
@@ -120,9 +133,17 @@ return (
 
         {/* Row 3*/}
         <div className="h-1/3 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay width={800} height={65} />
+          <ECGDisplay 
+            width={800} 
+            height={65} 
+            rhythmType={rhythmType} 
+            showSynchroArrows={showSynchroArrows} 
+          />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
-            <span>Rythme sinusal</span>
+            <span>
+              {rhythmType === 'fibrillation' ? 'Fibrillation ventriculaire' : 
+               rhythmType === 'asystole' ? 'BAV 3 - 30/min' : 'Rythme sinusal'}
+            </span>
           </div>
         </div>
 

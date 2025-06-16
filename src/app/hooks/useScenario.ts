@@ -30,7 +30,7 @@ export const useScenario = () => {
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rhythmTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  //étapes du scénario 1
+  // Étapes du scénario 1
   const scenario1Steps: ScenarioStep[] = [
     {
       title: "Allumer le défibrillateur en position moniteur",
@@ -58,7 +58,7 @@ export const useScenario = () => {
     },
   ];
 
-  //étapes du scénario 2
+  // Étapes du scénario 2
   const scenario2Steps: ScenarioStep[] = [
     {
       title: "Allumer le défibrillateur en mode DAE",
@@ -82,24 +82,66 @@ export const useScenario = () => {
     },
   ];
 
+  // Étapes du scénario 3 (Électro-entraînement)
+  const scenario3Steps: ScenarioStep[] = [
+    {
+      title: "Connecter les électrodes et vérifier le positionnement",
+      description: "Placez les électrodes et validez le positionnement sur le patient",
+    },
+    {
+      title: "Allumer le défibrillateur en position moniteur",
+      description: "Tournez la mollette verte pour passer du mode ARRÊT au mode Moniteur",
+    },
+    {
+      title: "Lire le rythme",
+      description: "Observez le tracé ECG : BAV 3 à 30/min détecté",
+    },
+    {
+      title: "Passer en mode Stimulateur",
+      description: "Tournez la mollette verte pour passer au mode Stimulateur",
+    },
+    {
+      title: "Régler les paramètres de l'électro-entraînement",
+      description: "Accédez aux 'Réglages stimulateur' et ajustez l'intensité et la fréquence",
+    },
+    {
+      title: "Lancer la stimulation",
+      description: "Activez la stimulation via le bouton 'Début stimulateur'",
+    },
+  ];
+
   const updateState = (updates: Partial<ScenarioState>) => {
     setState(prev => ({ ...prev, ...updates }));
   };
 
   const validateScenarioStep = (stepNumber: number) => {
-    const currentSteps = state.currentScenario === "scenario_1" ? scenario1Steps : scenario2Steps;
+    let currentSteps: ScenarioStep[] = [];
     
-    if ((state.currentScenario === "scenario_1" || state.currentScenario === "scenario_2") && state.currentStep === stepNumber) {
+    if (state.currentScenario === "scenario_1") {
+      currentSteps = scenario1Steps;
+    } else if (state.currentScenario === "scenario_2") {
+      currentSteps = scenario2Steps;
+    } else if (state.currentScenario === "scenario_3") {
+      currentSteps = scenario3Steps;
+    }
+
+    if (state.currentStep === stepNumber && currentSteps.length > 0) {
       const newStep = stepNumber + 1;
       updateState({ currentStep: newStep });
       
-      // Étape finale terminée (choc délivré) : déclencher le changement de rythme
+      // Gestion des transitions de rythme selon le scénario
       if (stepNumber === currentSteps.length - 1) {
-        triggerRhythmTransition();
+        // Dernière étape terminée
+        if (state.currentScenario === "scenario_1") {
+          // Scénario 1 seulement : transition après choc
+          triggerRhythmTransition();
+        } else if (state.currentScenario === "scenario_3") {
+          // Scénario 3 : stimulation réussie, rythme devient normal
+          triggerStimulationSuccess();
+        }
       }
       
       if (newStep >= currentSteps.length) {
-        // Scénario terminé - nettoyer les timers
         if (scenarioTimeoutRef.current) {
           clearTimeout(scenarioTimeoutRef.current);
           scenarioTimeoutRef.current = null;
@@ -119,27 +161,44 @@ export const useScenario = () => {
   };
 
   const triggerRhythmTransition = () => {
-    // Nettoyer tout timer de transition existant
+    // Transition pour scénario 1 seulement (après choc)
     if (rhythmTransitionTimeoutRef.current) {
       clearTimeout(rhythmTransitionTimeoutRef.current);
     }
     
-    // Phase 1: Passage immédiat en asystolie après le choc
+    // Phase 1: Passage en asystolie après le choc
     updateState({ currentRhythm: 'asystole' });
     
-    // Phase 2: Retour au rythme sinusal après 2.5 secondes d'asystolie
+    // Phase 2: Retour au rythme sinusal après 2.5 secondes
     rhythmTransitionTimeoutRef.current = setTimeout(() => {
       updateState({ currentRhythm: 'sinus' });
     }, 2500);
   };
 
+  const triggerStimulationSuccess = () => {
+    // Transition pour scénario 3 (stimulation réussie)
+    if (rhythmTransitionTimeoutRef.current) {
+      clearTimeout(rhythmTransitionTimeoutRef.current);
+    }
+    
+    // Passage direct au rythme sinusal (stimulation efficace)
+    updateState({ currentRhythm: 'sinus' });
+  };
+
   const handleManualValidation = () => {
     if (state.currentScenario === "scenario_1") {
+      // Étapes avec validation manuelle pour scénario 1
       if (state.currentStep === 1 || state.currentStep === 2) {
         validateScenarioStep(state.currentStep);
       }
     } else if (state.currentScenario === "scenario_2") {
+      // Étapes avec validation manuelle pour scénario 2
       if (state.currentStep === 1 || state.currentStep === 3) {
+        validateScenarioStep(state.currentStep);
+      }
+    } else if (state.currentScenario === "scenario_3") {
+      // Étapes avec validation manuelle pour scénario 3
+      if (state.currentStep === 0 || state.currentStep === 2 || state.currentStep === 4) {
         validateScenarioStep(state.currentStep);
       }
     }
@@ -151,14 +210,21 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillation',
+        currentRhythm: 'fibrillation', // Fibrillation ventriculaire
       });
     } else if (scenarioId === "scenario_2") {
       updateState({
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillation', 
+        currentRhythm: 'sinus', 
+      });
+    } else if (scenarioId === "scenario_3") {
+      updateState({
+        currentScenario: scenarioId,
+        currentStep: 0,
+        showScenarioComplete: false,
+        currentRhythm: 'asystole', // BAV 3 - rythme très lent (simulé par asystolie pour l'instant)
       });
     }
   };
@@ -192,7 +258,6 @@ export const useScenario = () => {
     });
   };
 
-  // Nettoyage des timers
   const cleanup = () => {
     if (scenarioTimeoutRef.current) {
       clearTimeout(scenarioTimeoutRef.current);
@@ -207,6 +272,7 @@ export const useScenario = () => {
   const getCurrentScenarioSteps = () => {
     if (state.currentScenario === "scenario_1") return scenario1Steps;
     if (state.currentScenario === "scenario_2") return scenario2Steps;
+    if (state.currentScenario === "scenario_3") return scenario3Steps;
     return [];
   };
 
@@ -214,7 +280,8 @@ export const useScenario = () => {
     // State
     ...state,
     scenario1Steps,
-    scenario2Steps, 
+    scenario2Steps,
+    scenario3Steps, 
     
     // Actions
     validateScenarioStep,
@@ -225,7 +292,8 @@ export const useScenario = () => {
     toggleStepHelp,
     closeScenarioModal,
     triggerRhythmTransition,
+    triggerStimulationSuccess, 
     cleanup,
-    getCurrentScenarioSteps, 
+    getCurrentScenarioSteps,
   };
 };
