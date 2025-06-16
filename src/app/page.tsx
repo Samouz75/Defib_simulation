@@ -149,6 +149,14 @@ const DefibInterface: React.FC = () => {
         ) {
           scenario.validateScenarioStep(3);
         }
+
+        // Validation scénario 4 - étape 2 : allumer en position moniteur
+        if (
+          scenario.currentScenario === "scenario_4" &&
+          newMode === "Moniteur"
+        ) {
+          scenario.validateScenarioStep(1);
+        }
       }, 5000);
     } else {
       // Changement de mode normaleme,t
@@ -190,6 +198,15 @@ const DefibInterface: React.FC = () => {
       ) {
         scenario.validateScenarioStep(3);
       }
+
+      // Validation scénario 4 - étape 2 : allumer en position moniteur (changement direct)
+      if (
+        scenario.currentScenario === "scenario_4" &&
+        newMode === "Moniteur" &&
+        defibrillator.displayMode !== "Moniteur"
+      ) {
+        scenario.validateScenarioStep(1);
+      }
     }
   };
 
@@ -220,6 +237,12 @@ const DefibInterface: React.FC = () => {
       if (scenario.currentScenario === "scenario_1" && newValue === "150") {
         scenario.validateScenarioStep(3);
       }
+
+      // Validation scénario 4 - étape 5 : sélection des joules
+      if (scenario.currentScenario === "scenario_4" && 
+          (newValue === "100" || newValue === "120" || newValue === "150")) {
+        scenario.validateScenarioStep(4);
+      }
     }
   };
 
@@ -231,6 +254,12 @@ const DefibInterface: React.FC = () => {
       // Validation scénario 1 - étape 5 : appui bouton charge
       if (scenario.currentScenario === "scenario_1") {
         scenario.validateScenarioStep(4);
+      }
+
+      // Validation scénario 4 - étape 6 : charger (première partie)
+      if (scenario.currentScenario === "scenario_4") {
+        // Ne valide pas encore l'étape, il faut aussi choquer
+        console.log("Scenario 4: Charge en cours");
       }
     }
   };
@@ -259,6 +288,25 @@ const DefibInterface: React.FC = () => {
       ) {
         scenario.validateScenarioStep(5);
       }
+
+      // Validation scénario 4 - étape 6 : choquer (cardioversion)
+      if (
+        scenario.currentScenario === "scenario_4" &&
+        defibrillator.chargeProgress === 100 &&
+        defibrillator.isSynchroMode
+      ) {
+        scenario.validateScenarioStep(5);
+      }
+    }
+  };
+
+  const handleSynchroButtonClick = () => {
+    defibrillator.toggleSynchroMode();
+    
+    // Validation scénario 4 - étape 4 : activation du mode synchro
+    if (scenario.currentScenario === "scenario_4" && !defibrillator.isSynchroMode) {
+      // Si on vient d'activer le mode synchro
+      scenario.validateScenarioStep(3);
     }
   };
 
@@ -317,6 +365,8 @@ const DefibInterface: React.FC = () => {
         return "Scénario 2";
       case "scenario_3":
         return "Scénario 3";
+      case "scenario_4":
+        return "Scénario 4";
       default:
         return "Scénario";
     }
@@ -379,7 +429,9 @@ const DefibInterface: React.FC = () => {
               />
               <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
                 <span>
-                  {scenario.currentRhythm === "fibrillation"
+                  {scenario.currentRhythm === "fibrillation" && scenario.currentScenario === "scenario_4"
+                    ? "ACFA - 160/min"
+                    : scenario.currentRhythm === "fibrillation"
                     ? "Fibrillation ventriculaire"
                     : scenario.currentRhythm === "asystole"
                     ? "BAV 3 - 30/min"
@@ -462,7 +514,8 @@ const DefibInterface: React.FC = () => {
           {/* Bouton Valider pour certaines étapes */}
           {((scenario.currentScenario === "scenario_1" && (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
             (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) ||
-            (scenario.currentScenario === "scenario_3" && (scenario.currentStep === 0 || scenario.currentStep === 2 || scenario.currentStep === 4))) && (
+            (scenario.currentScenario === "scenario_3" && (scenario.currentStep === 0 || scenario.currentStep === 2 || scenario.currentStep === 4)) ||
+            (scenario.currentScenario === "scenario_4" && (scenario.currentStep === 0 || scenario.currentStep === 2))) && (
             <div className="mb-2">
               <button
                 onClick={scenario.handleManualValidation}
@@ -566,9 +619,9 @@ const DefibInterface: React.FC = () => {
 
             {/* Boutons colorés */}
             <div className="space-y-4 mt-18">
-              {/* white */}
+              {/* white - Synchro */}
               <Synchro
-                onClick={defibrillator.toggleSynchroMode}
+                onClick={handleSynchroButtonClick}
                 isActive={defibrillator.isSynchroMode}
               />
               {/* Jaune - Charge */}
@@ -589,8 +642,7 @@ const DefibInterface: React.FC = () => {
                       defibrillator.isChargeButtonPressed
                         ? "from-yellow-300 to-yellow-400"
                         : ""
-                    }`}
-                  >
+                    }`}   >
                     <div className="absolute left-2">
                       <span className="text-black text-xs font-bold">
                         Charge

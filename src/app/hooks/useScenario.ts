@@ -110,6 +110,34 @@ export const useScenario = () => {
     },
   ];
 
+  // Étapes du scénario 4
+  const scenario4Steps: ScenarioStep[] = [
+    {
+      title: "Connecter les électrodes et vérifier le positionnement",
+      description: "Placez les électrodes et validez le positionnement sur le patient",
+    },
+    {
+      title: "Allumer le défibrillateur en position moniteur",
+      description: "Tournez la mollette verte pour passer du mode ARRÊT au mode Moniteur",
+    },
+    {
+      title: "Lire le rythme",
+      description: "Observez le tracé ECG : ACFA à 160/min détectée",
+    },
+    {
+      title: "Appuyer sur le bouton synchro",
+      description: "Activez le mode synchronisé en appuyant sur le bouton Synchro (flèches apparaissent)",
+    },
+    {
+      title: "Tourner la mollette sur le nombre de Joules",
+      description: "Sélectionnez une énergie appropriée (ex: 100-150 joules)",
+    },
+    {
+      title: "Charger puis choquer",
+      description: "Pressez le bouton Charge puis le bouton Choc pour la cardioversion",
+    },
+  ];
+
   const updateState = (updates: Partial<ScenarioState>) => {
     setState(prev => ({ ...prev, ...updates }));
   };
@@ -123,6 +151,8 @@ export const useScenario = () => {
       currentSteps = scenario2Steps;
     } else if (state.currentScenario === "scenario_3") {
       currentSteps = scenario3Steps;
+    } else if (state.currentScenario === "scenario_4") {
+      currentSteps = scenario4Steps;
     }
 
     if (state.currentStep === stepNumber && currentSteps.length > 0) {
@@ -138,6 +168,9 @@ export const useScenario = () => {
         } else if (state.currentScenario === "scenario_3") {
           // Scénario 3 : stimulation réussie, rythme devient normal
           triggerStimulationSuccess();
+        } else if (state.currentScenario === "scenario_4") {
+          // Scénario 4 : cardioversion réussie, retour au rythme sinusal
+          triggerCardioversionSuccess();
         }
       }
       
@@ -185,6 +218,14 @@ export const useScenario = () => {
     updateState({ currentRhythm: 'sinus' });
   };
 
+  const triggerCardioversionSuccess = () => {
+    if (rhythmTransitionTimeoutRef.current) {
+      clearTimeout(rhythmTransitionTimeoutRef.current);
+    }
+    
+    updateState({ currentRhythm: 'sinus' });
+  };
+
   const handleManualValidation = () => {
     if (state.currentScenario === "scenario_1") {
       // Étapes avec validation manuelle pour scénario 1
@@ -199,6 +240,11 @@ export const useScenario = () => {
     } else if (state.currentScenario === "scenario_3") {
       // Étapes avec validation manuelle pour scénario 3
       if (state.currentStep === 0 || state.currentStep === 2 || state.currentStep === 4) {
+        validateScenarioStep(state.currentStep);
+      }
+    } else if (state.currentScenario === "scenario_4") {
+      // Étapes avec validation manuelle pour scénario 4
+      if (state.currentStep === 0 || state.currentStep === 2) {
         validateScenarioStep(state.currentStep);
       }
     }
@@ -224,7 +270,14 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'asystole', // BAV 3 - rythme très lent (simulé par asystolie pour l'instant)
+        currentRhythm: 'asystole', // BAV 3 - rythme très lent (simulé par asystolie)
+      });
+    } else if (scenarioId === "scenario_4") {
+      updateState({
+        currentScenario: scenarioId,
+        currentStep: 0,
+        showScenarioComplete: false,
+        currentRhythm: 'fibrillation', // ACFA rapide (simulé par fibrillation)
       });
     }
   };
@@ -273,6 +326,7 @@ export const useScenario = () => {
     if (state.currentScenario === "scenario_1") return scenario1Steps;
     if (state.currentScenario === "scenario_2") return scenario2Steps;
     if (state.currentScenario === "scenario_3") return scenario3Steps;
+    if (state.currentScenario === "scenario_4") return scenario4Steps;
     return [];
   };
 
@@ -281,7 +335,8 @@ export const useScenario = () => {
     ...state,
     scenario1Steps,
     scenario2Steps,
-    scenario3Steps, 
+    scenario3Steps,
+    scenario4Steps, 
     
     // Actions
     validateScenarioStep,
@@ -292,7 +347,8 @@ export const useScenario = () => {
     toggleStepHelp,
     closeScenarioModal,
     triggerRhythmTransition,
-    triggerStimulationSuccess, 
+    triggerStimulationSuccess,
+    triggerCardioversionSuccess, 
     cleanup,
     getCurrentScenarioSteps,
   };
