@@ -100,7 +100,7 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
               }}
             />
             
-            <div className="flex justify-between text-xs ml-1 mr-1  text-gray-400">
+            <div className="flex justify-between text-xs ml-1 mr-1 gap-2 text-gray-400">
               <span>Bradycardie</span>
               <span>Normal</span>
               <span>Tachycardie</span>
