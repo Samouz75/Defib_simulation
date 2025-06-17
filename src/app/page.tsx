@@ -494,7 +494,7 @@ const DefibInterface: React.FC = () => {
       <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
       {/* Contrôleur de rythme - Position responsive */}
-      <div className="hidden xl:block xl:absolute xl:top-20 xl:left-6 z-50">
+      <div className="hidden xl:block xl:absolute xl:top-73 xl:left-6 z-50 ml-10">
         <RhythmController
           currentRhythm={scenario.manualRhythm}
           onRhythmChange={scenario.setManualRhythm}
@@ -590,7 +590,7 @@ const DefibInterface: React.FC = () => {
           transform: `scale(${scale})`,
           transformOrigin: "center center",
         }}
-        className="bg-gray-800 p-8 rounded-3xl"
+        className="bg-gray-800 p-8 rounded-3xl xl:mt-40"
       >
         <div className="flex gap-8">
           {/* Section principale */}
