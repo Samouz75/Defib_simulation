@@ -42,19 +42,22 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
   ];
 
   return (
-    <div className="bg-gray-800 rounded-lg p-3 md:p-4 border border-gray-600 shadow-lg">
-      <h3 className="text-white text-sm font-bold mb-3 flex items-center gap-2">
-        <Activity className="w-4 h-4 text-blue-400" />
+    <div className="bg-gray-800 rounded-lg p-2 md:p-4 border border-gray-600 shadow-lg
+                    scale-70 origin-center xl:scale-100 xl:transform-none">
+      <h3 className="text-white text-xs sm:text-sm font-bold mb-3 flex items-center gap-2">
+        <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
         Contrôle du rythme ECG
       </h3>
       
-      <div className="space-y-2">
+      <div className="flex flex-row justify-around items-center gap-2 xl:flex-col xl:space-y-2 xl:justify-start xl:items-stretch">
         {rhythmOptions.map((option) => (
           <button
             key={option.type}
             onClick={() => !isScenarioActive && onRhythmChange(option.type)}
             disabled={isScenarioActive}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg text-white text-sm font-medium transition-all duration-200 ${
+            className={`flex-1 p-2 flex items-center justify-center gap-2 
+              xl:w-full xl:p-3 xl:gap-3 
+              rounded-lg text-white text-xs sm:text-sm font-medium transition-all duration-200 ${
               currentRhythm === option.type
                 ? `${option.color} ring-2 ring-white ring-opacity-50 shadow-md`
                 : isScenarioActive
@@ -64,9 +67,9 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
           >
             <div className="flex items-center gap-2">
               {option.icon}
-              <span>{option.label}</span>
+              <span className="whitespace-nowrap">{option.label}</span>
             </div>
-            <span className="ml-auto text-xs opacity-75">
+            <span className="hidden xl:block ml-auto text-xs opacity-75">
               {option.description}
             </span>
           </button>

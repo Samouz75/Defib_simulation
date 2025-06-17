@@ -732,7 +732,7 @@ const DefibInterface: React.FC = () => {
       </div>
 
       {/* Contrôleur de rythme en bas sur petits écrans */}
-      <div className="xl:hidden -mt-35 flex justify-center w-full">
+      <div className="xl:hidden -mt-50 flex justify-center w-full">
         <RhythmController
           currentRhythm={scenario.manualRhythm}
           onRhythmChange={scenario.setManualRhythm}
