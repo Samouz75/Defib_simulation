@@ -18,7 +18,7 @@ import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
 import Header from "./components/Header";
-import RhythmController from "./components/controls/RhythmController";
+import ECGRhythmDropdown from "./components/controls/ECGRhythmDropdown";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
@@ -491,18 +491,16 @@ const DefibInterface: React.FC = () => {
   return (
     <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative">
       {/* Header fixe */}
-      <Header onStartScenario={scenario.handleStartScenarioFromModal} />
+      <Header
+        onStartScenario={scenario.handleStartScenarioFromModal}
+        currentRhythm={scenario.manualRhythm}
+        onRhythmChange={scenario.setManualRhythm}
+        isScenarioActive={scenario.isScenarioActive()}
+        heartRate={scenario.heartRate}
+        onHeartRateChange={scenario.setHeartRate}
+      />
 
-      {/* Contrôleur de rythme - Position responsive */}
-      <div className="hidden xl:block xl:absolute xl:top-73 xl:left-6 z-50 ml-10">
-        <RhythmController
-          currentRhythm={scenario.manualRhythm}
-          onRhythmChange={scenario.setManualRhythm}
-          isScenarioActive={scenario.isScenarioActive()}
-          heartRate={scenario.heartRate}
-          onHeartRateChange={scenario.setHeartRate}
-        />
-      </div>
+
 
       {/* Popup de scénario */}
       {scenario.currentScenario && (
@@ -755,17 +753,6 @@ const DefibInterface: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Contrôleur de rythme en bas sur petits écrans */}
-      <div className="xl:hidden -mt-50 flex justify-center w-full">
-        <RhythmController
-          currentRhythm={scenario.manualRhythm}
-          onRhythmChange={scenario.setManualRhythm}
-          isScenarioActive={scenario.isScenarioActive()}
-          heartRate={scenario.heartRate}
-          onHeartRateChange={scenario.setHeartRate}
-        />
       </div>
     </div>
   );
