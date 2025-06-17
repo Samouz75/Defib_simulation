@@ -444,7 +444,7 @@ const DefibInterface: React.FC = () => {
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
             />
-            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
+            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400 mt-3">
               <span>
                 {effectiveRhythm === "fibrillation" &&
                 scenario.currentScenario === "scenario_4"
@@ -453,7 +453,7 @@ const DefibInterface: React.FC = () => {
                     ? "Fibrillation ventriculaire"
                     : effectiveRhythm === "asystole"
                       ? "BAV 3 - 30/min"
-                      : `Rythme sinusal - ${scenario.heartRate} bpm`}
+                      : `Rythme sinusal`}
               </span>
             </div>
           </div>
@@ -500,11 +500,9 @@ const DefibInterface: React.FC = () => {
         onHeartRateChange={scenario.setHeartRate}
       />
 
-
-
       {/* Popup de scénario */}
       {scenario.currentScenario && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
+        <div className="absolute top-50 right-6 transform z-40 bg-white rounded-lg shadow-lg p-3 w-50">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
               {getScenarioTitle()} - Étape {scenario.currentStep}/
