@@ -42,7 +42,7 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
   ];
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 shadow-lg mt-48 ml-10">
+    <div className="bg-gray-800 rounded-lg p-3 md:p-4 border border-gray-600 shadow-lg">
       <h3 className="text-white text-sm font-bold mb-3 flex items-center gap-2">
         <Activity className="w-4 h-4 text-blue-400" />
         Contrôle du rythme ECG

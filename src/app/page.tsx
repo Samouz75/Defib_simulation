@@ -471,12 +471,12 @@ const DefibInterface: React.FC = () => {
     };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative" style={{ paddingTop: '80px' }}>
+    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center p-20 relative" style={{ paddingTop: '80px' }}>
       {/* Header fixe */}
       <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
-      {/* Contrôleur de rythme dans le coin supérieur gauche */}
-      <div className="absolute top-20 left-6 z-50">
+      {/* Contrôleur de rythme - Position responsive */}
+      <div className="hidden xl:block xl:absolute xl:top-20 xl:left-6 z-50">
         <RhythmController
           currentRhythm={scenario.manualRhythm}
           onRhythmChange={scenario.setManualRhythm}
@@ -485,8 +485,6 @@ const DefibInterface: React.FC = () => {
           onHeartRateChange={scenario.setHeartRate}
         />
       </div>
-
-
 
       {/* Popup de scénario */}
       {scenario.currentScenario && (
@@ -731,6 +729,17 @@ const DefibInterface: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Contrôleur de rythme en bas sur petits écrans */}
+      <div className="xl:hidden mt-4 flex justify-center w-full">
+        <RhythmController
+          currentRhythm={scenario.manualRhythm}
+          onRhythmChange={scenario.setManualRhythm}
+          isScenarioActive={scenario.isScenarioActive()}
+          heartRate={scenario.heartRate}
+          onHeartRateChange={scenario.setHeartRate}
+        />
       </div>
     </div>
   );
