@@ -10,7 +10,6 @@ import {
   HelpCircle,
   CheckCircle,
 } from "lucide-react";
-import ButtonComponent from "./components/buttons/ButtonComponent";
 import MonitorDisplay from "./components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "./components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "./components/ScreenDisplay/ARRETDisplay";
@@ -18,7 +17,7 @@ import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
 import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
-import DropdownMenu from "./components/DropdownMenu";
+import Header from "./components/Header";
 import RhythmController from "./components/controls/RhythmController";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
@@ -473,17 +472,12 @@ const DefibInterface: React.FC = () => {
     };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative">
-      {/* Menu déroulant dans le coin supérieur droit */}
-      <div className="absolute top-6 right-6 z-50">
-        <DropdownMenu
-          onMenuItemSelect={handleMenuItemSelect}
-          onScenarioSelect={scenario.handleScenarioSelect}
-        />
-      </div>
+    <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative" style={{ paddingTop: '80px' }}>
+      {/* Header fixe */}
+      <Header />
 
       {/* Contrôleur de rythme dans le coin supérieur gauche */}
-      <div className="absolute top-6 left-6 z-50">
+      <div className="absolute top-20 left-6 z-50">
         <RhythmController
           currentRhythm={scenario.manualRhythm}
           onRhythmChange={scenario.setManualRhythm}
