@@ -471,7 +471,7 @@ const DefibInterface: React.FC = () => {
     };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center p-20 relative" style={{ paddingTop: '80px' }}>
+    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center  relative" >
       {/* Header fixe */}
       <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
