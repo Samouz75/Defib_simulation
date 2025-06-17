@@ -35,7 +35,14 @@ const DefibInterface: React.FC = () => {
 
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<
-    "placement" | "preparation" | "analyse" | "pre-charge" | "charge" | "attente_choc" | "choc" | null
+    | "placement"
+    | "preparation"
+    | "analyse"
+    | "pre-charge"
+    | "charge"
+    | "attente_choc"
+    | "choc"
+    | null
   >(null);
   const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(
     null,
@@ -126,10 +133,7 @@ const DefibInterface: React.FC = () => {
         }
 
         // Validation scénario 2 - étape 1 : allumer en mode DAE
-        if (
-          scenario.currentScenario === "scenario_2" &&
-          newMode === "DAE"
-        ) {
+        if (scenario.currentScenario === "scenario_2" && newMode === "DAE") {
           scenario.validateScenarioStep(0);
         }
 
@@ -238,8 +242,10 @@ const DefibInterface: React.FC = () => {
       }
 
       // Validation scénario 4 - étape 5 : sélection des joules
-      if (scenario.currentScenario === "scenario_4" && 
-          (newValue === "100" || newValue === "120" || newValue === "150")) {
+      if (
+        scenario.currentScenario === "scenario_4" &&
+        (newValue === "100" || newValue === "120" || newValue === "150")
+      ) {
         scenario.validateScenarioStep(4);
       }
     }
@@ -270,7 +276,7 @@ const DefibInterface: React.FC = () => {
       // En mode DAE, utiliser la fonction de choc du DAE si disponible
       if (daePhase === "attente_choc" && daeShockFunction) {
         daeShockFunction();
-        
+
         // Validation scénario 2 - étape 5 : délivrer le choc en mode DAE
         if (scenario.currentScenario === "scenario_2") {
           scenario.validateScenarioStep(4);
@@ -301,9 +307,12 @@ const DefibInterface: React.FC = () => {
 
   const handleSynchroButtonClick = () => {
     defibrillator.toggleSynchroMode();
-    
+
     // Validation scénario 4 - étape 4 : activation du mode synchro
-    if (scenario.currentScenario === "scenario_4" && !defibrillator.isSynchroMode) {
+    if (
+      scenario.currentScenario === "scenario_4" &&
+      !defibrillator.isSynchroMode
+    ) {
       // Si on vient d'activer le mode synchro
       scenario.validateScenarioStep(3);
     }
@@ -322,7 +331,7 @@ const DefibInterface: React.FC = () => {
         | "choc",
     ) => {
       setDaePhase(phase);
-      
+
       // Validation automatique des étapes du scénario 2 selon les phases DAE
       if (scenario.currentScenario === "scenario_2") {
         switch (phase) {
@@ -418,60 +427,69 @@ const DefibInterface: React.FC = () => {
             onShockReady={handleDaeShockReady}
             onElectrodePlacementValidated={() => {
               // Validation automatique de l'étape 2 du Scenario 2 (placement des électrodes)
-              if (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) {
+              if (
+                scenario.currentScenario === "scenario_2" &&
+                scenario.currentStep === 1
+              ) {
                 scenario.validateScenarioStep(1);
               }
             }}
           />
         );
-        case "Moniteur":
-          return (
-            <div className="relative w-full h-full">
-              <MonitorDisplay 
-                rhythmType={effectiveRhythm} 
-                showSynchroArrows={defibrillator.isSynchroMode} 
-                heartRate={scenario.heartRate}
-              />
-              <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
-                <span>
-                  {effectiveRhythm === "fibrillation" && scenario.currentScenario === "scenario_4"
-                    ? "ACFA - 160/min"
-                    : effectiveRhythm === "fibrillation"
-                    ? "Fibrillation ventriculaire"
-                    : effectiveRhythm === "asystole"
-                    ? "BAV 3 - 30/min"
-                    : `Rythme sinusal - ${scenario.heartRate} bpm`}
-                </span>
-              </div>
-            </div>
-          );
-      case "Stimulateur":
+      case "Moniteur":
         return (
-          <StimulateurDisplay 
-            rhythmType={effectiveRhythm} 
-            showSynchroArrows={defibrillator.isSynchroMode}
-            heartRate={scenario.heartRate}
-          />
-        );
-        case "Manuel":
-          return (
-            <ManuelDisplay
-              frequency={defibrillator.manualFrequency}
-              chargeProgress={defibrillator.chargeProgress}
-              shockCount={defibrillator.shockCount}
-              isCharging={defibrillator.isCharging}
+          <div className="relative w-full h-full">
+            <MonitorDisplay
               rhythmType={effectiveRhythm}
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
             />
-          );
-        default:
-          return <MonitorDisplay rhythmType={effectiveRhythm} heartRate={scenario.heartRate} />;
-      }
-    };
+            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400">
+              <span>
+                {effectiveRhythm === "fibrillation" &&
+                scenario.currentScenario === "scenario_4"
+                  ? "ACFA - 160/min"
+                  : effectiveRhythm === "fibrillation"
+                    ? "Fibrillation ventriculaire"
+                    : effectiveRhythm === "asystole"
+                      ? "BAV 3 - 30/min"
+                      : `Rythme sinusal - ${scenario.heartRate} bpm`}
+              </span>
+            </div>
+          </div>
+        );
+      case "Stimulateur":
+        return (
+          <StimulateurDisplay
+            rhythmType={effectiveRhythm}
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={scenario.heartRate}
+          />
+        );
+      case "Manuel":
+        return (
+          <ManuelDisplay
+            frequency={defibrillator.manualFrequency}
+            chargeProgress={defibrillator.chargeProgress}
+            shockCount={defibrillator.shockCount}
+            isCharging={defibrillator.isCharging}
+            rhythmType={effectiveRhythm}
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={scenario.heartRate}
+          />
+        );
+      default:
+        return (
+          <MonitorDisplay
+            rhythmType={effectiveRhythm}
+            heartRate={scenario.heartRate}
+          />
+        );
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative" >
+    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative">
       {/* Header fixe */}
       <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
@@ -510,17 +528,26 @@ const DefibInterface: React.FC = () => {
             {scenario.showStepHelp && (
               <div className="bg-blue-50 border-l-2 border-blue-400 p-2 rounded text-xs">
                 <p className="text-blue-800">
-                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                  {
+                    scenario.getCurrentScenarioSteps()[scenario.currentStep]
+                      ?.description
+                  }
                 </p>
               </div>
             )}
           </div>
 
           {/* Bouton Valider pour certaines étapes */}
-          {((scenario.currentScenario === "scenario_1" && (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
-            (scenario.currentScenario === "scenario_2" && scenario.currentStep === 1) ||
-            (scenario.currentScenario === "scenario_3" && (scenario.currentStep === 0 || scenario.currentStep === 2 || scenario.currentStep === 4)) ||
-            (scenario.currentScenario === "scenario_4" && (scenario.currentStep === 0 || scenario.currentStep === 2))) && (
+          {((scenario.currentScenario === "scenario_1" &&
+            (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
+            (scenario.currentScenario === "scenario_2" &&
+              scenario.currentStep === 1) ||
+            (scenario.currentScenario === "scenario_3" &&
+              (scenario.currentStep === 0 ||
+                scenario.currentStep === 2 ||
+                scenario.currentStep === 4)) ||
+            (scenario.currentScenario === "scenario_4" &&
+              (scenario.currentStep === 0 || scenario.currentStep === 2))) && (
             <div className="mb-2">
               <button
                 onClick={scenario.handleManualValidation}
@@ -542,8 +569,8 @@ const DefibInterface: React.FC = () => {
           </div>
 
           <div className="text-xs text-gray-500">
-            {scenario.currentStep}/{scenario.getCurrentScenarioSteps().length} étapes
-            complétées
+            {scenario.currentStep}/{scenario.getCurrentScenarioSteps().length}{" "}
+            étapes complétées
           </div>
         </div>
       )}
@@ -553,9 +580,7 @@ const DefibInterface: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-500 text-white rounded-lg shadow-lg p-8 text-center">
           <CheckCircle size={48} className="mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
-          <p className="text-lg">
-            {getScenarioTitle()} terminé avec succès
-          </p>
+          <p className="text-lg">{getScenarioTitle()} terminé avec succès</p>
         </div>
       )}
 
@@ -647,7 +672,8 @@ const DefibInterface: React.FC = () => {
                       defibrillator.isChargeButtonPressed
                         ? "from-yellow-300 to-yellow-400"
                         : ""
-                    }`}   >
+                    }`}
+                  >
                     <div className="absolute left-2">
                       <span className="text-black text-xs font-bold">
                         Charge
