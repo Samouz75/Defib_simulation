@@ -22,7 +22,6 @@ import RhythmController from "./components/controls/RhythmController";
 import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
-import ScenarioModal from "./components/modals/ScenarioModal";
 import { useScenario } from "./hooks/useScenario";
 import Synchro from "./components/buttons/Synchro";
 
@@ -474,7 +473,7 @@ const DefibInterface: React.FC = () => {
   return (
     <div className="min-h-screen bg-#0B1222 flex items-center justify-center p-20 relative" style={{ paddingTop: '80px' }}>
       {/* Header fixe */}
-      <Header />
+      <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
       {/* Contrôleur de rythme dans le coin supérieur gauche */}
       <div className="absolute top-20 left-6 z-50">
@@ -487,17 +486,11 @@ const DefibInterface: React.FC = () => {
         />
       </div>
 
-      {/* Popup de scénario en attente */}
-      <ScenarioModal
-        isOpen={scenario.showScenarioModal}
-        onClose={() => scenario.closeScenarioModal()}
-        scenarioId={scenario.selectedScenarioForModal}
-        onStartScenario={scenario.handleStartScenarioFromModal}
-      />
+
 
       {/* Popup de scénario */}
       {scenario.currentScenario && (
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-40 bg-white rounded-lg shadow-lg p-3 w-72">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-bold text-gray-800">
               {getScenarioTitle()} - Étape {scenario.currentStep}/

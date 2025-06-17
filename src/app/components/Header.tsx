@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import DropdownMenu from "./DropdownMenu";
 
-export default function Header() {
+interface HeaderProps {
+  onStartScenario?: (scenarioId: string) => void;
+}
+
+export default function Header({ onStartScenario }: HeaderProps) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -28,7 +32,7 @@ export default function Header() {
             padding: '0 20px',
             zIndex: 1000 
         }}>
-            <DropdownMenu />
+            <DropdownMenu onStartScenario={onStartScenario} />
         </div>
     );
 }

@@ -16,7 +16,7 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
   if (!scenario) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center z-50 mt-88">
       <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4 border border-gray-600 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
