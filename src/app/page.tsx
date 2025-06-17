@@ -471,7 +471,7 @@ const DefibInterface: React.FC = () => {
     };
 
   return (
-    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center  relative" >
+    <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative" >
       {/* Header fixe */}
       <Header onStartScenario={scenario.handleStartScenarioFromModal} />
 
@@ -732,7 +732,7 @@ const DefibInterface: React.FC = () => {
       </div>
 
       {/* Contrôleur de rythme en bas sur petits écrans */}
-      <div className="xl:hidden mt-4 flex justify-center w-full">
+      <div className="xl:hidden -mt-35 flex justify-center w-full">
         <RhythmController
           currentRhythm={scenario.manualRhythm}
           onRhythmChange={scenario.setManualRhythm}
