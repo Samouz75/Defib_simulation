@@ -78,12 +78,16 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       // Récupérer la valeur du buffer
       const value = state.currentBuffer[state.sampleIndex % state.currentBuffer.length];
       
-      // Normaliser et calculer la position Y (gérer les valeurs null comme dans le HTML)
-      const normalized = value != null ? value / maxValue : 2 / maxValue;
-      const topMargin = height * 0.1;
-      const bottomMargin = height * 0.1;
-      const traceHeight = height - topMargin - bottomMargin;
-      const currentY = topMargin + (1 - normalized) * traceHeight;
+      let currentY;
+      if (rhythmType === 'asystole') {
+        currentY = height - 5; 
+      } else {
+        const normalized = value != null ? value / maxValue : 2 / maxValue;
+        const topMargin = height * 0.1;
+        const bottomMargin = height * 0.1;
+        const traceHeight = height - topMargin - bottomMargin;
+        currentY = topMargin + (1 - normalized) * traceHeight;
+      }
 
       // Dessiner le tracé ECG
       ctx.strokeStyle = "#00ff00";
