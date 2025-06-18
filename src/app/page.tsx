@@ -450,10 +450,16 @@ const DefibInterface: React.FC = () => {
                 scenario.currentScenario === "scenario_4"
                   ? "ACFA - 160/min"
                   : effectiveRhythm === "fibrillationVentriculaire"
-                    ? "Fibrillation ventriculaire"  
+                    ? "Fibrillation ventriculaire"
                     : effectiveRhythm === "asystole"
-                      ? "BAV 3 - 30/min"
-                      : `Rythme sinusal`}
+                      ? "Asystolie"
+                      : effectiveRhythm === "tachycardie"
+                        ? "Tachycardie"
+                        : effectiveRhythm === "fibrillationAtriale"
+                          ? "Fibrillation atriale"
+                              : effectiveRhythm === "sinus"
+                                ? "Rythme sinusal"
+                                : "--"}
               </span>
             </div>
           </div>

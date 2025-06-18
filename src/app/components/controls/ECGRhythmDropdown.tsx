@@ -1,6 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Heart, Activity, Zap, Ruler, ChevronsUp, TrendingUpDown, Minus } from 'lucide-react';
-import type { RhythmType } from '../graphsdata/ECGRhythms';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ChevronDown,
+  Heart,
+  Activity,
+  Zap,
+  Ruler,
+  ChevronsUp,
+  TrendingUpDown,
+  Minus,
+} from "lucide-react";
+import type { RhythmType } from "../graphsdata/ECGRhythms";
 
 interface ECGRhythmDropdownProps {
   currentRhythm: RhythmType;
@@ -22,52 +31,55 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const rhythmOptions = [
     {
-      type: 'sinus' as RhythmType,
-      label: 'Rythme sinusal',
+      type: "sinus" as RhythmType,
+      label: "Rythme sinusal",
       icon: <Heart className="w-4 h-4" />,
-      color: 'bg-green-500 hover:bg-green-600',
-      description: 'Normal',
+      color: "bg-green-500 hover:bg-green-600",
+      description: "Normal",
     },
     {
-      type: 'fibrillationVentriculaire' as RhythmType,
-      label: 'Fibrillation ventriculaire',
+      type: "fibrillationVentriculaire" as RhythmType,
+      label: "Fibrillation ventriculaire",
       icon: <Zap className="w-4 h-4" />,
-      color: 'bg-red-500 hover:bg-red-600',
-      description: 'Chaotique',
+      color: "bg-red-500 hover:bg-red-600",
+      description: "Chaotique",
     },
     {
-      type: 'asystole' as RhythmType,
-      label: 'Asystolie',
+      type: "asystole" as RhythmType,
+      label: "Asystolie",
       icon: <Minus className="w-4 h-4" />,
-      color: 'bg-gray-500 hover:bg-gray-600',
-      description: 'Plat',
+      color: "bg-gray-500 hover:bg-gray-600",
+      description: "Plat",
     },
     {
-      type: 'tachycardie' as RhythmType,
-      label: 'Tachycardie',
+      type: "tachycardie" as RhythmType,
+      label: "Tachycardie",
       icon: <ChevronsUp className="w-4 h-4" />,
-      color: 'bg-purple-500 hover:bg-purple-600',
-      description: 'Accéléré',
+      color: "bg-purple-500 hover:bg-purple-600",
+      description: "Accéléré",
     },
     {
-      type: 'fibrillationAtriale' as RhythmType,
-      label: 'Fibrillation atriale',
+      type: "fibrillationAtriale" as RhythmType,
+      label: "Fibrillation atriale",
       icon: <TrendingUpDown className="w-4 h-4" />,
-      color: 'bg-blue-500 hover:bg-blue-600',
-      description: 'Accéléré et irrégulier',
+      color: "bg-blue-500 hover:bg-blue-600",
+      description: "Accéléré et irrégulier",
     },
   ];
 
@@ -82,19 +94,20 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
         onClick={() => !isScenarioActive && setIsOpen(!isOpen)}
         disabled={isScenarioActive}
         className={`flex items-center gap-2 px-4 py-2 rounded-lg border 
-          transition-colors duration-200 shadow-lg ${isScenarioActive
-            ? 'bg-gray-600 border-gray-500 text-gray-300 cursor-not-allowed opacity-70'
-            : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'
-        }`}
+          transition-colors duration-200 shadow-lg ${
+            isScenarioActive
+              ? "bg-gray-600 border-gray-500 text-gray-300 cursor-not-allowed opacity-70"
+              : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+          }`}
       >
         <Ruler className="w-4 h-4" />
         <span className="text-sm font-medium whitespace-nowrap">
           {rhythmOptions.find((opt) => opt.type === currentRhythm)?.label ||
-            'Sélectionner Rythme'}
+            "Sélectionner Rythme"}
         </span>
         <ChevronDown
           className={`w-4 h-4 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
+            isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
@@ -110,9 +123,10 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
               <button
                 key={option.type}
                 onClick={() => handleRhythmSelect(option.type)}
-                className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${currentRhythm === option.type
-                  ? `${option.color} ring-2 ring-white ring-opacity-50 shadow-md`
-                  : `text-white hover:bg-gray-700`
+                className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
+                  currentRhythm === option.type
+                    ? `${option.color} ring-2 ring-white ring-opacity-50 shadow-md`
+                    : `text-white hover:bg-gray-700`
                 }`}
               >
                 {option.icon}
@@ -123,7 +137,7 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
               </button>
             ))}
 
-            {currentRhythm === 'sinus' && (
+            {currentRhythm === "sinus" && (
               <div className="mt-4 p-3 bg-gray-700 rounded-lg border border-gray-600 mx-2 mb-2">
                 <h4 className="text-white text-xs font-bold mb-2 flex items-center gap-2">
                   <Heart className="w-3 h-3 text-red-400" />
@@ -133,7 +147,9 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-gray-300">
                     <span>30 bpm</span>
-                    <span className="font-bold text-white">{heartRate} bpm</span>
+                    <span className="font-bold text-white">
+                      {heartRate} bpm
+                    </span>
                     <span>170 bpm</span>
                   </div>
 
@@ -142,11 +158,12 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                     min="30"
                     max="170"
                     value={heartRate}
-                    onChange={(e) => onHeartRateChange(parseInt(e.target.value))}
+                    onChange={(e) =>
+                      onHeartRateChange(parseInt(e.target.value))
+                    }
                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                     style={{
-                      background:
-                        `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 30) / 150) * 100}%, #374151 ${((heartRate - 30) / 150) * 100}%, #374151 100%)`,
+                      background: `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 30) / 150) * 100}%, #374151 ${((heartRate - 30) / 150) * 100}%, #374151 100%)`,
                     }}
                   />
 
@@ -165,4 +182,4 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
   );
 };
 
-export default ECGRhythmDropdown; 
+export default ECGRhythmDropdown;
