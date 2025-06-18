@@ -8,6 +8,9 @@ import {
   ChevronsUp,
   TrendingUpDown,
   Minus,
+  ArrowLeftRight,
+  CornerLeftUp,
+  CornerRightUp,
 } from "lucide-react";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 
@@ -80,6 +83,20 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       icon: <TrendingUpDown className="w-4 h-4" />,
       color: "bg-blue-500 hover:bg-blue-600",
       description: "Accéléré et irrégulier",
+    },
+    {
+      type: "bav1" as RhythmType,
+      label: "BAV 1",
+      icon: <CornerLeftUp className="w-4 h-4" />,
+      color: "bg-yellow-500 hover:bg-yellow-600",
+      description: "Bloc de branche gauche",
+    },
+    {
+      type: "bav3" as RhythmType,
+      label: "BAV 3",
+      icon: <CornerRightUp className="w-4 h-4" />,
+      color: "bg-orange-500 hover:bg-orange-600",
+      description: "Bloc de branche droite",
     },
   ];
 
