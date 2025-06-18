@@ -446,11 +446,11 @@ const DefibInterface: React.FC = () => {
             />
             <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400 mt-3">
               <span>
-                {effectiveRhythm === "fibrillation" &&
+                {effectiveRhythm === "fibrillationVentriculaire" &&
                 scenario.currentScenario === "scenario_4"
                   ? "ACFA - 160/min"
-                  : effectiveRhythm === "fibrillation"
-                    ? "Fibrillation ventriculaire"
+                  : effectiveRhythm === "fibrillationVentriculaire"
+                    ? "Fibrillation ventriculaire"  
                     : effectiveRhythm === "asystole"
                       ? "BAV 3 - 30/min"
                       : `Rythme sinusal`}

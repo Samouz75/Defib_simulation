@@ -325,7 +325,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                 </div>
                 <div className="flex flex-row items-center gap-x-2">
                   <div className="text-green-400 text-4xl font-bold">
-                    {rhythmType === "fibrillation"
+                    {rhythmType === "fibrillationVentriculaire"
                       ? "--"
                       : rhythmType === "asystole"
                         ? "0"
@@ -383,7 +383,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               />
               <div className="w-full text-xs font-bold text-green-400 text-right ">
                 <span>
-                  {rhythmType === "fibrillation"
+                  {rhythmType === "fibrillationVentriculaire"
                     ? "Fibrillation ventriculaire"
                     : rhythmType === "asystole"
                       ? "Asystolie"

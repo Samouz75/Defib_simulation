@@ -35,7 +35,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       return new Array(200).fill(2);
     }
     
-    if (rhythmType === 'fibrillation') {
+    if (rhythmType === 'fibrillationVentriculaire') {
       return [...baseData];
     }
     
@@ -61,7 +61,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     const state = animationState.current;
     
     // Mettre à jour la vitesse selon le rythme
-    state.SCROLL_SPEED = rhythmType === 'fibrillation' ? 120 : 60;
+    state.SCROLL_SPEED = rhythmType === 'fibrillationVentriculaire' ? 120 : 60;
     
     // Créer le buffer cyclique
     state.currentBuffer = createCycleBuffer(rhythmType, heartRate);

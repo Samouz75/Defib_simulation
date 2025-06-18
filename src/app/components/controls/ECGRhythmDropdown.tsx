@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Heart, Activity, Zap, Ruler } from 'lucide-react';
+import { ChevronDown, Heart, Activity, Zap, Ruler, ChevronsUp, TrendingUpDown, Minus } from 'lucide-react';
 import type { RhythmType } from '../graphsdata/ECGRhythms';
 
 interface ECGRhythmDropdownProps {
@@ -42,8 +42,8 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       description: 'Normal',
     },
     {
-      type: 'fibrillation' as RhythmType,
-      label: 'Fibrillation',
+      type: 'fibrillationVentriculaire' as RhythmType,
+      label: 'Fibrillation ventriculaire',
       icon: <Zap className="w-4 h-4" />,
       color: 'bg-red-500 hover:bg-red-600',
       description: 'Chaotique',
@@ -51,9 +51,23 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
     {
       type: 'asystole' as RhythmType,
       label: 'Asystolie',
-      icon: <Activity className="w-4 h-4" />,
+      icon: <Minus className="w-4 h-4" />,
       color: 'bg-gray-500 hover:bg-gray-600',
       description: 'Plat',
+    },
+    {
+      type: 'tachycardie' as RhythmType,
+      label: 'Tachycardie',
+      icon: <ChevronsUp className="w-4 h-4" />,
+      color: 'bg-purple-500 hover:bg-purple-600',
+      description: 'Accéléré',
+    },
+    {
+      type: 'fibrillationAtriale' as RhythmType,
+      label: 'Fibrillation atriale',
+      icon: <TrendingUpDown className="w-4 h-4" />,
+      color: 'bg-blue-500 hover:bg-blue-600',
+      description: 'Accéléré et irrégulier',
     },
   ];
 

@@ -285,7 +285,7 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillation', // Fibrillation ventriculaire
+        currentRhythm: 'fibrillationVentriculaire', // Fibrillation ventriculaire
       });
     } else if (scenarioId === "scenario_2") {
       updateState({
@@ -306,7 +306,7 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillation', // ACFA rapide (simulé par fibrillation)
+        currentRhythm: 'fibrillationVentriculaire', // ACFA rapide (simulé par fibrillation)
       });
     }
   };

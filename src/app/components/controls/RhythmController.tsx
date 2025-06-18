@@ -26,8 +26,8 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
       description: 'Normal'
     },
     {
-      type: 'fibrillation' as RhythmType,
-      label: 'Fibrillation',
+      type: 'fibrillationVentriculaire' as RhythmType,
+      label: 'Fibrillation ventriculaire',
       icon: <Zap className="w-4 h-4" />,
       color: 'bg-red-500 hover:bg-red-600',
       description: 'Chaotique'
@@ -38,6 +38,20 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
       icon: <Activity className="w-4 h-4" />,
       color: 'bg-gray-500 hover:bg-gray-600',
       description: 'Plat'
+    },
+    {
+      type: 'tachycardie' as RhythmType,
+      label: 'Tachycardie',
+      icon: <Activity className="w-4 h-4" />,
+      color: 'bg-red-500 hover:bg-red-600',
+      description: 'Accéléré'
+    },
+    {
+      type: 'fibrillationAtriale' as RhythmType,
+      label: 'Fibrillation atriale',
+      icon: <Activity className="w-4 h-4" />,
+      color: 'bg-red-500 hover:bg-red-600',
+      description: 'Accéléré et irrégulier'
     }
   ];
 
