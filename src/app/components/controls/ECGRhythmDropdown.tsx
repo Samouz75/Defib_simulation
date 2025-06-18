@@ -130,7 +130,7 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       </button>
 
       {isOpen && !isScenarioActive && (
-        <div className="absolute left-0 mt-2 w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-50 overflow-hidden">
+        <div className="absolute left-0 mt-2 w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
           <div className="py-3">
             <h3 className="text-white text-xs font-bold mb-3 px-4 flex items-center gap-2">
               <Activity className="w-3 h-3 text-blue-400" />
