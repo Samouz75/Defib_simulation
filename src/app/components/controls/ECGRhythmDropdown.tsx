@@ -113,44 +113,60 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       </button>
 
       {isOpen && !isScenarioActive && (
-        <div className="absolute left-0 mt-2 w-64 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-50 overflow-hidden">
-          <div className="py-2">
-            <h3 className="text-white text-xs font-bold mb-2 px-4 flex items-center gap-2">
+        <div className="absolute left-0 mt-2 w-80 bg-gray-800 border border-gray-600 rounded-lg shadow-2xl z-50 overflow-hidden">
+          <div className="py-3">
+            <h3 className="text-white text-xs font-bold mb-3 px-4 flex items-center gap-2">
               <Activity className="w-3 h-3 text-blue-400" />
               Contrôle du rythme ECG
             </h3>
-            {rhythmOptions.map((option) => (
-              <button
-                key={option.type}
-                onClick={() => handleRhythmSelect(option.type)}
-                className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
-                  currentRhythm === option.type
-                    ? `${option.color} ring-2 ring-white ring-opacity-50 shadow-md`
-                    : `text-white hover:bg-gray-700`
-                }`}
-              >
-                {option.icon}
-                <span>{option.label}</span>
-                <span className="ml-auto text-xs opacity-75">
-                  {option.description}
-                </span>
-              </button>
-            ))}
+            
+            <div className="space-y-1">
+              {rhythmOptions.map((option) => (
+                <button
+                  key={option.type}
+                  onClick={() => handleRhythmSelect(option.type)}
+                  className={`w-full px-4 py-3 text-sm transition-colors duration-200 ${
+                    currentRhythm === option.type
+                      ? `${option.color} ring-2 ring-white ring-opacity-50 shadow-md`
+                      : `text-white hover:bg-gray-700`
+                  }`}
+                >
+                  <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">
+                    {/* Icône - colonne fixe */}
+                    <div className="flex justify-center w-6">
+                      {option.icon}
+                    </div>
+                    
+                    {/* Label principal - colonne flexible */}
+                    <div className="text-left">
+                      <span className="font-medium">{option.label}</span>
+                    </div>
+                    
+                    {/* Description - colonne fixe à droite */}
+                    <div className="text-right min-w-[80px]">
+                      <span className="text-xs opacity-75 bg-gray-900 bg-opacity-50 px-2 py-1 rounded-md">
+                        {option.description}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
 
             {currentRhythm === "sinus" && (
-              <div className="mt-4 p-3 bg-gray-700 rounded-lg border border-gray-600 mx-2 mb-2">
-                <h4 className="text-white text-xs font-bold mb-2 flex items-center gap-2">
+              <div className="mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600 mx-3 mb-2">
+                <h4 className="text-white text-xs font-bold mb-3 flex items-center gap-2">
                   <Heart className="w-3 h-3 text-red-400" />
                   Fréquence cardiaque
                 </h4>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-gray-300">
-                    <span>30 bpm</span>
-                    <span className="font-bold text-white">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-xs text-gray-300">
+                    <span className="font-medium">30 bpm</span>
+                    <span className="font-bold text-white bg-gray-600 px-2 py-1 rounded">
                       {heartRate} bpm
                     </span>
-                    <span>170 bpm</span>
+                    <span className="font-medium">170 bpm</span>
                   </div>
 
                   <input
@@ -167,10 +183,10 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                     }}
                   />
 
-                  <div className="flex justify-between text-xs ml-1 mr-1 gap-2 text-gray-400">
-                    <span>Bradycardie</span>
-                    <span>Normal</span>
-                    <span>Tachycardie</span>
+                  <div className="grid grid-cols-3 text-xs text-gray-400">
+                    <span className="text-left font-medium">Bradycardie</span>
+                    <span className="text-center font-medium">Normal</span>
+                    <span className="text-right font-medium">Tachycardie</span>
                   </div>
                 </div>
               </div>
