@@ -139,11 +139,11 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
                 <div className="text-white text-xs font-bold">mmHg</div>
               </div>
               <div className="flex flex-row items-center">
-                <div className="text-yellow-400 text-4xl font-bold">38</div>
-                <div className="flex flex-col items-center ml-2">
+                <div className="text-yellow-400 text-4xl font-bold">--</div>
+                {/*<div className="flex flex-col items-center ml-2">
                   <div className="text-yellow-400 text-xs">50</div>
                   <div className="text-yellow-400 text-xs">30</div>
-                </div>
+                </div>*/}
               </div>
             </div>
 
@@ -154,11 +154,11 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
                 <div className="text-white text-xs font-bold">rpm</div>
               </div>
               <div className="flex flex-row items-center">
-                <div className="text-yellow-400 text-4xl font-bold">18</div>
-                <div className="flex flex-col items-center ml-2">
+                <div className="text-yellow-400 text-4xl font-bold">--</div>
+                {/*<div className="flex flex-col items-center ml-2">
                   <div className="text-yellow-400 text-xs">30</div>
                   <div className="text-yellow-400 text-xs">8</div>
-                </div>
+                </div>*/}
               </div>
             </div>
           </div>
