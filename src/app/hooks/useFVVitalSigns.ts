@@ -21,7 +21,7 @@ export const useFVVitalSigns = (rhythmType: string) => {
   const blinkIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (rhythmType === 'fibrillationVentriculaire') {
+    if (rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') {
       setVitalSigns(prev => ({ 
         ...prev, 
         heartRate: fvHeartRates[0],
@@ -48,7 +48,7 @@ export const useFVVitalSigns = (rhythmType: string) => {
       }, 2000);
 
     } else {
-      // Arrêter les animations si ce n'est plus en FV
+      // Arrêter les animations si ce n'est plus en FV ou FA
       setVitalSigns({
         heartRate: 70,
         isBlinking: false,

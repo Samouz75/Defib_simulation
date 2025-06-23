@@ -82,7 +82,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
@@ -110,7 +110,7 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate}
               </div>
             </div>
             <div className="flex flex-col ">

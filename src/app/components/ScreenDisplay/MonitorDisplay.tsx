@@ -75,7 +75,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold w-[65px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' 
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale'
                   ? fvVitalSigns.heartRate 
                   : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
@@ -93,7 +93,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             {/* SpO2 Value */}
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-blue-400 text-4xl font-bold min-w-[60px]">
-                {rhythmType === 'fibrillationVentriculaire' ? '-?-' : '95'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '95'}
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-blue-400 text-xs">100</div>
@@ -107,7 +107,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold min-w-[60px]">
-                {rhythmType === 'fibrillationVentriculaire' ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
             </div>
             <div className="flex flex-col items-center">
@@ -127,10 +127,10 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             </div>
             <div className="flex flex-row items-center gap-x-1 mt-1">
               <div className="text-white text-4xl min-w-[100px]">
-                {rhythmType === 'fibrillationVentriculaire' ? '-?-' : '110/70'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '110/70'}
               </div>
               <div className=" text-white text-xs min-w-[30px]">
-                {rhythmType === 'fibrillationVentriculaire' ? '' : '(80)'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '' : '(80)'}
               </div>
               <div className="flex flex-col items-center gap-x-1">
                 <div className=" text-white text-xs">MOY</div>
@@ -150,7 +150,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
               </div>
               <div className="flex flex-row items-center">
                 <div className="text-yellow-400 text-4xl font-bold min-w-[50px]">
-                  {rhythmType === 'fibrillationVentriculaire' ? '-?-' : '--'}
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '--'}
                 </div>
                 {/*<div className="flex flex-col items-center ml-2">
                   <div className="text-yellow-400 text-xs">50</div>
@@ -167,7 +167,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
               </div>
               <div className="flex flex-row items-center">
                 <div className="text-yellow-400 text-4xl font-bold min-w-[50px]">
-                  {rhythmType === 'fibrillationVentriculaire' ? '-?-' : '--'}
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '--'}
                 </div>
                 {/*<div className="flex flex-col items-center ml-2">
                   <div className="text-yellow-400 text-xs">30</div>
