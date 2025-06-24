@@ -304,9 +304,9 @@ return (
               </div>
             </div>
 
-            <div className="flex flex-row gap-4 ml-5 py-3">
-              <span className="font-bold text-xl">{frequenceValue} ppm</span>
-              <span className="font-bold text-xl">{intensiteValue} mA</span>
+            <div className="flex flex-row gap-2 ml-3 py-3">
+              <span className="font-bold text-lg font-mono">{frequenceValue} ppm</span>
+              <span className="font-bold text-lg font-mono">{intensiteValue} mA</span>
             </div>
           </div>
         </div>
@@ -361,7 +361,7 @@ return (
                 </div>
                 
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-black text-3xl font-bold">{frequenceValue}</span>
+                  <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{frequenceValue}</span>
                   <span className="text-black text-sm">ppm</span>
                 </div>
                 
@@ -396,7 +396,7 @@ return (
                 </div>
                 
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-black text-3xl font-bold">{intensiteValue}</span>
+                  <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{intensiteValue}</span>
                   <span className="text-black text-sm">mA</span>
                 </div>
                 
