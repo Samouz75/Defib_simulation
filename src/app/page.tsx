@@ -229,6 +229,44 @@ const DefibInterface: React.FC = () => {
     }
   };
 
+  // État pour gérer la logique de rotation du joystick
+  const [lastJoystickAngle, setLastJoystickAngle] = useState(0);
+  const [joystickRotationThreshold] = useState(30); // Seuil en degrés pour déclencher l'action
+
+  // Gestionnaire pour les rotations du joystick en mode stimulateur 
+  const handleJoystickRotation = (angle: number) => {
+    if (defibrillator.displayMode !== "Stimulateur" || !stimulateurDisplayRef.current) return;
+
+    const angleDiff = angle - lastJoystickAngle;
+    
+    // Gérer le passage de 360° à 0° et vice versa
+    let normalizedDiff = angleDiff;
+    if (angleDiff > 180) {
+      normalizedDiff = angleDiff - 360;
+    } else if (angleDiff < -180) {
+      normalizedDiff = angleDiff + 360;
+    }
+
+    // Déclencher l'action si le seuil est dépassé
+    if (Math.abs(normalizedDiff) > joystickRotationThreshold) {
+      if (normalizedDiff > 0) {
+        // Rotation horaire → Descendre dans le menu
+        stimulateurDisplayRef.current.navigateDown();
+      } else {
+        // Rotation anti-horaire → Remonter dans le menu
+        stimulateurDisplayRef.current.navigateUp();
+      }
+      setLastJoystickAngle(angle);
+    }
+  };
+
+  // Gestionnaire pour les clics du joystick (sélectionne l'élément en surbrillance)
+  const handleJoystickClick = () => {
+    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+      stimulateurDisplayRef.current.selectCurrentItem();
+    }
+  };
+
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
 
@@ -657,7 +695,10 @@ const DefibInterface: React.FC = () => {
               </div>
 
               {/* Joystick */}
-              <Joystick onRotationChange={() => {}} />
+              <Joystick 
+                onRotationChange={handleJoystickRotation}
+                onClick={handleJoystickClick}
+              />
             </div>
           </div>
 

@@ -12,6 +12,9 @@ interface StimulateurDisplayProps {
 export interface StimulateurDisplayRef {
   triggerReglagesStimulateur: () => void;
   triggerMenu: () => void;
+  navigateUp: () => void;
+  navigateDown: () => void;
+  selectCurrentItem: () => void;
 }
 
 const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayProps>(({ 
@@ -30,11 +33,56 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   const [frequenceValue, setFrequenceValue] = useState(70);
   const [intensiteValue, setIntensiteValue] = useState(30);
 
+  // États pour la navigation au joystick
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+  const [selectedSubMenuIndex, setSelectedSubMenuIndex] = useState(0);
+
   //  vérifie si un menu ouvert
   const isAnyMenuOpen = () => {
     return showMenu || showStimulationModeMenu || showReglagesStimulateur || 
            showReglagesStimulateurMenu || showIntensiteMenu;
   };
+
+  // Configuration des menus
+  const menuConfigs = {
+    main: ['Mode stimulation', 'Volume', 'Courbes affichées', 'Mesures/Alarmes', 'Infos patient'],
+    settings: ['Fréquence stimulation', 'Intensité stimulation', 'Fin'],
+    stimMode: ['Sentinelle', 'Fixe']
+  };
+
+  const getCurrentMenuItems = () => {
+    if (showMenu) return menuConfigs.main;
+    if (showReglagesStimulateur) return menuConfigs.settings;
+    if (showStimulationModeMenu) return menuConfigs.stimMode;
+    return [];
+  };
+
+  // Fonction pour rendre un menu générique
+  const renderMenu = (title: string, items: string[], onClose: () => void, onItemClick?: (index: number) => void) => (
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+      <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
+        <div className="bg-gray-400 px-4 py-2 border-b border-black">
+          <h3 className="text-black font-bold text-sm">{title}</h3>
+        </div>
+        <div className="flex flex-col">
+          {items.map((item, index) => (
+            <div 
+              key={index}
+              className={`px-4 py-2 ${index < items.length - 1 ? 'border-b border-gray-500' : ''} cursor-pointer ${
+                selectedMenuIndex === index ? 'bg-blue-500' : 'bg-gray-300 hover:bg-gray-200'
+              }`}
+              onClick={() => onItemClick?.(index)}
+            >
+              <span className={`text-sm ${selectedMenuIndex === index ? 'text-white' : 'text-black'}`}>
+                {item}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="fixed inset-0 bg-black bg-opacity-0 -z-10" onClick={onClose}></div>
+    </div>
+  );
 
   useImperativeHandle(ref, () => ({
     triggerReglagesStimulateur: () => {
@@ -43,6 +91,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
         return;
       }
       setShowReglagesStimulateur(!showReglagesStimulateur);
+      setSelectedMenuIndex(0); // Reset selection
     },
     triggerMenu: () => {
       // Si un autre menu est ouvert, ne rien faire
@@ -50,6 +99,41 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
         return;
       }
       setShowMenu(!showMenu);
+      setSelectedMenuIndex(0); // Reset selection
+    },
+    navigateUp: () => {
+      const menuItems = getCurrentMenuItems();
+      if (menuItems.length > 0) {
+        setSelectedMenuIndex((prev) => (prev > 0 ? prev - 1 : menuItems.length - 1));
+      }
+    },
+    navigateDown: () => {
+      const menuItems = getCurrentMenuItems();
+      if (menuItems.length > 0) {
+        setSelectedMenuIndex((prev) => (prev < menuItems.length - 1 ? prev + 1 : 0));
+      }
+    },
+    selectCurrentItem: () => {
+      const actions = {
+        main: [
+          () => { setShowStimulationModeMenu(true); setShowMenu(false); setSelectedMenuIndex(0); }
+        ],
+        settings: [
+          () => { setShowReglagesStimulateurMenu(true); setShowReglagesStimulateur(false); },
+          () => { setShowIntensiteMenu(true); setShowReglagesStimulateur(false); },
+          () => setShowReglagesStimulateur(false)
+        ],
+        stimMode: [
+          () => { setSelectedStimulationMode("Sentinelle"); setShowStimulationModeMenu(false); },
+          () => { setSelectedStimulationMode("Fixe"); setShowStimulationModeMenu(false); }
+        ]
+      };
+
+      const currentActions = showMenu ? actions.main : 
+                           showReglagesStimulateur ? actions.settings : 
+                           showStimulationModeMenu ? actions.stimMode : [];
+      
+      currentActions[selectedMenuIndex]?.();
     }
   }));
 
@@ -244,141 +328,23 @@ return (
         </div>
 
         {/* Menu Principal */}
-        {showMenu && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-            <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
-
-              <div className="bg-gray-400 px-4 py-2 border-b border-black">
-                <h3 className="text-black font-bold text-sm">Menu principal</h3>
-              </div>
-              
-              <div className="flex flex-col">
-                <div 
-                  className="bg-blue-600 px-4 py-2 border-b border-gray-500 hover:bg-blue-700 cursor-pointer"
-                  onClick={() => {
-                    setShowStimulationModeMenu(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  <span className="text-white font-medium text-sm">Mode stimulation</span>
-                </div>
-                <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
-                  <span className="text-black text-sm">Volume</span>
-                </div>
-                <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
-                  <span className="text-black text-sm">Courbes affichées</span>
-                </div>
-                <div className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer">
-                  <span className="text-black text-sm">Mesures/Alarmes</span>
-                </div>
-                <div className="bg-gray-300 px-4 py-2 hover:bg-gray-200 cursor-pointer">
-                  <span className="text-black text-sm">Infos patient</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Overlay pour fermer le menu */}
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-0 -z-10"
-              onClick={() => setShowMenu(false)}
-            ></div>
-          </div>
-        )}
+        {showMenu && renderMenu("Menu principal", menuConfigs.main, () => setShowMenu(false), (index) => {
+          if (index === 0) { setShowStimulationModeMenu(true); setShowMenu(false); }
+        })}
 
         {/* Menu Mode Stimulation */}
-        {showStimulationModeMenu && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-            <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
-              {/* En-tête du sous-menu */}
-              <div className="bg-gray-400 px-4 py-2 border-b border-black">
-                <h3 className="text-black font-bold text-sm">Mode stimulation</h3>
-              </div>
-              
-              <div className="flex flex-col">
-                <div 
-                  className={`px-4 py-2 border-b border-gray-500 cursor-pointer ${
-                    selectedStimulationMode === "Sentinelle" ? "bg-blue-600" : "bg-gray-300 hover:bg-gray-200"
-                  }`}
-                  onClick={() => {
-                    setSelectedStimulationMode("Sentinelle");
-                    setShowStimulationModeMenu(false);
-                  }}
-                >
-                  <span className={`text-sm font-medium ${
-                    selectedStimulationMode === "Sentinelle" ? "text-white" : "text-black"
-                  }`}>
-                    Sentinelle
-                  </span>
-                </div>
-                <div 
-                  className={`px-4 py-2 cursor-pointer ${
-                    selectedStimulationMode === "Fixe" ? "bg-blue-600" : "bg-gray-300 hover:bg-gray-200"
-                  }`}
-                  onClick={() => {
-                    setSelectedStimulationMode("Fixe");
-                    setShowStimulationModeMenu(false);
-                  }}
-                >
-                  <span className={`text-sm font-medium ${
-                    selectedStimulationMode === "Fixe" ? "text-white" : "text-black"
-                  }`}>
-                    Fixe
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-0 -z-10"
-              onClick={() => setShowStimulationModeMenu(false)}
-            ></div>
-          </div>
-        )}
+        {showStimulationModeMenu && renderMenu("Mode stimulation", menuConfigs.stimMode, () => setShowStimulationModeMenu(false), (index) => {
+          const mode = index === 0 ? "Sentinelle" : "Fixe";
+          setSelectedStimulationMode(mode);
+          setShowStimulationModeMenu(false);
+        })}
 
         {/* Menu Réglages Stimulateur */}
-        {showReglagesStimulateur && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-            <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
-              {/* En-tête du menu */}
-              <div className="bg-blue-600 px-4 py-2 border-b border-black">
-                <h3 className="text-black font-bold text-sm ">Réglages stimulateur</h3>
-              </div>
-              
-              <div className="flex flex-col">
-             
-                <div 
-                  className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => {
-                    setShowReglagesStimulateurMenu(true);
-                    setShowReglagesStimulateur(false);
-                  }}
-                >
-                  <span className="text-black text-sm">Fréquence stimulation</span>
-                </div>
-                <div 
-                  className="bg-gray-300 px-4 py-2 border-b border-gray-500 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => {
-                    setShowIntensiteMenu(true);
-                    setShowReglagesStimulateur(false);
-                  }}
-                >
-                  <span className="text-black text-sm">Intensité stimulation</span>
-                </div>
-                <div 
-                  className="bg-gray-300 px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                  onClick={() => setShowReglagesStimulateur(false)}
-                >
-                  <span className="text-black text-sm">Fin</span>
-                </div>
-              </div>
-            </div>
-            
-             <div 
-               className="fixed inset-0 bg-black bg-opacity-0 -z-10"
-               onClick={() => setShowReglagesStimulateur(false)}
-             ></div>
-           </div>
-         )}
+        {showReglagesStimulateur && renderMenu("Réglages stimulateur", menuConfigs.settings, () => setShowReglagesStimulateur(false), (index) => {
+          if (index === 0) { setShowReglagesStimulateurMenu(true); setShowReglagesStimulateur(false); }
+          else if (index === 1) { setShowIntensiteMenu(true); setShowReglagesStimulateur(false); }
+          else if (index === 2) setShowReglagesStimulateur(false);
+        })}
 
         {/* Menu Fréquence Stimulation */}
         {showReglagesStimulateurMenu && (
