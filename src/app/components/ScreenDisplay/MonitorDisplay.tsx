@@ -44,7 +44,7 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
           </div>
 
           {/* Section droite - Date et icône */}
-          <div className="flex items-center gap-2 px-3">
+          <div className="flex items-end flex-col gap-2 px-3">
             <div className="text-white text-xs">
               {new Date()
                 .toLocaleDateString("fr-FR", {
@@ -59,14 +59,20 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
                 hour12: false,
               })}
             </div>
-            <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
+            <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center -mt-2">
               <div className="w-2 h-1.5 bg-white rounded-xs"></div>
             </div>
+            {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') && (
+              <div className="w-35 h-4 bg-red-500 mb-2">
+                <span className="block text-center text-white text-xs mb-3"> Analyse ECG impossible</span>
+              </div>
+            )}
           </div>
+          
         </div>
 
         {/* Rangée 2 - Paramètres médicaux */}
-        <div className="h-1/4 border-b border-gray-600 flex items-center justify-between  text-sm bg-black">
+        <div className="h-1/4 border-b border-gray-600 flex items-center justify-between  text-sm bg-black ">
           {/* FC (Fréquence Cardiaque) */}
           <div className="flex flex-col items-center">
             <div className="flex flex-row items-center gap-x-2">
