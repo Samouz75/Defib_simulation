@@ -60,7 +60,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   };
 
   // Fonction pour rendre un menu générique
-  const renderMenu = (title: string, items: string[], onClose: () => void, onItemClick?: (index: number) => void) => (
+  const renderMenu = (title: string, items: string[], onClose: () => void) => (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
       <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
         <div className="bg-gray-400 px-4 py-2 border-b border-black">
@@ -70,10 +70,9 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
           {items.map((item, index) => (
             <div 
               key={index}
-              className={`px-4 py-2 ${index < items.length - 1 ? 'border-b border-gray-500' : ''} cursor-pointer ${
-                selectedMenuIndex === index ? 'bg-blue-500' : 'bg-gray-300 hover:bg-gray-200'
+              className={`px-4 py-2 ${index < items.length - 1 ? 'border-b border-gray-500' : ''} ${
+                selectedMenuIndex === index ? 'bg-blue-500' : 'bg-gray-300'
               }`}
-              onClick={() => onItemClick?.(index)}
             >
               <span className={`text-sm ${selectedMenuIndex === index ? 'text-white' : 'text-black'}`}>
                 {item}
@@ -329,52 +328,24 @@ return (
           <div className="flex">
           
             <div className="flex items-center gap-2">
-              <button 
-                className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 hover:bg-gray-400 transition-colors"
-                onClick={() => {
-                  // Si un autre menu est ouvert, ne rien faire
-                  if (isAnyMenuOpen() && !showReglagesStimulateur) {
-                    return;
-                  }
-                  setShowReglagesStimulateur(!showReglagesStimulateur);
-                }}
-              >
+              <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1">
                 <span>Réglages stimulateur</span>
-              </button>
-                             <button 
-                 className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs hover:bg-gray-400 transition-colors"
-                 onClick={() => {
-                   // Si un autre menu est ouvert, ne rien faire
-                   if (isAnyMenuOpen() && !showMenu) {
-                     return;
-                   }
-                   setShowMenu(!showMenu);
-                 }}
-               >
-                 <span>Menu</span>
-               </button>
+              </div>
+              <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs">
+                <span>Menu</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Menu Principal */}
-        {showMenu && renderMenu("Menu principal", menuConfigs.main, () => setShowMenu(false), (index) => {
-          if (index === 0) { setShowStimulationModeMenu(true); setShowMenu(false); }
-        })}
+        {showMenu && renderMenu("Menu principal", menuConfigs.main, () => setShowMenu(false))}
 
         {/* Menu Mode Stimulation */}
-        {showStimulationModeMenu && renderMenu("Mode stimulation", menuConfigs.stimMode, () => setShowStimulationModeMenu(false), (index) => {
-          const mode = index === 0 ? "Sentinelle" : "Fixe";
-          setSelectedStimulationMode(mode);
-          setShowStimulationModeMenu(false);
-        })}
+        {showStimulationModeMenu && renderMenu("Mode stimulation", menuConfigs.stimMode, () => setShowStimulationModeMenu(false))}
 
         {/* Menu Réglages Stimulateur */}
-        {showReglagesStimulateur && renderMenu("Réglages stimulateur", menuConfigs.settings, () => setShowReglagesStimulateur(false), (index) => {
-          if (index === 0) { setShowReglagesStimulateurMenu(true); setShowReglagesStimulateur(false); }
-          else if (index === 1) { setShowIntensiteMenu(true); setShowReglagesStimulateur(false); }
-          else if (index === 2) setShowReglagesStimulateur(false);
-        })}
+        {showReglagesStimulateur && renderMenu("Réglages stimulateur", menuConfigs.settings, () => setShowReglagesStimulateur(false))}
 
         {/* Menu Fréquence Stimulation */}
         {showReglagesStimulateurMenu && (
@@ -385,31 +356,22 @@ return (
               </div>
               
               <div className="flex flex-col items-center py-4">
-                <button 
-                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-2"
-                  onClick={() => setFrequenceValue(prev => Math.min(prev + 5, 200))}
-                >
+                <div className="text-black text-2xl px-2 py-1 rounded mb-2">
                   ▲
-                </button>
+                </div>
                 
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-black text-3xl font-bold">{frequenceValue}</span>
                   <span className="text-black text-sm">ppm</span>
                 </div>
                 
-                <button 
-                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-4"
-                  onClick={() => setFrequenceValue(prev => Math.max(prev - 5, 30))}
-                >
+                <div className="text-black text-2xl px-2 py-1 rounded mb-4">
                   ▼
-                </button>
+                </div>
                 
-                <button 
-                  className="bg-gray-400 hover:bg-gray-500 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium"
-                  onClick={() => setShowReglagesStimulateurMenu(false)}
-                >
+                <div className="bg-gray-400 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium">
                   Fin
-                </button>
+                </div>
               </div>
             </div>
             
@@ -429,31 +391,22 @@ return (
               </div>
               
               <div className="flex flex-col items-center py-4">
-                <button 
-                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-2"
-                  onClick={() => setIntensiteValue(prev => Math.min(prev + 5, 200))}
-                >
+                <div className="text-black text-2xl px-2 py-1 rounded mb-2">
                   ▲
-                </button>
+                </div>
                 
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-black text-3xl font-bold">{intensiteValue}</span>
                   <span className="text-black text-sm">mA</span>
                 </div>
                 
-                <button 
-                  className="text-black text-2xl hover:bg-gray-200 px-2 py-1 rounded mb-4"
-                  onClick={() => setIntensiteValue(prev => Math.max(prev - 5, 5))}
-                >
+                <div className="text-black text-2xl px-2 py-1 rounded mb-4">
                   ▼
-                </button>
+                </div>
                 
-                <button 
-                  className="bg-gray-400 hover:bg-gray-500 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium"
-                  onClick={() => setShowIntensiteMenu(false)}
-                >
+                <div className="bg-gray-400 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium">
                   Fin
-                </button>
+                </div>
               </div>
             </div>
             
