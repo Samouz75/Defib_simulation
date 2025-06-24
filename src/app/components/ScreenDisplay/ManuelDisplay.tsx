@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
@@ -11,16 +11,30 @@ interface ManuelDisplayProps {
   rhythmType?: RhythmType; // Nouveau prop pour le rythme ECG
   showSynchroArrows?: boolean; //prop pour les flèches synchro
   heartRate?: number; // Fréquence cardiaque
+  isCharged?: boolean; // État de charge complète
+  onCancelCharge?: () => boolean; // Callback pour annuler la charge
 }
 
-const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
+export interface ManuelDisplayRef {
+  triggerCancelCharge: () => boolean;
+}
+
+const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   frequency,
   chargeProgress,
   shockCount,
   rhythmType = 'sinus', // Par défaut : rythme sinusal
   showSynchroArrows = false,
-  heartRate = 70
-}) => {
+  heartRate = 70,
+  isCharged = false,
+  onCancelCharge
+}, ref) => {
+
+  useImperativeHandle(ref, () => ({
+    triggerCancelCharge: () => {
+      return onCancelCharge ? onCancelCharge() : false;
+    }
+  }));
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
       <div className="h-full flex flex-col">
@@ -184,7 +198,9 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
           </div>
           <div className="flex">
             <div className="flex items-center gap-2">
-              <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
+              <div className={`px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ${
+                isCharged ? 'bg-red-500 text-white' : 'bg-gray-500 text-gray-300'
+              }`}>
                 <span>Annuler Charge</span>
               </div>
             </div>
@@ -198,6 +214,6 @@ const ManuelDisplay: React.FC<ManuelDisplayProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default ManuelDisplay;

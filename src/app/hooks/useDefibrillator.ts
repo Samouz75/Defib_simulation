@@ -117,6 +117,19 @@ export const useDefibrillator = () => {
     updateState({ isSynchroMode: !state.isSynchroMode });
   };
 
+  const cancelCharge = () => {
+    // Seulement si la charge est complète (100%)
+    if (state.isCharged && state.chargeProgress === 100) {
+      updateState({
+        isCharged: false,
+        chargeProgress: 0,
+        isCharging: false,
+      });
+      return true; // Charge annulée avec succès
+    }
+    return false; // Pas de charge à annuler
+  };
+
   return {
     // State
     ...state,
@@ -126,6 +139,7 @@ export const useDefibrillator = () => {
     setManualFrequency,
     startCharging,
     deliverShock,
+    cancelCharge,
     setSelectedChannel,
     toggleSynchroMode, 
   };

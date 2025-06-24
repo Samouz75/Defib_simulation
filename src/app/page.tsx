@@ -14,7 +14,7 @@ import MonitorDisplay from "./components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "./components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "./components/ScreenDisplay/ARRETDisplay";
 import StimulateurDisplay, { type StimulateurDisplayRef } from "./components/ScreenDisplay/StimulateurDisplay";
-import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
+import ManuelDisplay, { type ManuelDisplayRef } from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
 import Header from "./components/Header";
@@ -30,6 +30,7 @@ import type { DisplayMode } from "./hooks/useDefibrillator";
 const DefibInterface: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stimulateurDisplayRef = useRef<StimulateurDisplayRef>(null);
+  const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
   const scale = useResponsiveScale();
   const defibrillator = useDefibrillator();
   const scenario = useScenario();
@@ -276,6 +277,12 @@ const DefibInterface: React.FC = () => {
   const handleJoystickClick = () => {
     if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
       stimulateurDisplayRef.current.selectCurrentItem();
+    }
+  };
+
+  const handleCancelChargeButton = () => {
+    if (defibrillator.displayMode === "Manuel" && manuelDisplayRef.current) {
+      manuelDisplayRef.current.triggerCancelCharge();
     }
   };
 
@@ -539,6 +546,7 @@ const DefibInterface: React.FC = () => {
       case "Manuel":
         return (
           <ManuelDisplay
+            ref={manuelDisplayRef}
             frequency={defibrillator.manualFrequency}
             chargeProgress={defibrillator.chargeProgress}
             shockCount={defibrillator.shockCount}
@@ -546,6 +554,8 @@ const DefibInterface: React.FC = () => {
             rhythmType={effectiveRhythm}
             showSynchroArrows={defibrillator.isSynchroMode}
             heartRate={scenario.heartRate}
+            isCharged={defibrillator.isCharged}
+            onCancelCharge={defibrillator.cancelCharge}
           />
         );
       default:
@@ -682,6 +692,12 @@ const DefibInterface: React.FC = () => {
                             handleStimulatorSettingsButton();
                           } else if (i === 3) {
                             handleStimulatorMenuButton();
+                          }
+                        }
+                        // Bouton en mode Manuel (2ème en partant de la droite = index 2)
+                        else if (defibrillator.displayMode === "Manuel") {
+                          if (i === 2) {
+                            handleCancelChargeButton();
                           }
                         }
                       }}
