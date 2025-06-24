@@ -274,18 +274,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         {phase !== "placement" && (
           <>
             {/* Rangée 1 - En-tête */}
-            <div className="h-1/6 border-b border-gray-600 flex items-center justify-between bg-black text-white text-sm font-mono">
+            <div className="h-1/6 border-b border-gray-600 flex items-center justify-between bg-black text-white text-sm font-mono grid grid-cols-3">
               {/* Section gauche - Info patient */}
               <div className="flex items-center h-full">
-                <div className="bg-orange-500 px-3 py-1 h-full flex flex-col justify-center">
+                <div className="bg-orange-500 px-3 py-1 h-full flex flex-col justify-start">
                   <div className="text-black font-bold text-xs">Adulte</div>
                   <div className="text-black text-xs">≥25 kg</div>
-                </div>
-                <div className="px-3 flex flex-col justify-center">
-                  <div className="text-white text-xs">Non stimulé</div>
-                  <div className="text-white text-xs text-yellow-600 font-semibold ">
-                    Dupont, Samuel
-                  </div>
                 </div>
               </div>
 
@@ -294,7 +288,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               </div>
 
               {/* Section droite - Date et icône */}
-              <div className="flex items-center gap-2 px-3">
+              <div className="flex items-center gap-2 px-3 justify-end">
                 <div className="text-white text-xs">
                   {new Date()
                     .toLocaleDateString("fr-FR", {
