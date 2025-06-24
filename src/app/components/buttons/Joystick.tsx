@@ -97,11 +97,11 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
       angleDiff += 360;
     }
     
-    if (Math.abs(angleDiff) > 3) {
+    if (Math.abs(angleDiff) > 5) { // Augmente le seuil pour éviter les micro-mouvements
       hasMovedRef.current = true;
     }
     
-    const speedMultiplier = 1; 
+    const speedMultiplier = 0.5;
     angleDiff *= speedMultiplier;
     
     // Permettre rotation continue sans limite

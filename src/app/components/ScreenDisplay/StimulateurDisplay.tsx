@@ -15,6 +15,9 @@ export interface StimulateurDisplayRef {
   navigateUp: () => void;
   navigateDown: () => void;
   selectCurrentItem: () => void;
+  incrementValue: () => void;
+  decrementValue: () => void;
+  isInValueEditMode: () => boolean;
 }
 
 const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayProps>(({ 
@@ -35,7 +38,6 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
 
   // États pour la navigation au joystick
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
-  const [selectedSubMenuIndex, setSelectedSubMenuIndex] = useState(0);
 
   //  vérifie si un menu ouvert
   const isAnyMenuOpen = () => {
@@ -114,6 +116,17 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
       }
     },
     selectCurrentItem: () => {
+      // Si on est en mode édition de valeur, fermer le menu
+      if (showReglagesStimulateurMenu) {
+        setShowReglagesStimulateurMenu(false);
+        return;
+      }
+      if (showIntensiteMenu) {
+        setShowIntensiteMenu(false);
+        return;
+      }
+
+      // Sinon, utiliser la logique normale de navigation
       const actions = {
         main: [
           () => { setShowStimulationModeMenu(true); setShowMenu(false); setSelectedMenuIndex(0); }
@@ -134,6 +147,23 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
                            showStimulationModeMenu ? actions.stimMode : [];
       
       currentActions[selectedMenuIndex]?.();
+    },
+    incrementValue: () => {
+      if (showReglagesStimulateurMenu) {
+        setFrequenceValue(prev => Math.min(prev + 5, 200));
+      } else if (showIntensiteMenu) {
+        setIntensiteValue(prev => Math.min(prev + 5, 200));
+      }
+    },
+    decrementValue: () => {
+      if (showReglagesStimulateurMenu) {
+        setFrequenceValue(prev => Math.max(prev - 5, 30));
+      } else if (showIntensiteMenu) {
+        setIntensiteValue(prev => Math.max(prev - 5, 5));
+      }
+    },
+    isInValueEditMode: () => {
+      return showReglagesStimulateurMenu || showIntensiteMenu;
     }
   }));
 

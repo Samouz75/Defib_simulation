@@ -249,12 +249,24 @@ const DefibInterface: React.FC = () => {
 
     // Déclencher l'action si le seuil est dépassé
     if (Math.abs(normalizedDiff) > joystickRotationThreshold) {
+      const isEditingValue = stimulateurDisplayRef.current.isInValueEditMode();
+      
       if (normalizedDiff > 0) {
-        // Rotation horaire → Descendre dans le menu
-        stimulateurDisplayRef.current.navigateDown();
+        if (isEditingValue) {
+          // Mode édition → Augmenter la valeur
+          stimulateurDisplayRef.current.incrementValue();
+        } else {
+          // Mode navigation → Descendre dans le menu
+          stimulateurDisplayRef.current.navigateDown();
+        }
       } else {
-        // Rotation anti-horaire → Remonter dans le menu
-        stimulateurDisplayRef.current.navigateUp();
+        if (isEditingValue) {
+          // Mode édition → Diminuer la valeur
+          stimulateurDisplayRef.current.decrementValue();
+        } else {
+          // Mode navigation → Remonter dans le menu
+          stimulateurDisplayRef.current.navigateUp();
+        }
       }
       setLastJoystickAngle(angle);
     }
