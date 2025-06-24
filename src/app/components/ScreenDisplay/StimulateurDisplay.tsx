@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import TimerDisplay from "../TimerDisplay";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
@@ -9,11 +9,16 @@ interface StimulateurDisplayProps {
   heartRate?: number;
 }
 
-const StimulateurDisplay: React.FC<StimulateurDisplayProps> = ({ 
+export interface StimulateurDisplayRef {
+  triggerReglagesStimulateur: () => void;
+  triggerMenu: () => void;
+}
+
+const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayProps>(({ 
   rhythmType = 'sinus',
   showSynchroArrows = false,
   heartRate = 70
-}) => {
+}, ref) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
   const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
@@ -25,8 +30,28 @@ const StimulateurDisplay: React.FC<StimulateurDisplayProps> = ({
   const [frequenceValue, setFrequenceValue] = useState(70);
   const [intensiteValue, setIntensiteValue] = useState(30);
 
+  //  vérifie si un menu ouvert
+  const isAnyMenuOpen = () => {
+    return showMenu || showStimulationModeMenu || showReglagesStimulateur || 
+           showReglagesStimulateurMenu || showIntensiteMenu;
+  };
 
-  
+  useImperativeHandle(ref, () => ({
+    triggerReglagesStimulateur: () => {
+      // Si un autre menu est ouvert, ne rien faire
+      if (isAnyMenuOpen() && !showReglagesStimulateur) {
+        return;
+      }
+      setShowReglagesStimulateur(!showReglagesStimulateur);
+    },
+    triggerMenu: () => {
+      // Si un autre menu est ouvert, ne rien faire
+      if (isAnyMenuOpen() && !showMenu) {
+        return;
+      }
+      setShowMenu(!showMenu);
+    }
+  }));
 
 return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -192,13 +217,25 @@ return (
             <div className="flex items-center gap-2">
               <button 
                 className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 hover:bg-gray-400 transition-colors"
-                onClick={() => setShowReglagesStimulateur(!showReglagesStimulateur)}
+                onClick={() => {
+                  // Si un autre menu est ouvert, ne rien faire
+                  if (isAnyMenuOpen() && !showReglagesStimulateur) {
+                    return;
+                  }
+                  setShowReglagesStimulateur(!showReglagesStimulateur);
+                }}
               >
                 <span>Réglages stimulateur</span>
               </button>
                              <button 
                  className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs hover:bg-gray-400 transition-colors"
-                 onClick={() => setShowMenu(!showMenu)}
+                 onClick={() => {
+                   // Si un autre menu est ouvert, ne rien faire
+                   if (isAnyMenuOpen() && !showMenu) {
+                     return;
+                   }
+                   setShowMenu(!showMenu);
+                 }}
                >
                  <span>Menu</span>
                </button>
@@ -433,6 +470,6 @@ return (
       </div>
     </div>
   );
-};
+});
 
 export default StimulateurDisplay;

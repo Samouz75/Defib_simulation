@@ -13,7 +13,7 @@ import {
 import MonitorDisplay from "./components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "./components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "./components/ScreenDisplay/ARRETDisplay";
-import StimulateurDisplay from "./components/ScreenDisplay/StimulateurDisplay";
+import StimulateurDisplay, { type StimulateurDisplayRef } from "./components/ScreenDisplay/StimulateurDisplay";
 import ManuelDisplay from "./components/ScreenDisplay/ManuelDisplay";
 import Joystick from "./components/buttons/Joystick";
 import RotativeKnob from "./components/buttons/RotativeKnob";
@@ -29,6 +29,7 @@ import type { DisplayMode } from "./hooks/useDefibrillator";
 
 const DefibInterface: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const stimulateurDisplayRef = useRef<StimulateurDisplayRef>(null);
   const scale = useResponsiveScale();
   const defibrillator = useDefibrillator();
   const scenario = useScenario();
@@ -213,11 +214,19 @@ const DefibInterface: React.FC = () => {
     }
   };
 
-  const handleJoystickPositionChange = (
-    position: "center" | "up" | "down" | "left" | "right",
-  ) => {
-    console.log("Joystick position:", position);
-    // space to add logic about position changes
+ 
+
+  // Gestionnaires pour les boutons physiques en mode stimulateur
+  const handleStimulatorSettingsButton = () => {
+    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+      stimulateurDisplayRef.current.triggerReglagesStimulateur();
+    }
+  };
+
+  const handleStimulatorMenuButton = () => {
+    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+      stimulateurDisplayRef.current.triggerMenu();
+    }
   };
 
   const handleRotaryValueChange = (value: number) => {
@@ -471,6 +480,7 @@ const DefibInterface: React.FC = () => {
       case "Stimulateur":
         return (
           <StimulateurDisplay
+            ref={stimulateurDisplayRef}
             rhythmType={effectiveRhythm}
             showSynchroArrows={defibrillator.isSynchroMode}
             heartRate={scenario.heartRate}
@@ -615,6 +625,16 @@ const DefibInterface: React.FC = () => {
                     <button
                       key={i}
                       className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
+                      onClick={() => {
+                        // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
+                        if (defibrillator.displayMode === "Stimulateur") {
+                          if (i === 2) {
+                            handleStimulatorSettingsButton();
+                          } else if (i === 3) {
+                            handleStimulatorMenuButton();
+                          }
+                        }
+                      }}
                     ></button>
                   ))}
                 </div>
@@ -637,7 +657,7 @@ const DefibInterface: React.FC = () => {
               </div>
 
               {/* Joystick */}
-              <Joystick onPositionChange={handleJoystickPositionChange} />
+              <Joystick onRotationChange={() => {}} />
             </div>
           </div>
 
