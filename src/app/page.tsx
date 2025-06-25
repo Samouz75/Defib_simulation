@@ -241,10 +241,7 @@ const DefibInterface: React.FC = () => {
   const [lastJoystickAngle, setLastJoystickAngle] = useState(0);
   const [joystickRotationThreshold] = useState(30); // Seuil en degrés pour déclencher l'action
 
-  // Gestionnaire pour les rotations du joystick en mode stimulateur 
   const handleJoystickRotation = (angle: number) => {
-    if (defibrillator.displayMode !== "Stimulateur" || !stimulateurDisplayRef.current) return;
-
     const angleDiff = angle - lastJoystickAngle;
     
     // Gérer le passage de 360° à 0° et vice versa
@@ -257,26 +254,40 @@ const DefibInterface: React.FC = () => {
 
     // Déclencher l'action si le seuil est dépassé
     if (Math.abs(normalizedDiff) > joystickRotationThreshold) {
-      const isEditingValue = stimulateurDisplayRef.current.isInValueEditMode();
-      
-      if (normalizedDiff > 0) {
-        if (isEditingValue) {
-          // Mode édition → Augmenter la valeur
-          stimulateurDisplayRef.current.incrementValue();
+      // Mode Stimulateur
+      if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+        const isEditingValue = stimulateurDisplayRef.current.isInValueEditMode();
+        
+        if (normalizedDiff > 0) {
+          if (isEditingValue) {
+            // Mode édition → Augmenter la valeur
+            stimulateurDisplayRef.current.incrementValue();
+          } else {
+            // Mode navigation → Descendre dans le menu
+            stimulateurDisplayRef.current.navigateDown();
+          }
         } else {
-          // Mode navigation → Descendre dans le menu
-          stimulateurDisplayRef.current.navigateDown();
+          if (isEditingValue) {
+            // Mode édition → Diminuer la valeur
+            stimulateurDisplayRef.current.decrementValue();
+          } else {
+            // Mode navigation → Remonter dans le menu
+            stimulateurDisplayRef.current.navigateUp();
+          }
         }
-      } else {
-        if (isEditingValue) {
-          // Mode édition → Diminuer la valeur
-          stimulateurDisplayRef.current.decrementValue();
-        } else {
-          // Mode navigation → Remonter dans le menu
-          stimulateurDisplayRef.current.navigateUp();
-        }
+        setLastJoystickAngle(angle);
       }
-      setLastJoystickAngle(angle);
+      // Mode Moniteur
+      else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+        if (normalizedDiff > 0) {
+          // Rotation vers la droite → Descendre dans le menu
+          monitorDisplayRef.current.navigateDown();
+        } else {
+          // Rotation vers la gauche → Remonter dans le menu
+          monitorDisplayRef.current.navigateUp();
+        }
+        setLastJoystickAngle(angle);
+      }
     }
   };
 
@@ -284,6 +295,8 @@ const DefibInterface: React.FC = () => {
   const handleJoystickClick = () => {
     if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
       stimulateurDisplayRef.current.selectCurrentItem();
+    } else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+      monitorDisplayRef.current.selectCurrentItem();
     }
   };
 

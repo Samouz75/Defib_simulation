@@ -13,6 +13,9 @@ interface MonitorDisplayProps {
 
 export interface MonitorDisplayRef {
   triggerMenu: () => void;
+  navigateUp: () => void;
+  navigateDown: () => void;
+  selectCurrentItem: () => void;
 }
 
 const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({ 
@@ -24,20 +27,34 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   
   // États pour le menu
   const [showMenu, setShowMenu] = useState(false);
+  const [showMesuresMenu, setShowMesuresMenu] = useState(false);
+  const [showFCMenu, setShowFCMenu] = useState(false);
+  const [showPNIMenu, setShowPNIMenu] = useState(false);
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
 
   // Configuration du menu
   const menuConfigs = {
-    main: ['FC/Arythmie', 'PNI', 'SpO2', 'Pouls', 'Fin']
+    main: ['Volume', 'Courbes affichées', 'Mesures/Alarmes', 'Infos patient', 'Tendances'],
+    Mesures: ['FC/Arythmie', 'PNI', 'SpO2', 'Pouls', 'Fin'],
+    FC: ['Reprise acqu. rythme', 'Alarmes desactivées', 'Limites FC', 'Limites Tachy. V','Limite fréquence ESV', 'Fin'],
+    PNI: ['Fréquence PNI', 'Alarmes desactivées','Limites PNI', 'Fin'],
+  };
+
+  // Vérifie si un menu est ouvert
+  const isAnyMenuOpen = () => {
+    return showMenu || showMesuresMenu || showFCMenu || showPNIMenu;
   };
 
   const getCurrentMenuItems = () => {
     if (showMenu) return menuConfigs.main;
+    if (showMesuresMenu) return menuConfigs.Mesures;
+    if (showFCMenu) return menuConfigs.FC;
+    if (showPNIMenu) return menuConfigs.PNI;
     return [];
   };
-
+ 
   const renderMenu = (title: string, items: string[], onClose: () => void) => (
-    <div className="absolute bottom-0 right-0 z-50">
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
       <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
         <div className="bg-gray-400 px-4 py-2 border-b border-black">
           <h3 className="text-black font-bold text-sm">{title}</h3>
@@ -57,14 +74,69 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           ))}
         </div>
       </div>
-      <div className="fixed inset-0 bg-transparent -z-10" onClick={onClose}></div>
+      <div className="fixed inset-0 bg-black bg-opacity-0 -z-10" onClick={onClose}></div>
     </div>
   );
 
   useImperativeHandle(ref, () => ({
     triggerMenu: () => {
+      if (isAnyMenuOpen() && !showMenu) {
+        return;
+      }
       setShowMenu(!showMenu);
       setSelectedMenuIndex(0); // Reset selection
+    },
+    navigateUp: () => {
+      const menuItems = getCurrentMenuItems();
+      if (menuItems.length > 0) {
+        setSelectedMenuIndex((prev) => (prev > 0 ? prev - 1 : menuItems.length - 1));
+      }
+    },
+    navigateDown: () => {
+      const menuItems = getCurrentMenuItems();
+      if (menuItems.length > 0) {
+        setSelectedMenuIndex((prev) => (prev < menuItems.length - 1 ? prev + 1 : 0));
+      }
+    },
+    selectCurrentItem: () => {
+      // Configuration des actions pour chaque menu
+      const actions = {
+        main: [
+          () => console.log('Volume sélectionné'), // Volume
+          () => console.log('Courbes affichées sélectionné'), // Courbes affichées
+          () => { setShowMesuresMenu(true); setShowMenu(false); setSelectedMenuIndex(0); }, // Mesures/Alarmes
+          () => console.log('Infos patient sélectionné'), // Infos patient
+          () => console.log('Tendances sélectionné') // Tendances
+        ],
+        Mesures: [
+          () => { setShowFCMenu(true); setShowMesuresMenu(false); setSelectedMenuIndex(0); }, // FC/Arythmie
+          () => { setShowPNIMenu(true); setShowMesuresMenu(false); setSelectedMenuIndex(0); }, // PNI
+          () => console.log('SpO2 sélectionné'), // SpO2
+          () => console.log('Pouls sélectionné'), // Pouls
+          () => setShowMesuresMenu(false) // Fin
+        ],
+        FC: [
+          () => console.log('Reprise acqu. rythme sélectionné'), // Reprise acqu. rythme
+          () => console.log('Alarmes desactivées sélectionné'), // Alarmes desactivées
+          () => console.log('Limites FC sélectionné'), // Limites FC
+          () => console.log('Limites Tachy. V sélectionné'), // Limites Tachy. V
+          () => console.log('Limite fréquence ESV sélectionné'), // Limite fréquence ESV
+          () => setShowFCMenu(false) // Fin
+        ],
+        PNI: [
+          () => console.log('Fréquence PNI sélectionné'), // Fréquence PNI
+          () => console.log('Alarmes desactivées sélectionné'), // Alarmes desactivées
+          () => console.log('Limites PNI sélectionné'), // Limites PNI
+          () => setShowPNIMenu(false) // Fin
+        ]
+      };
+
+      const currentActions = showMenu ? actions.main : 
+                           showMesuresMenu ? actions.Mesures : 
+                           showFCMenu ? actions.FC : 
+                           showPNIMenu ? actions.PNI : [];
+      
+      currentActions[selectedMenuIndex]?.();
     }
   }));
 
@@ -270,8 +342,17 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
         </div>
       </div>
       
+      {/* Menu Principal */}
+      {showMenu && renderMenu("Menu principal", menuConfigs.main, () => setShowMenu(false))}
+
       {/* Menu Mesures/Alarmes */}
-      {showMenu && renderMenu("Mesures/Alarmes", menuConfigs.main, () => setShowMenu(false))}
+      {showMesuresMenu && renderMenu("Mesures/Alarmes", menuConfigs.Mesures, () => setShowMesuresMenu(false))}
+
+      {/* Menu FC/Arythmie */}
+      {showFCMenu && renderMenu("FC/Arythmie", menuConfigs.FC, () => setShowFCMenu(false))}
+
+      {/* Menu PNI */}
+      {showPNIMenu && renderMenu("PNI", menuConfigs.PNI, () => setShowPNIMenu(false))}
 
     </div>
   );
