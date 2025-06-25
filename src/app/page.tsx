@@ -10,7 +10,7 @@ import {
   HelpCircle,
   CheckCircle,
 } from "lucide-react";
-import MonitorDisplay from "./components/ScreenDisplay/MonitorDisplay";
+import MonitorDisplay, { type MonitorDisplayRef } from "./components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "./components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "./components/ScreenDisplay/ARRETDisplay";
 import StimulateurDisplay, { type StimulateurDisplayRef } from "./components/ScreenDisplay/StimulateurDisplay";
@@ -31,6 +31,7 @@ const DefibInterface: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stimulateurDisplayRef = useRef<StimulateurDisplayRef>(null);
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
+  const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
   const scale = useResponsiveScale();
   const defibrillator = useDefibrillator();
   const scenario = useScenario();
@@ -227,6 +228,12 @@ const DefibInterface: React.FC = () => {
   const handleStimulatorMenuButton = () => {
     if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
       stimulateurDisplayRef.current.triggerMenu();
+    }
+  };
+
+  const handleMonitorMenuButton = () => {
+    if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+      monitorDisplayRef.current.triggerMenu();
     }
   };
 
@@ -506,6 +513,7 @@ const DefibInterface: React.FC = () => {
         return (
           <div className="relative w-full h-full">
             <MonitorDisplay
+              ref={monitorDisplayRef}
               rhythmType={effectiveRhythm}
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
@@ -561,6 +569,7 @@ const DefibInterface: React.FC = () => {
       default:
         return (
           <MonitorDisplay
+            ref={monitorDisplayRef}
             rhythmType={effectiveRhythm}
             heartRate={scenario.heartRate}
           />
@@ -698,6 +707,12 @@ const DefibInterface: React.FC = () => {
                         else if (defibrillator.displayMode === "Manuel") {
                           if (i === 2) {
                             handleCancelChargeButton();
+                          }
+                        }
+                        // Bouton en mode Monitor (1er en partant de la droite = index 3)
+                        else if (defibrillator.displayMode === "Moniteur") {
+                          if (i === 3) {
+                            handleMonitorMenuButton();
                           }
                         }
                       }}

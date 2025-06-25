@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import ECGDisplay from '../graphsdata/ECGDisplay';
 import PlethDisplay from '../graphsdata/PlethDisplay';
 import TimerDisplay from '../TimerDisplay';
@@ -11,12 +11,63 @@ interface MonitorDisplayProps {
   heartRate?: number; 
 }
 
-const MonitorDisplay: React.FC<MonitorDisplayProps> = ({ 
+export interface MonitorDisplayRef {
+  triggerMenu: () => void;
+}
+
+const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({ 
   rhythmType = 'sinus',
   showSynchroArrows = false,
   heartRate = 70 
-}) => {
+}, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
+  
+  // États pour le menu
+  const [showMenu, setShowMenu] = useState(false);
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+
+  // Configuration du menu
+  const menuConfigs = {
+    main: ['FC/Arythmie', 'PNI', 'SpO2', 'Pouls', 'Fin']
+  };
+
+  const getCurrentMenuItems = () => {
+    if (showMenu) return menuConfigs.main;
+    return [];
+  };
+
+  const renderMenu = (title: string, items: string[], onClose: () => void) => (
+    <div className="absolute bottom-0 right-0 z-50">
+      <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
+        <div className="bg-gray-400 px-4 py-2 border-b border-black">
+          <h3 className="text-black font-bold text-sm">{title}</h3>
+        </div>
+        <div className="flex flex-col">
+          {items.map((item, index) => (
+            <div 
+              key={index}
+              className={`px-4 py-2 ${index < items.length - 1 ? 'border-b border-gray-500' : ''} ${
+                selectedMenuIndex === index ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
+            >
+              <span className={`text-sm ${selectedMenuIndex === index ? 'text-white' : 'text-black'}`}>
+                {item}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="fixed inset-0 bg-transparent -z-10" onClick={onClose}></div>
+    </div>
+  );
+
+  useImperativeHandle(ref, () => ({
+    triggerMenu: () => {
+      setShowMenu(!showMenu);
+      setSelectedMenuIndex(0); // Reset selection
+    }
+  }));
+
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
       <div className="h-full flex flex-col">
@@ -212,14 +263,18 @@ const MonitorDisplay: React.FC<MonitorDisplayProps> = ({
             <span> </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
-              <span>Menu</span>
+            <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs">
+          <span>Menu</span>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Menu Mesures/Alarmes */}
+      {showMenu && renderMenu("Mesures/Alarmes", menuConfigs.main, () => setShowMenu(false))}
+
     </div>
   );
-};
+});
 
 export default MonitorDisplay;
