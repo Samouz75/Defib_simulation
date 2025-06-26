@@ -34,8 +34,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [showFCMenu, setShowFCMenu] = useState(false);
   const [showPNIMenu, setShowPNIMenu] = useState(false);
   const [showLimitesFCMenu, setShowLimitesFCMenu] = useState(false);
+  const [showLimitesBassesFCMenu, setShowLimitesBassesFCMenu] = useState(false);
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
   const [limitesFCValue, setLimitesFCValue] = useState(120);
+  const [limitesBassesFCValue, setLimitesBassesFCValue] = useState(50);
 
   // Configuration du menu
   const menuConfigs = {
@@ -44,11 +46,12 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
     FC: ['Reprise acqu. rythme', 'Alarmes desactivées', 'Limites FC', 'Limites Tachy. V','Limite fréquence ESV', 'Fin'],
     PNI: ['Fréquence PNI', 'Alarmes desactivées','Limites PNI', 'Fin'],
     LimitesFC: ['▲', limitesFCValue.toString(), '▼', 'Fin'],
+    LimitesBasseFC: ['▲', limitesBassesFCValue.toString(), '▼', 'Fin'],
   };
 
   // Vérifie si un menu est ouvert
   const isAnyMenuOpen = () => {
-    return showMenu || showMesuresMenu || showFCMenu || showPNIMenu || showLimitesFCMenu;
+    return showMenu || showMesuresMenu || showFCMenu || showPNIMenu || showLimitesFCMenu || showLimitesBassesFCMenu;
   };
 
   const getCurrentMenuItems = () => {
@@ -57,6 +60,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
     if (showFCMenu) return menuConfigs.FC;
     if (showPNIMenu) return menuConfigs.PNI;
     if (showLimitesFCMenu) return menuConfigs.LimitesFC;
+    if (showLimitesBassesFCMenu) return menuConfigs.LimitesBasseFC;
     return [];
   };
  
@@ -94,7 +98,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
       setSelectedMenuIndex(0); // Reset selection
     },
     navigateUp: () => {
-      if (showLimitesFCMenu) {
+      if (showLimitesFCMenu || showLimitesBassesFCMenu) {
         return;
       }
       const menuItems = getCurrentMenuItems();
@@ -103,7 +107,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
       }
     },
     navigateDown: () => {
-      if (showLimitesFCMenu) {
+      if (showLimitesFCMenu || showLimitesBassesFCMenu) {
         return;
       }
       const menuItems = getCurrentMenuItems();
@@ -112,21 +116,31 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
       }
     },
     isInValueEditMode: () => {
-      return showLimitesFCMenu;
+      return showLimitesFCMenu || showLimitesBassesFCMenu;
     },
     incrementValue: () => {
       if (showLimitesFCMenu && limitesFCValue < 200) {
         setLimitesFCValue(prev => prev + 1);
+      } else if (showLimitesBassesFCMenu && limitesBassesFCValue < 200) {
+        setLimitesBassesFCValue(prev => prev + 1);
       }
     },
     decrementValue: () => {
       if (showLimitesFCMenu && limitesFCValue > 30) {
         setLimitesFCValue(prev => prev - 1);
+      } else if (showLimitesBassesFCMenu && limitesBassesFCValue > 30) {
+        setLimitesBassesFCValue(prev => prev - 1);
       }
     },
     selectCurrentItem: () => {
       if (showLimitesFCMenu) {
         setShowLimitesFCMenu(false);
+        setShowLimitesBassesFCMenu(true);
+        setSelectedMenuIndex(0);
+        return;
+      }
+      if (showLimitesBassesFCMenu) {
+        setShowLimitesBassesFCMenu(false);
         return;
       }
       
@@ -405,7 +419,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
           <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
             <div className="bg-blue-600 px-4 py-2 border-b border-black">
-              <h3 className="text-white font-bold text-sm">Limites FC</h3>
+              <h3 className="text-white font-bold text-sm">Limite Haute FC</h3>
             </div>
             
             <div className="flex flex-col items-center py-4">
@@ -432,7 +446,48 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           
           <div 
             className="fixed inset-0 bg-black bg-opacity-0 -z-10"
-            onClick={() => setShowLimitesFCMenu(false)}
+            onClick={() => {
+              setShowLimitesFCMenu(false);
+              setShowLimitesBassesFCMenu(true);
+              setSelectedMenuIndex(0);
+            }}
+          ></div>
+        </div>
+      )}
+
+      {/* Menu Limites Basse FC */}
+      {showLimitesBassesFCMenu && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
+            <div className="bg-blue-600 px-4 py-2 border-b border-black">
+              <h3 className="text-white font-bold text-sm">Limite Basse FC</h3>
+            </div>
+            
+            <div className="flex flex-col items-center py-4">
+              <div className="text-black text-2xl px-2 py-1 rounded mb-2">
+                ▲
+              </div>
+              
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">
+                  {limitesBassesFCValue}
+                </span>
+                <span className="text-black text-sm">bpm</span>
+              </div>
+              
+              <div className="text-black text-2xl px-2 py-1 rounded mb-4">
+                ▼
+              </div>
+              
+              <div className="bg-gray-400 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium">
+                Fin
+              </div>
+            </div>
+          </div>
+          
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+            onClick={() => setShowLimitesBassesFCMenu(false)}
           ></div>
         </div>
       )}
