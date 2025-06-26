@@ -348,7 +348,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           <div className="flex flex-col items-center px-1">
             <div className="flex flex-row items-center gap-x-5">
               <div className="text-white text-xs font-bold">PNI</div>
-              <div className="text-white text-xs font-bold">5min</div>
+              <div className="text-white text-xs font-bold">{selectedFrequencePNI}</div>
               <div className="text-white text-xs font-bold">10:20 </div>
               <div className="text-white text-xs font-bold">mmHg</div>
             </div>
