@@ -279,12 +279,24 @@ const DefibInterface: React.FC = () => {
       }
       // Mode Moniteur
       else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+        const isEditingValue = monitorDisplayRef.current.isInValueEditMode();
+        
         if (normalizedDiff > 0) {
-          // Rotation vers la droite → Descendre dans le menu
-          monitorDisplayRef.current.navigateDown();
+          if (isEditingValue) {
+            // Mode édition → Augmenter la valeur
+            monitorDisplayRef.current.incrementValue();
+          } else {
+            // Mode navigation → Descendre dans le menu
+            monitorDisplayRef.current.navigateDown();
+          }
         } else {
-          // Rotation vers la gauche → Remonter dans le menu
-          monitorDisplayRef.current.navigateUp();
+          if (isEditingValue) {
+            // Mode édition → Diminuer la valeur
+            monitorDisplayRef.current.decrementValue();
+          } else {
+            // Mode navigation → Remonter dans le menu
+            monitorDisplayRef.current.navigateUp();
+          }
         }
         setLastJoystickAngle(angle);
       }
