@@ -35,9 +35,12 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [showPNIMenu, setShowPNIMenu] = useState(false);
   const [showLimitesFCMenu, setShowLimitesFCMenu] = useState(false);
   const [showLimitesBassesFCMenu, setShowLimitesBassesFCMenu] = useState(false);
+  const [showFrequencePNIMenu, setShowFrequencePNIMenu] = useState(false);
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
   const [limitesFCValue, setLimitesFCValue] = useState(120);
   const [limitesBassesFCValue, setLimitesBassesFCValue] = useState(50);
+  const [selectedFrequencePNI, setSelectedFrequencePNI] = useState('Manuel');
+  const [frequencePNIStartIndex, setFrequencePNIStartIndex] = useState(0);
 
   // Configuration du menu
   const menuConfigs = {
@@ -47,11 +50,12 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
     PNI: ['Fréquence PNI', 'Alarmes desactivées','Limites PNI', 'Fin'],
     LimitesFC: ['▲', limitesFCValue.toString(), '▼', 'Fin'],
     LimitesBasseFC: ['▲', limitesBassesFCValue.toString(), '▼', 'Fin'],
+    FrequencePNI: ['Manuel', '1 min', '2.5 min', '5 min', '10 min', '15 min', '30 min', '60 min', '120 min'],
   };
 
   // Vérifie si un menu est ouvert
   const isAnyMenuOpen = () => {
-    return showMenu || showMesuresMenu || showFCMenu || showPNIMenu || showLimitesFCMenu || showLimitesBassesFCMenu;
+    return showMenu || showMesuresMenu || showFCMenu || showPNIMenu || showLimitesFCMenu || showLimitesBassesFCMenu || showFrequencePNIMenu;
   };
 
   const getCurrentMenuItems = () => {
@@ -61,6 +65,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
     if (showPNIMenu) return menuConfigs.PNI;
     if (showLimitesFCMenu) return menuConfigs.LimitesFC;
     if (showLimitesBassesFCMenu) return menuConfigs.LimitesBasseFC;
+    if (showFrequencePNIMenu) return menuConfigs.FrequencePNI;
     return [];
   };
  
@@ -103,7 +108,19 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
       }
       const menuItems = getCurrentMenuItems();
       if (menuItems.length > 0) {
-        setSelectedMenuIndex((prev) => (prev > 0 ? prev - 1 : menuItems.length - 1));
+        if (showFrequencePNIMenu) {
+          // Gestion menu FrequencePNI avec défilement
+          const newIndex = selectedMenuIndex > 0 ? selectedMenuIndex - 1 : menuItems.length - 1;
+          setSelectedMenuIndex(newIndex);
+          
+          if (newIndex < frequencePNIStartIndex) {
+            setFrequencePNIStartIndex(Math.max(0, newIndex));
+          } else if (newIndex >= menuItems.length - 4) {
+            setFrequencePNIStartIndex(Math.max(0, menuItems.length - 5));
+          }
+        } else {
+          setSelectedMenuIndex((prev) => (prev > 0 ? prev - 1 : menuItems.length - 1));
+        }
       }
     },
     navigateDown: () => {
@@ -112,7 +129,19 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
       }
       const menuItems = getCurrentMenuItems();
       if (menuItems.length > 0) {
-        setSelectedMenuIndex((prev) => (prev < menuItems.length - 1 ? prev + 1 : 0));
+        if (showFrequencePNIMenu) {
+          // Gestion menu FrequencePNI avec défilement
+          const newIndex = selectedMenuIndex < menuItems.length - 1 ? selectedMenuIndex + 1 : 0;
+          setSelectedMenuIndex(newIndex);
+          
+          if (newIndex >= frequencePNIStartIndex + 5) {
+            setFrequencePNIStartIndex(Math.min(menuItems.length - 5, newIndex - 4));
+          } else if (newIndex === 0) {
+            setFrequencePNIStartIndex(0);
+          }
+        } else {
+          setSelectedMenuIndex((prev) => (prev < menuItems.length - 1 ? prev + 1 : 0));
+        }
       }
     },
     isInValueEditMode: () => {
@@ -169,7 +198,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           () => setShowFCMenu(false) // Fin
         ],
         PNI: [
-          () => console.log('Fréquence PNI sélectionné'), // Fréquence PNI
+          () => { setShowFrequencePNIMenu(true); setShowPNIMenu(false); setSelectedMenuIndex(0); setFrequencePNIStartIndex(0); }, // Fréquence PNI
           () => console.log('Alarmes desactivées sélectionné'), // Alarmes desactivées
           () => console.log('Limites PNI sélectionné'), // Limites PNI
           () => setShowPNIMenu(false) // Fin
@@ -187,6 +216,17 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             }
           },
           () => setShowLimitesFCMenu(false) // Fin
+        ],
+        FrequencePNI: [
+          () => { setSelectedFrequencePNI('Manuel'); setShowFrequencePNIMenu(false); },
+          () => { setSelectedFrequencePNI('1 min'); setShowFrequencePNIMenu(false); }, 
+          () => { setSelectedFrequencePNI('2.5 min'); setShowFrequencePNIMenu(false); }, 
+          () => { setSelectedFrequencePNI('5 min'); setShowFrequencePNIMenu(false); }, 
+          () => { setSelectedFrequencePNI('10 min'); setShowFrequencePNIMenu(false); },
+          () => { setSelectedFrequencePNI('15 min'); setShowFrequencePNIMenu(false); }, 
+          () => { setSelectedFrequencePNI('30 min'); setShowFrequencePNIMenu(false); }, 
+          () => { setSelectedFrequencePNI('60 min'); setShowFrequencePNIMenu(false); },
+          () => { setSelectedFrequencePNI('120 min'); setShowFrequencePNIMenu(false); } 
         ]
       };
 
@@ -194,7 +234,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
                            showMesuresMenu ? actions.Mesures : 
                            showFCMenu ? actions.FC : 
                            showPNIMenu ? actions.PNI : 
-                           showLimitesFCMenu ? actions.LimitesFC : [];
+                           showLimitesFCMenu ? actions.LimitesFC : 
+                           showFrequencePNIMenu ? actions.FrequencePNI : [];
       
       currentActions[selectedMenuIndex]?.();
     }
@@ -485,12 +526,62 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             </div>
           </div>
           
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-0 -z-10"
-            onClick={() => setShowLimitesBassesFCMenu(false)}
-          ></div>
-        </div>
-      )}
+                     <div 
+             className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+             onClick={() => setShowLimitesBassesFCMenu(false)}
+           ></div>
+         </div>
+       )}
+
+       {/* Menu Fréquence PNI */}
+       {showFrequencePNIMenu && (
+         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+           <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
+             <div className="bg-gray-400 px-4 py-2 border-b border-black">
+               <h3 className="text-black font-bold text-sm">Fréquence PNI</h3>
+             </div>
+             
+             {/* Flèche vers le haut si on peut scroller vers le haut */}
+             {frequencePNIStartIndex > 0 && (
+               <div className="bg-gray-600 px-4 py-0.1 flex justify-center border-b border-gray-500">
+                 <span className="text-white text-sm">▲</span>
+               </div>
+             )}
+             
+             <div className="flex flex-col">
+               {menuConfigs.FrequencePNI.slice(frequencePNIStartIndex, frequencePNIStartIndex + 5).map((item, displayIndex) => {
+                 const actualIndex = frequencePNIStartIndex + displayIndex;
+                 return (
+                   <div 
+                     key={actualIndex}
+                     className={`px-4 py-3 ${displayIndex < 4 ? 'border-b border-gray-500' : ''} ${
+                       selectedMenuIndex === actualIndex ? 'bg-blue-500' : 'bg-gray-300'
+                     }`}
+                   >
+                     <span className={`text-sm font-medium ${
+                       selectedMenuIndex === actualIndex ? 'text-white' : 'text-black'
+                     }`}>
+                       {item}
+                     </span>
+                   </div>
+                 );
+               })}
+             </div>
+             
+             {/* Flèche vers le bas si on peut scroller vers le bas */}
+             {frequencePNIStartIndex + 5 < menuConfigs.FrequencePNI.length && (
+               <div className="bg-gray-600 px-4 py-0.1 flex justify-center border-t border-gray-500">
+                 <span className="text-white text-sm">▼</span>
+               </div>
+             )}
+           </div>
+           
+           <div 
+             className="fixed inset-0 bg-black bg-opacity-0 -z-10"
+             onClick={() => setShowFrequencePNIMenu(false)}
+           ></div>
+         </div>
+       )}
 
     </div>
   );
