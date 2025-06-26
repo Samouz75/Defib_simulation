@@ -303,7 +303,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
                   ? fvVitalSigns.heartRate 
                   : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
-              <div className="text-green-400 text-xs">120</div>
+                <div className="flex flex-col items-center">
+                  <div className="text-green-400 text-xs">{limitesFCValue}</div>
+                  <div className="text-green-400 text-xs">{limitesBassesFCValue}</div>
+                </div>
             </div>
           </div>
 
