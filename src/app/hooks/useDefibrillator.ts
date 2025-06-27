@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NotificationService } from "../services/NotificationService";
+import AudioService from "../services/AudioService";
 
 export type DisplayMode = "DAE" | "ARRET" | "Moniteur" | "Stimulateur" | "Manuel";
 
@@ -38,6 +39,15 @@ export const useDefibrillator = () => {
     isSynchroMode: false, // NOUVEAU : état du mode synchro
   });
 
+  // AudioService reference
+  const audioServiceRef = useRef<AudioService | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
+
   const updateState = (updates: Partial<DefibrillatorState>) => {
     setState(prev => ({ ...prev, ...updates }));
   };
@@ -67,6 +77,11 @@ export const useDefibrillator = () => {
       chargeProgress: 0,
       isCharged: false,
     });
+
+    // charging sound manual mode
+    if (audioServiceRef.current) {
+      audioServiceRef.current.playChargingSequence();
+    }
 
     // Charging animation (5 seconds)
     const chargeInterval = setInterval(() => {
@@ -99,6 +114,16 @@ export const useDefibrillator = () => {
       isCharged: false,
       chargeProgress: 0,
     });
+
+    if (audioServiceRef.current) {
+      // Stop all ongoing sounds 
+      audioServiceRef.current.stopAll();
+      audioServiceRef.current.playDAEChocDelivre();
+      
+      setTimeout(() => {
+        audioServiceRef.current?.playCommencerRCP();
+      }, 2000);
+    }
 
     // Show notification
     NotificationService.showShockDelivered({
