@@ -293,9 +293,9 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
         </div>
 
         {/* Rangée 2 - Paramètres médicaux */}
-        <div className="h-1/4 border-b border-gray-600 flex items-center justify-between  text-sm bg-black ">
+        <div className="h-1/4 border-b border-gray-600 flex items-center text-sm bg-black px-2">
           {/* FC (Fréquence Cardiaque) */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center w-24">
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-gray-400 text-xs">FC</div>
               <div className="text-gray-400 text-xs">bpm</div>
@@ -306,15 +306,15 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
                   ? fvVitalSigns.heartRate 
                   : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
-                <div className="flex flex-col items-center">
-                  <div className="text-green-400 text-xs">{limitesFCValue}</div>
-                  <div className="text-green-400 text-xs">{limitesBassesFCValue}</div>
+                <div className="flex flex-col items-center w-8">
+                  <div className="text-green-400 text-xs text-center">{limitesFCValue}</div>
+                  <div className="text-green-400 text-xs text-center">{limitesBassesFCValue}</div>
                 </div>
             </div>
           </div>
 
           {/* SpO2 */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center w-28 ml-4">
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-blue-400 text-2xl font-bold">SpO2</div>
               <div className="text-blue-400 text-xs">%</div>
@@ -322,10 +322,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
 
             {/* SpO2 Value */}
             <div className="flex flex-row items-center gap-x-2">
-              <div className="text-blue-400 text-4xl font-bold min-w-[60px]">
+              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
                 {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '95'}
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center w-8">
                 <div className="text-blue-400 text-xs">100</div>
                 <div className="text-blue-400 text-xs">90</div>
               </div>
@@ -333,14 +333,14 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           </div>
 
           {/* Pouls */}
-          <div className="flex flex-row items-center gap-x-2">
+          <div className="flex flex-row items-center w-28 ml-4">
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold min-w-[60px]">
+              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
                 {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-8 ml-2">
               <div className="text-blue-400 text-xs mb-2">bpm</div>
               <div className="text-blue-400 text-xs">120</div>
               <div className="text-blue-400 text-xs">50</div>
@@ -348,61 +348,53 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           </div>
 
           {/* PNI */}
-          <div className="flex flex-col items-center px-1">
-            <div className="flex flex-row items-center gap-x-5">
+          <div className="flex flex-col items-center w-40 ml-4">
+            <div className="flex flex-row items-center gap-x-2">
               <div className="text-white text-xs font-bold">PNI</div>
-              <div className="text-white text-xs font-bold">{selectedFrequencePNI}</div>
-              <div className="text-white text-xs font-bold">10:20 </div>
+              <div className="text-white text-xs font-bold w-12 text-center">{selectedFrequencePNI}</div>
+              <div className="text-white text-xs font-bold">10:20</div>
               <div className="text-white text-xs font-bold">mmHg</div>
             </div>
             <div className="flex flex-row items-center gap-x-1 mt-1">
-              <div className="text-white text-4xl min-w-[100px]">
+              <div className="text-white text-4xl min-w-[100px] text-center">
                 {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '110/70'}
               </div>
-              <div className=" text-white text-xs min-w-[30px]">
+              <div className="text-white text-xs min-w-[30px] text-center">
                 {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '' : '(80)'}
               </div>
-              <div className="flex flex-col items-center gap-x-1">
-                <div className=" text-white text-xs">MOY</div>
-                <div className=" text-white text-xs">110</div>
-                <div className=" text-white text-xs">50</div>
+              <div className="flex flex-col items-center w-8">
+                <div className="text-white text-xs">MOY</div>
+                <div className="text-white text-xs">110</div>
+                <div className="text-white text-xs">50</div>
               </div>
             </div>
           </div>
 
-          {/* CO2 et FR - Deux colonnes principales */}
-          <div className="flex flex-row items-center gap-x-4">
+          {/* CO2 et FR */}
+          <div className="flex flex-row items-center gap-x-6 ml-4">
             {/* Colonne CO2 */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-20">
               <div className="flex flex-row items-center gap-x-1">
                 <div className="text-white text-xs font-bold">CO2ie</div>
                 <div className="text-white text-xs font-bold">mmHg</div>
               </div>
               <div className="flex flex-row items-center">
-                <div className="text-yellow-400 text-4xl font-bold min-w-[50px]">
+                <div className="text-yellow-400 text-4xl font-bold min-w-[50px] text-center">
                   {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '--'}
                 </div>
-                {/*<div className="flex flex-col items-center ml-2">
-                  <div className="text-yellow-400 text-xs">50</div>
-                  <div className="text-yellow-400 text-xs">30</div>
-                </div>*/}
               </div>
             </div>
 
             {/* Colonne FR */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-20">
               <div className="flex flex-row items-center gap-x-1">
                 <div className="text-white text-xs font-bold">FR</div>
                 <div className="text-white text-xs font-bold">rpm</div>
               </div>
               <div className="flex flex-row items-center">
-                <div className="text-yellow-400 text-4xl font-bold min-w-[50px]">
+                <div className="text-yellow-400 text-4xl font-bold min-w-[50px] text-center">
                   {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '--'}
                 </div>
-                {/*<div className="flex flex-col items-center ml-2">
-                  <div className="text-yellow-400 text-xs">30</div>
-                  <div className="text-yellow-400 text-xs">8</div>
-                </div>*/}
               </div>
             </div>
           </div>
