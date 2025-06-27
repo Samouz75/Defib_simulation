@@ -33,6 +33,9 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   // État pour "Choc délivré" et "Commencez la RCP"
   const [showShockDelivered, setShowShockDelivered] = useState(false);
   const [showCPRMessage, setShowCPRMessage] = useState(false);
+  
+  // État pour le clignotement des fibrillations
+  const [fibBlink, setFibBlink] = useState(false);
 
   // Effet pour gérer la séquence de messages après choc
   useEffect(() => {
@@ -55,7 +58,18 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
         clearTimeout(timer2);
       };
     }
-  }, [shockCount]);
+      }, [shockCount]);
+
+  // Effet pour le clignotement des fibrillations
+  useEffect(() => {
+    if (rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') {
+      const interval = setInterval(() => {
+        setFibBlink(prev => !prev);
+      }, 500); 
+
+      return () => clearInterval(interval);
+    }
+  }, [rhythmType]);
 
   useImperativeHandle(ref, () => ({
     triggerCancelCharge: () => {
@@ -69,25 +83,22 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
         <div className="h-1/6 border-b border-gray-600 flex items-center justify-between bg-black text-white text-sm font-mono grid grid-cols-3">
           {/* Section gauche - Info patient */}
           <div className="flex items-center h-full">
-            <div className="bg-orange-500 px-3 py-1 h-full flex flex-col justify-start">
+            <div className="bg-orange-500 px-3 py-1 h-full flex flex-col justify-sart">
               <div className="text-black font-bold text-xs">Adulte</div>
               <div className="text-black text-xs">≥25 kg</div>
             </div>
-
           </div>
 
           <div className="flex items-center justify-center">
             <TimerDisplay
-              onTimeUpdate={(seconds) => {
-                // Optionnel : log toutes les 5 minutes
-                if (seconds % 300 === 0 && seconds > 0) {
-                }
+              onTimeUpdate={(seconds) => {        
               }}
             />
           </div>
 
           {/* Section droite - Date et icône */}
-          <div className="flex items-center gap-2 px-3 justify-end">
+          <div className="flex items-end flex-col gap-2 px-3 justify-end">
+          <div className="flex flex-row items-center gap-x-2">
             <div className="text-white text-xs">
               {new Date()
                 .toLocaleDateString("fr-FR", {
@@ -102,20 +113,40 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
                 hour12: false,
               })}
             </div>
+       
             <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
               <div className="w-2 h-1.5 bg-white rounded-xs"></div>
             </div>
+            </div>
+            {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') && (
+              <div className="w-35 h-4 bg-red-500 mb-2">
+                <span className="block text-center text-white text-xs mb-3"> Analyse ECG impossible</span>
+              </div>
+            )}
           </div>
+          
         </div>
 
         {/* Rangée 2 - Paramètres médicaux */}
         <div className="text-left h-1/4 border-b border-gray-600 flex items-center gap-8 px-4 text-sm bg-black">
           {/* FC */}
           <div className="flex flex-col">
-            <div className="flex flex-row items-center gap-x-2">
-              <div className="text-gray-400 text-xs">FC</div>
-              <div className="text-gray-400 text-xs">bpm</div>
-            </div>
+            {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') ? (
+              // Composant clignotant pour les fibrillations
+              <div className="flex items-center justify-center -ml-9">
+                <div className={`px-5 py-0.2 ${fibBlink ? 'bg-red-600' : 'bg-white'}`}>
+                  <span className={`text-xs font-bold ${fibBlink ? 'text-white' : 'text-red-600'}`}>
+                    {rhythmType === 'fibrillationVentriculaire' ? 'Fib.V' : 'Fib.A'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              // Affichage normal FC et bpm
+              <div className="flex flex-row items-center gap-x-2">
+                <div className="text-gray-400 text-xs">FC</div>
+                <div className="text-gray-400 text-xs">bpm</div>
+              </div>
+            )}
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
                 {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate}

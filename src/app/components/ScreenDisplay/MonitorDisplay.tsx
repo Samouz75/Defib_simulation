@@ -263,6 +263,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
 
           {/* Section droite - Date et icône */}
           <div className="flex items-end flex-col gap-2 px-3 justify-end">
+          <div className="flex flex-row items-center gap-x-2">
             <div className="text-white text-xs">
               {new Date()
                 .toLocaleDateString("fr-FR", {
@@ -277,8 +278,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
                 hour12: false,
               })}
             </div>
-            <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center -mt-2">
+       
+            <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
               <div className="w-2 h-1.5 bg-white rounded-xs"></div>
+            </div>
             </div>
             {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') && (
               <div className="w-35 h-4 bg-red-500 mb-2">
