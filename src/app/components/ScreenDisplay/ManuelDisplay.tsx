@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
@@ -29,6 +29,33 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   isCharged = false,
   onCancelCharge
 }, ref) => {
+
+  // État pour "Choc délivré" et "Commencez la RCP"
+  const [showShockDelivered, setShowShockDelivered] = useState(false);
+  const [showCPRMessage, setShowCPRMessage] = useState(false);
+
+  // Effet pour gérer la séquence de messages après choc
+  useEffect(() => {
+    if (shockCount > 0) {
+      setShowShockDelivered(true);
+      
+      // Après 4 secondes : cacher "Choc délivré" et afficher "Commencez la RCP"
+      const timer1 = setTimeout(() => {
+        setShowShockDelivered(false);
+        setShowCPRMessage(true);
+      }, 4000);
+      
+      // Après 8 secondes supplémentaires : cacher "Commencez la RCP"
+      const timer2 = setTimeout(() => {
+        setShowCPRMessage(false);
+      }, 12000); 
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }
+  }, [shockCount]);
 
   useImperativeHandle(ref, () => ({
     triggerCancelCharge: () => {
@@ -176,6 +203,32 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             heartRate={heartRate}
           />
         </div>
+
+        {/* Row 5 - Message de choc prêt */}
+          {isCharged && (
+            <div className="h-8 flex items-center justify-center bg-black">
+              <div className="bg-white px-2 py-0.2 rounded-xs">
+                <span className="text-black text-xs font-bold">Délivrez le choc maintenant</span>
+              </div>
+            </div>
+          )}
+
+        {/* Row 5 - Messages après choc */}
+         {showShockDelivered && (
+           <div className="h-8 flex items-center justify-center bg-black">
+             <div className="bg-white px-2 py-0.2 rounded-xs">
+               <span className="text-black text-xs font-bold">Choc délivré</span>
+             </div>
+           </div>
+         )}
+         
+         {showCPRMessage && (
+           <div className="h-8 flex items-center justify-center bg-black">
+             <div className="bg-white px-2 py-0.2 rounded-xs">
+               <span className="text-black text-xs font-bold">Commencez la réanimation cardio pulmonaire</span>
+             </div>
+           </div>
+         )}
 
         {/* Row 6 */}
         <div className=" pt-5 pb-2 bg-black h-1/12 flex items-center justify-between  text-white text-xs ">

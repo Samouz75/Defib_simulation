@@ -145,6 +145,11 @@ export const useDefibrillator = () => {
   const cancelCharge = () => {
     // Seulement si la charge est complète (100%)
     if (state.isCharged && state.chargeProgress === 100) {
+      // Stop all charging sounds
+      if (audioServiceRef.current) {
+        audioServiceRef.current.stopAll();
+      }
+      
       updateState({
         isCharged: false,
         chargeProgress: 0,
