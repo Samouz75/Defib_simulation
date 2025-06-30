@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   FlagTriangleRight,
   Triangle,
@@ -239,7 +239,9 @@ const DefibInterface: React.FC = () => {
 
   // État pour gérer la logique de rotation du joystick
   const [lastJoystickAngle, setLastJoystickAngle] = useState(0);
-  const [joystickRotationThreshold] = useState(30); // Seuil en degrés pour déclencher l'action
+  const [joystickRotationThreshold] = useState(30);
+
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 }); 
 
   const handleJoystickRotation = (angle: number) => {
     const angleDiff = angle - lastJoystickAngle;
@@ -466,16 +468,20 @@ const DefibInterface: React.FC = () => {
   const getScenarioTitle = () => {
     switch (scenario.currentScenario) {
       case "scenario_1":
-        return "Scénario 1";
+        return "Scénario 1 - Fibrillation Ventriculaire";
       case "scenario_2":
-        return "Scénario 2";
+        return "Scénario 2 - DAE Automatique";
       case "scenario_3":
-        return "Scénario 3";
+        return "Scénario 3 - Électro-Stimulation";
       case "scenario_4":
-        return "Scénario 4";
+        return "Scénario 4 - Cardioversion";
       default:
         return "Scénario";
     }
+  };
+
+  const handleExitScenario = () => {
+    scenario.stopScenario();
   };
 
   const renderScreenContent = () => {
@@ -601,6 +607,388 @@ const DefibInterface: React.FC = () => {
         );
     }
   };
+
+  // Mode plein écran pour les scénarios
+  const isFullscreenScenario = scenario.isScenarioActive();
+
+  // Effect pour gérer le resize en mode plein écran
+  useEffect(() => {
+    if (!isFullscreenScenario) return;
+
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    // Initialiser les dimensions
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isFullscreenScenario]);
+
+  // Scale responsive pour le mode plein écran - différencier portrait/paysage
+  const getFullscreenScale = () => {
+    if (typeof window === 'undefined') return scale * 1.4;
+    
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isLandscape = width > height;
+    
+    // Calcul du facteur de zoom basé sur la taille de l'écran
+    let scaleFactor = 1.0;
+    
+    if (width >= 1920 && height >= 1080) {
+      scaleFactor = 1.6;
+    } else if (width >= 1600 && height >= 900) {
+      scaleFactor = 1.5;
+    } else if (width >= 1400 && height >= 800) {
+      scaleFactor = 1.4;
+    } else if (width >= 1200 && height >= 700) {
+      scaleFactor = 1.3;
+    } else if (width >= 1024 && height >= 600) {
+      scaleFactor = 1.2;
+    } else if (width >= 768) {
+      scaleFactor = 1.1;
+    } else {
+      // Mobile - différencier portrait/paysage
+      if (isLandscape) {
+        // Mode paysage 
+        scaleFactor = 0.9;
+      } else {
+        // Mode portrait 
+        scaleFactor = 0.7;
+      }
+    }
+    
+    return scale * scaleFactor;
+  };
+
+  if (isFullscreenScenario) {
+    // Vue aide plein écran
+    if (scenario.showStepHelp) {
+      return (
+        <div className="h-screen bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 flex flex-col">
+          <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-blue-600">
+            <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
+              Aide - Étape {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
+            </h1>
+            <button
+              onClick={handleExitScenario}
+              className="flex items-center px-1 py-0.5 lg:px-2 lg:py-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-xs sm:text-sm flex-shrink-0"
+            >
+              <span className="text-xs sm:text-sm md:text-xs lg:text-base">✕</span>
+              <span className="hidden lg:inline text-xs sm:text-sm ml-0.5">Quitter</span>
+            </button>
+          </div>
+
+          {/* Contenu aide centré */}
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-2xl p-4 md:p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="text-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <HelpCircle className="w-6 h-6 text-blue-600" />
+                </div>
+                <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2">
+                  Instructions détaillées
+                </h2>
+                <p className="text-blue-600 font-medium text-sm">
+                  Étape {scenario.currentStep + 1} sur {scenario.getCurrentScenarioSteps().length}
+                </p>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-4">
+                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">
+                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                </p>
+              </div>
+
+              {/* Bouton valider si étape manuelle */}
+              {((scenario.currentScenario === "scenario_1" &&
+                (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
+                (scenario.currentScenario === "scenario_2" &&
+                  scenario.currentStep === 1) ||
+                (scenario.currentScenario === "scenario_3" &&
+                  (scenario.currentStep === 0 ||
+                    scenario.currentStep === 2 ||
+                    scenario.currentStep === 4)) ||
+                (scenario.currentScenario === "scenario_4" &&
+                  (scenario.currentStep === 0 || scenario.currentStep === 2))) && (
+                <div className="mb-4">
+                  <button
+                    onClick={() => {
+                      scenario.handleManualValidation();
+                      scenario.toggleStepHelp(); 
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-xs md:text-sm"
+                  >
+                    ✓ Valider cette étape
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={() => scenario.toggleStepHelp()}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-xs md:text-sm"
+              >
+                ← Revenir au scénario
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Vue scénario normale
+    return (
+      <div className="h-screen bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 flex flex-col">
+        {/* Header */}
+        <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
+          <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
+            {getScenarioTitle()}
+          </h1>
+
+          {/* Section droite*/}
+          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-0.5 lg:gap-1 flex-shrink-0">
+            <span className="text-xs sm:text-sm md:text-xs lg:text-base text-white font-medium">
+              {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
+            </span>
+            
+            {/* Bouton aide*/}
+            <button
+              onClick={() => scenario.toggleStepHelp()}
+              className="bg-blue-600 hover:bg-blue-700 text-white p-0.5 sm:p-1 md:p-0.5 lg:p-1.5 rounded-full transition-colors"
+            >
+              <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-5 lg:h-5" />
+            </button>
+            
+            {/* Bouton quitter*/}
+            <button
+              onClick={handleExitScenario}
+              className="flex items-center px-1 py-0.5 lg:px-2 lg:py-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-xs sm:text-sm"
+            >
+              <span className="text-xs sm:text-sm md:text-xs lg:text-base">✕</span>
+              <span className="hidden lg:inline text-xs sm:text-sm ml-0.5">Quitter</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Interface du défibrillateur*/}
+        <div className="h-[94vh] flex items-center justify-center p-2">
+          <div 
+            ref={containerRef}
+            style={{
+              transform: `scale(${getFullscreenScale()})`,
+              transformOrigin: "center center",
+            }}
+            className="bg-gray-800 p-8 rounded-3xl"
+          >
+            <div className="flex gap-8">
+              {/* Section principale */}
+              <div className="flex-1">
+                {/* screen */}
+                <div className="bg-black rounded-xl border-4 border-gray-600 h-90 mb-8 relative overflow-hidden">
+                  {renderScreenContent()}
+                </div>
+
+                {/* Container pour boutons + joystick */}
+                <div className="flex items-center gap-10 mb-6">
+                  {/* Colonnes de boutons */}
+                  <div className="flex-1">
+                    <div className="flex gap-4 mb-6 items-center justify-center">
+                      {[...Array(4)].map((_, i) => (
+                        <button
+                          key={i}
+                          className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
+                          onClick={() => {
+                            // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
+                            if (defibrillator.displayMode === "Stimulateur") {
+                              if (i === 2) {
+                                handleStimulatorSettingsButton();
+                              } else if (i === 3) {
+                                handleStimulatorMenuButton();
+                              }
+                            }
+                            // Bouton en mode Manuel (2ème en partant de la droite = index 2)
+                            else if (defibrillator.displayMode === "Manuel") {
+                              if (i === 2) {
+                                handleCancelChargeButton();
+                              }
+                            }
+                            // Bouton en mode Monitor (1er en partant de la droite = index 3)
+                            else if (defibrillator.displayMode === "Moniteur") {
+                              if (i === 3) {
+                                handleMonitorMenuButton();
+                              }
+                            }
+                          }}
+                        ></button>
+                      ))}
+                    </div>
+
+                    {/* 4 boutons du bas */}
+                    <div className="flex gap-4 items-center justify-center">
+                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                        <Triangle className="w-7 h-7 text-white" />
+                      </button>
+                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                        <FlagTriangleRight className="w-7 h-7 text-white" />
+                      </button>
+                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                        <CopyMinus className="w-6 h-6 text-white" />
+                      </button>
+                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                        <Printer className="w-7 h-7 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Joystick */}
+                  <Joystick 
+                    onRotationChange={handleJoystickRotation}
+                    onClick={handleJoystickClick}
+                  />
+                </div>
+              </div>
+
+              {/* Côté droit */}
+              <div className="w-80 bg-gray-700 rounded-xl p-4">
+                {/* Bouton rotatif */}
+                <div className="relative flex flex-col items-center">
+                  <div className="-mt-0">
+                    <RotativeKnob
+                      initialValue={0}
+                      onValueChange={handleRotaryValueChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Boutons colorés */}
+                <div className="space-y-4 mt-18">
+                  {/* white - Synchro */}
+                  <Synchro
+                    onClick={handleSynchroButtonClick}
+                    isActive={defibrillator.isSynchroMode}
+                  />
+                  {/* Jaune - Charge */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-white text-2xl font-bold">2</span>
+                    <button
+                      className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
+                        defibrillator.isChargeButtonPressed
+                          ? "scale-95 bg-yellow-300 border-yellow-200"
+                          : defibrillator.selectedChannel === 2
+                            ? "bg-yellow-400 border-yellow-300 shadow-lg"
+                            : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"
+                      }`}
+                      onClick={handleChargeButtonClick}
+                    >
+                      <div
+                        className={`w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative transition-all ${
+                          defibrillator.isChargeButtonPressed
+                            ? "from-yellow-300 to-yellow-400"
+                            : ""
+                        }`}
+                      >
+                        <div className="absolute left-2">
+                          <span className="text-black text-xs font-bold">
+                            Charge
+                          </span>
+                        </div>
+                        <div className="w-10 h-10 border-3 border-yellow-800 rounded-lg"></div>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Orange - Choc */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-white text-2xl font-bold">3</span>
+                    <button
+                      className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
+                        defibrillator.isShockButtonPressed
+                          ? "scale-95 bg-orange-300 border-orange-200"
+                          : defibrillator.selectedChannel === 3
+                            ? "bg-orange-400 border-orange-300 shadow-lg"
+                            : defibrillator.displayMode === "DAE" &&
+                                daePhase === "attente_choc"
+                              ? "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300 animate-pulse shadow-lg shadow-orange-500/50"
+                              : defibrillator.displayMode === "DAE" &&
+                                  daePhase !== "attente_choc"
+                                ? "bg-gray-500 border-gray-400 cursor-not-allowed opacity-50"
+                                : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                      }`}
+                      onClick={handleShockButtonClick}
+                      disabled={
+                        defibrillator.displayMode === "DAE" &&
+                        daePhase !== "attente_choc"
+                      }
+                    >
+                      <div
+                        className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
+                          defibrillator.isShockButtonPressed
+                            ? "from-orange-300 to-orange-400"
+                            : defibrillator.displayMode === "DAE" &&
+                                daePhase === "attente_choc"
+                              ? "from-orange-400 to-orange-500"
+                              : defibrillator.displayMode === "DAE" &&
+                                  daePhase !== "attente_choc"
+                                ? "from-gray-400 to-gray-500"
+                                : "from-orange-400 to-orange-500"
+                        }`}
+                      >
+                        <div className="absolute left-2">
+                          <span
+                            className={`text-xs font-bold ${
+                              defibrillator.displayMode === "DAE" &&
+                              daePhase !== "attente_choc"
+                                ? "text-gray-300"
+                                : "text-black"
+                            }`}
+                          >
+                            Choc
+                          </span>
+                        </div>
+                        <div
+                          className={`w-10 h-10 border-3 rounded-full flex items-center justify-center ${
+                            defibrillator.displayMode === "DAE" &&
+                            daePhase !== "attente_choc"
+                              ? "border-gray-700"
+                              : "border-orange-800"
+                          }`}
+                        >
+                          <Zap
+                            className={`w-6 h-6 ${
+                              defibrillator.displayMode === "DAE" &&
+                              daePhase !== "attente_choc"
+                                ? "text-gray-300"
+                                : "text-white"
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        {/* Popup de fin de scénario */}
+        {scenario.showScenarioComplete && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-green-500 text-white rounded-lg shadow-lg p-8 text-center">
+            <CheckCircle size={48} className="mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
+            <p className="text-lg">{getScenarioTitle()} terminé avec succès</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative">

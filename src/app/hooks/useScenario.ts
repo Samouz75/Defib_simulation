@@ -359,6 +359,16 @@ export const useScenario = () => {
     return [];
   };
 
+  const stopScenario = () => {
+    cleanup();
+    updateState({
+      currentScenario: null,
+      currentStep: 0,
+      showScenarioComplete: false,
+      currentRhythm: state.manualRhythm,
+    });
+  };
+
   return {
     // State
     ...state,
@@ -371,6 +381,7 @@ export const useScenario = () => {
     validateScenarioStep,
     handleManualValidation,
     startScenario,
+    stopScenario,
     handleScenarioSelect,
     handleStartScenarioFromModal,
     toggleStepHelp,
