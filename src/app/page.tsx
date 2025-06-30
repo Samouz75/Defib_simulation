@@ -1233,7 +1233,7 @@ const DefibInterface: React.FC = () => {
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
               <div className="flex items-center gap-4 -mt-0">
-                <span className="text-white text-2xl font-bold">1</span>
+                <span className="text-white -mt-45 text-2xl font-bold">1</span>
                 <RotativeKnob
                   initialValue={getCurrentRotaryAngle()}
                   onValueChange={handleRotaryValueChange}
