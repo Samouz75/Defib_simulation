@@ -869,7 +869,8 @@ const DefibInterface: React.FC = () => {
               <div className="w-80 bg-gray-700 rounded-xl p-4">
                 {/* Bouton rotatif */}
                 <div className="relative flex flex-col items-center">
-                  <div className="-mt-0">
+                  <div className="flex items-center gap-4 -mt-0">
+                    <span className="text-white -mt-45 text-2xl font-bold">1</span>
                     <RotativeKnob
                       initialValue={getCurrentRotaryAngle()}
                       onValueChange={handleRotaryValueChange}
@@ -1231,7 +1232,8 @@ const DefibInterface: React.FC = () => {
           <div className="w-80 bg-gray-700 rounded-xl p-4">
             {/* Bouton rotatif */}
             <div className="relative flex flex-col items-center">
-              <div className="-mt-0">
+              <div className="flex items-center gap-4 -mt-0">
+                <span className="text-white text-2xl font-bold">1</span>
                 <RotativeKnob
                   initialValue={getCurrentRotaryAngle()}
                   onValueChange={handleRotaryValueChange}
