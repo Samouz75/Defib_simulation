@@ -534,6 +534,11 @@ const DefibInterface: React.FC = () => {
     }
   }, [scenario.currentScenario, scenario.currentStep]);
 
+  // Arrête toute charge en cours quand le mode change 
+  useEffect(() => {
+    defibrillator.stopCharging();
+  }, [defibrillator.displayMode]);
+
   // Gérer la validation depuis le popup
   const handleValidateFromPopup = () => {
     scenario.handleManualValidation();

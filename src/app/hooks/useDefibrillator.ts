@@ -41,6 +41,9 @@ export const useDefibrillator = () => {
 
   // AudioService reference
   const audioServiceRef = useRef<AudioService | null>(null);
+  
+  // Réf pour l'intervalle de charge (pour pouvoir l'arrêter)
+  const chargeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !audioServiceRef.current) {
@@ -84,11 +87,14 @@ export const useDefibrillator = () => {
     }
 
     // Charging animation (5 seconds)
-    const chargeInterval = setInterval(() => {
+    chargeIntervalRef.current = setInterval(() => {
       setState(prev => {
         const newProgress = prev.chargeProgress + 2;
         if (newProgress >= 100) {
-          clearInterval(chargeInterval);
+          if (chargeIntervalRef.current) {
+            clearInterval(chargeIntervalRef.current);
+            chargeIntervalRef.current = null;
+          }
           return {
             ...prev,
             chargeProgress: 100,
@@ -160,6 +166,26 @@ export const useDefibrillator = () => {
     return false; // Pas de charge à annuler
   };
 
+  const stopCharging = () => {
+    // Arrêter l'intervalle de charge si en cours
+    if (chargeIntervalRef.current) {
+      clearInterval(chargeIntervalRef.current);
+      chargeIntervalRef.current = null;
+    }
+    
+    // Arrêter tous les sons
+    if (audioServiceRef.current) {
+      audioServiceRef.current.stopAll();
+    }
+    
+    // Remettre tous les états de charge à zéro
+    updateState({
+      isCharging: false,
+      chargeProgress: 0,
+      isCharged: false,
+    });
+  };
+
   return {
     // State
     ...state,
@@ -170,6 +196,7 @@ export const useDefibrillator = () => {
     startCharging,
     deliverShock,
     cancelCharge,
+    stopCharging,
     setSelectedChannel,
     toggleSynchroMode, 
   };
