@@ -48,6 +48,7 @@ const DefibInterface: React.FC = () => {
     | "charge"
     | "attente_choc"
     | "choc"
+    | "pas_de_choc"
     | null
   >(null);
   const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(
@@ -456,7 +457,8 @@ const DefibInterface: React.FC = () => {
         | "pre-charge"
         | "charge"
         | "attente_choc"
-        | "choc",
+        | "choc"
+        | "pas_de_choc",
     ) => {
       setDaePhase(phase);
 
