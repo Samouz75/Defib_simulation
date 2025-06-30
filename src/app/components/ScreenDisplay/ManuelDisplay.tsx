@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
+import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef } from "react";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
@@ -23,6 +23,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   frequency,
   chargeProgress,
   shockCount,
+  isCharging,
   rhythmType = 'sinus', // Par défaut : rythme sinusal
   showSynchroArrows = false,
   heartRate = 70,
@@ -37,28 +38,57 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   // État pour le clignotement des fibrillations
   const [fibBlink, setFibBlink] = useState(false);
 
+  // Refs pour les timers afin de pouvoir les nettoyer
+  const timer1Ref = useRef<NodeJS.Timeout | null>(null);
+  const timer2Ref = useRef<NodeJS.Timeout | null>(null);
+
+  // Fonction pour nettoyer tous les timers précédents
+  const clearAllTimers = () => {
+    if (timer1Ref.current) {
+      clearTimeout(timer1Ref.current);
+      timer1Ref.current = null;
+    }
+    if (timer2Ref.current) {
+      clearTimeout(timer2Ref.current);
+      timer2Ref.current = null;
+    }
+  };
+
+  // Effet pour nettoyer les états quand une nouvelle charge commence
+  useEffect(() => {
+    if (isCharging) {
+      // Nettoyer tous les timers précédents
+      clearAllTimers();
+      
+      // Nettoyer tous les messages précédents
+      setShowShockDelivered(false);
+      setShowCPRMessage(false);
+    }
+  }, [isCharging]);
+
   // Effet pour gérer la séquence de messages après choc
   useEffect(() => {
     if (shockCount > 0) {
+      clearAllTimers();
+      
       setShowShockDelivered(true);
       
       // Après 4 secondes : cacher "Choc délivré" et afficher "Commencez la RCP"
-      const timer1 = setTimeout(() => {
+      timer1Ref.current = setTimeout(() => {
         setShowShockDelivered(false);
         setShowCPRMessage(true);
       }, 4000);
       
       // Après 8 secondes supplémentaires : cacher "Commencez la RCP"
-      const timer2 = setTimeout(() => {
+      timer2Ref.current = setTimeout(() => {
         setShowCPRMessage(false);
       }, 12000); 
 
       return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
+        clearAllTimers();
       };
     }
-      }, [shockCount]);
+  }, [shockCount]);
 
   // Effet pour le clignotement des fibrillations
   useEffect(() => {
@@ -237,8 +267,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
 
         {/* Row 5 - Message de choc prêt */}
           {isCharged && (
-            <div className="h-8 flex items-center justify-center bg-black">
-              <div className="bg-white px-2 py-0.2 rounded-xs">
+            <div className="h-6 -mb-2 flex items-center justify-center bg-black z-10">
+              <div className="bg-white px-2 py-0.2 rounded-xs mt-2">
                 <span className="text-black text-xs font-bold">Délivrez le choc maintenant</span>
               </div>
             </div>
@@ -246,16 +276,16 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
 
         {/* Row 5 - Messages après choc */}
          {showShockDelivered && (
-           <div className="h-8 flex items-center justify-center bg-black">
-             <div className="bg-white px-2 py-0.2 rounded-xs">
+           <div className="h-6 -mb-2 flex items-center justify-center bg-black z-10">
+             <div className="bg-white px-2 py-0.2 rounded-xs mt-2">
                <span className="text-black text-xs font-bold">Choc délivré</span>
              </div>
            </div>
          )}
          
          {showCPRMessage && (
-           <div className="h-8 flex items-center justify-center bg-black">
-             <div className="bg-white px-2 py-0.2 rounded-xs">
+           <div className="h-6 -mb-2 flex items-center justify-center bg-black z-10">
+             <div className="bg-white px-2 py-0.2 rounded-xs mt-2">
                <span className="text-black text-xs font-bold">Commencez la réanimation cardio pulmonaire</span>
              </div>
            </div>
