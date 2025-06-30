@@ -150,10 +150,15 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
     setAccumulatedRotation(0);
   };
 
-  // Déclencher onValueChange lors de l'initialisation
+  const [isInitialized, setIsInitialized] = useState(false);
+
   useEffect(() => {
-    onValueChange?.(rotaryValue);
-  }, []); // Seulement au montage
+    if (isInitialized) {
+      onValueChange?.(rotaryValue);
+    } else {
+      setIsInitialized(true);
+    }
+  }, [rotaryValue]);
 
   useEffect(() => {
     if (isDragging) {

@@ -55,6 +55,9 @@ const DefibInterface: React.FC = () => {
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
+  
+  // État pour le popup de validation
+  const [showValidationPopup, setShowValidationPopup] = useState(false);
 
   // Références pour les timers de boot
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -320,6 +323,27 @@ const DefibInterface: React.FC = () => {
     }
   };
 
+  // Fonction pour convertir le mode actuel du défibrillateur en angle de rotation
+  const getCurrentRotaryAngle = (): number => {
+    switch (defibrillator.displayMode) {
+      case "DAE":
+        return -35;
+      case "ARRET":
+        return 0;
+      case "Moniteur":
+        return 35;
+      case "Stimulateur":
+        return 240;
+      case "Manuel":
+        // Pour le mode Manuel, convertir la fréquence en angle
+        const mappingPoints = RotaryMappingService.getMappingPoints();
+        const found = mappingPoints.find(point => point.value === defibrillator.manualFrequency);
+        return found ? found.angle : 60; // Défaut à 1-10 si pas trouvé
+      default:
+        return 0;
+    }
+  };
+
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
 
@@ -482,6 +506,38 @@ const DefibInterface: React.FC = () => {
 
   const handleExitScenario = () => {
     scenario.stopScenario();
+    setShowValidationPopup(false);
+  };
+
+  // Fonction pour vérifier si l'étape actuelle nécessite une validation manuelle
+  const needsManualValidation = () => {
+    return (
+      (scenario.currentScenario === "scenario_1" &&
+        (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
+      (scenario.currentScenario === "scenario_2" &&
+        scenario.currentStep === 1) ||
+      (scenario.currentScenario === "scenario_3" &&
+        (scenario.currentStep === 0 ||
+          scenario.currentStep === 2 ||
+          scenario.currentStep === 4)) ||
+      (scenario.currentScenario === "scenario_4" &&
+        (scenario.currentStep === 0 || scenario.currentStep === 2))
+    );
+  };
+
+  // Effet pour afficher le popup de validation quand nécessaire
+  useEffect(() => {
+    if (scenario.currentScenario && needsManualValidation()) {
+      setShowValidationPopup(true);
+    } else {
+      setShowValidationPopup(false);
+    }
+  }, [scenario.currentScenario, scenario.currentStep]);
+
+  // Gérer la validation depuis le popup
+  const handleValidateFromPopup = () => {
+    scenario.handleManualValidation();
+    setShowValidationPopup(false);
   };
 
   const renderScreenContent = () => {
@@ -667,102 +723,34 @@ const DefibInterface: React.FC = () => {
   };
 
   if (isFullscreenScenario) {
-    // Vue aide plein écran
-    if (scenario.showStepHelp) {
-      return (
-        <div className="h-screen bg-[#0B1222] flex flex-col">
-          <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
-            <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
-              Aide - Étape {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
-            </h1>
-            <button
-              onClick={handleExitScenario}
-              className="flex items-center px-1 py-0.5 lg:px-2 lg:py-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-xs sm:text-sm flex-shrink-0"
-            >
-              <span className="text-xs sm:text-sm md:text-xs lg:text-base">✕</span>
-              <span className="hidden lg:inline text-xs sm:text-sm ml-0.5">Quitter</span>
-            </button>
-          </div>
-
-          {/* Contenu aide centré */}
-          <div className="flex-1 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-2xl p-4 md:p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="text-center mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <HelpCircle className="w-6 h-6 text-blue-600" />
-                </div>
-                <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2">
-                  Instructions détaillées
-                </h2>
-                <p className="text-blue-600 font-medium text-sm">
-                  Étape {scenario.currentStep + 1} sur {scenario.getCurrentScenarioSteps().length}
-                </p>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-4">
-                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">
-                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
-                </p>
-              </div>
-
-              {/* Bouton valider si étape manuelle */}
-              {((scenario.currentScenario === "scenario_1" &&
-                (scenario.currentStep === 1 || scenario.currentStep === 2)) ||
-                (scenario.currentScenario === "scenario_2" &&
-                  scenario.currentStep === 1) ||
-                (scenario.currentScenario === "scenario_3" &&
-                  (scenario.currentStep === 0 ||
-                    scenario.currentStep === 2 ||
-                    scenario.currentStep === 4)) ||
-                (scenario.currentScenario === "scenario_4" &&
-                  (scenario.currentStep === 0 || scenario.currentStep === 2))) && (
-                <div className="mb-4">
-                  <button
-                    onClick={() => {
-                      scenario.handleManualValidation();
-                      scenario.toggleStepHelp(); 
-                    }}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-xs md:text-sm"
-                  >
-                    ✓ Valider cette étape
-                  </button>
-                </div>
-              )}
-
-              <button
-                onClick={() => scenario.toggleStepHelp()}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-xs md:text-sm"
-              >
-                ← Revenir au scénario
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Vue scénario normale
     return (
-      <div className="h-screen bg-[#0B1222] flex flex-col">
+      <div className="h-screen bg-[#0B1222] flex flex-col relative">
         {/* Header */}
         <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
           <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
-            {getScenarioTitle()}
+            {scenario.showStepHelp 
+              ? `Aide - Étape ${scenario.currentStep + 1}/${scenario.getCurrentScenarioSteps().length}`
+              : getScenarioTitle()
+            }
           </h1>
 
           {/* Section droite*/}
           <div className="flex items-center gap-0.5 sm:gap-1 md:gap-0.5 lg:gap-1 flex-shrink-0">
-            <span className="text-xs sm:text-sm md:text-xs lg:text-base text-white font-medium">
-              {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
-            </span>
+            {!scenario.showStepHelp && (
+              <span className="text-xs sm:text-sm md:text-xs lg:text-base text-white font-medium">
+                {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
+              </span>
+            )}
             
             {/* Bouton aide*/}
-            <button
-              onClick={() => scenario.toggleStepHelp()}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-0.5 sm:p-1 md:p-0.5 lg:p-1.5 rounded-full transition-colors"
-            >
-              <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-5 lg:h-5" />
-            </button>
+            {!scenario.showStepHelp && (
+              <button
+                onClick={() => scenario.toggleStepHelp()}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-0.5 sm:p-1 md:p-0.5 lg:p-1.5 rounded-full transition-colors"
+              >
+                <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-5 lg:h-5" />
+              </button>
+            )}
             
             {/* Bouton quitter*/}
             <button
@@ -859,7 +847,7 @@ const DefibInterface: React.FC = () => {
                 <div className="relative flex flex-col items-center">
                   <div className="-mt-0">
                     <RotativeKnob
-                      initialValue={0}
+                      initialValue={getCurrentRotaryAngle()}
                       onValueChange={handleRotaryValueChange}
                     />
                   </div>
@@ -911,19 +899,9 @@ const DefibInterface: React.FC = () => {
                           ? "scale-95 bg-orange-300 border-orange-200"
                           : defibrillator.selectedChannel === 3
                             ? "bg-orange-400 border-orange-300 shadow-lg"
-                            : defibrillator.displayMode === "DAE" &&
-                                daePhase === "attente_choc"
-                              ? "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300 animate-pulse shadow-lg shadow-orange-500/50"
-                              : defibrillator.displayMode === "DAE" &&
-                                  daePhase !== "attente_choc"
-                                ? "bg-gray-500 border-gray-400 cursor-not-allowed opacity-50"
-                                : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                            : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                       }`}
                       onClick={handleShockButtonClick}
-                      disabled={
-                        defibrillator.displayMode === "DAE" &&
-                        daePhase !== "attente_choc"
-                      }
                     >
                       <div
                         className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
@@ -976,7 +954,74 @@ const DefibInterface: React.FC = () => {
           </div>
         </div>
 
+        {/* Popup de validation*/}
+        {showValidationPopup && (
+          <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full">
+            <div className="bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-gray-800 mb-1">
+                    Validation requise
+                  </h3>
+                  <p className="text-gray-600 text-xs">
+                    Validez cette étape pour continuer
+                  </p>
+                </div>
+              </div>
 
+              <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                <p className="text-gray-800 text-xs leading-relaxed">
+                  <strong>Étape {scenario.currentStep + 1}:</strong>{" "}
+                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleValidateFromPopup}
+                  className="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-medium"
+                >
+                  ✓ Valider
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Superposition d'aide*/}
+        {scenario.showStepHelp && (
+          <div className="absolute inset-0 bg-[#0B1222] bg-opacity-95 z-40 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-2xl p-4 md:p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="text-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <HelpCircle className="w-6 h-6 text-blue-600" />
+                </div>
+                <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-2">
+                  Instructions détaillées
+                </h2>
+                <p className="text-blue-600 font-medium text-sm">
+                  Étape {scenario.currentStep} sur {scenario.getCurrentScenarioSteps().length}
+                </p>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-4">
+                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">
+                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                </p>
+              </div>
+
+              <button
+                onClick={() => scenario.toggleStepHelp()}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-xs md:text-sm"
+              >
+                ← Revenir au scénario
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Popup de fin de scénario */}
         {scenario.showScenarioComplete && (
@@ -1164,7 +1209,7 @@ const DefibInterface: React.FC = () => {
             <div className="relative flex flex-col items-center">
               <div className="-mt-0">
                 <RotativeKnob
-                  initialValue={0}
+                  initialValue={getCurrentRotaryAngle()}
                   onValueChange={handleRotaryValueChange}
                 />
               </div>
@@ -1216,19 +1261,9 @@ const DefibInterface: React.FC = () => {
                       ? "scale-95 bg-orange-300 border-orange-200"
                       : defibrillator.selectedChannel === 3
                         ? "bg-orange-400 border-orange-300 shadow-lg"
-                        : defibrillator.displayMode === "DAE" &&
-                            daePhase === "attente_choc"
-                          ? "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300 animate-pulse shadow-lg shadow-orange-500/50"
-                          : defibrillator.displayMode === "DAE" &&
-                              daePhase !== "attente_choc"
-                            ? "bg-gray-500 border-gray-400 cursor-not-allowed opacity-50"
-                            : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                        : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
                   onClick={handleShockButtonClick}
-                  disabled={
-                    defibrillator.displayMode === "DAE" &&
-                    daePhase !== "attente_choc"
-                  }
                 >
                   <div
                     className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
@@ -1236,11 +1271,11 @@ const DefibInterface: React.FC = () => {
                         ? "from-orange-300 to-orange-400"
                         : defibrillator.displayMode === "DAE" &&
                             daePhase === "attente_choc"
-                          ? "from-orange-400 to-orange-500"
-                          : defibrillator.displayMode === "DAE" &&
-                              daePhase !== "attente_choc"
-                            ? "from-gray-400 to-gray-500"
-                            : "from-orange-400 to-orange-500"
+                              ? "from-orange-400 to-orange-500"
+                              : defibrillator.displayMode === "DAE" &&
+                                  daePhase !== "attente_choc"
+                                ? "from-gray-400 to-gray-500"
+                                : "from-orange-400 to-orange-500"
                     }`}
                   >
                     <div className="absolute left-2">
