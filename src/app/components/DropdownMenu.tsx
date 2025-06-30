@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Settings, Info, Power, FileText } from 'lucide-react';
+import { ChevronDown, Settings, Info, Power, FileText, Github } from 'lucide-react';
 import { useModals } from '../hooks/useModals';
 import AboutModal from './modals/AboutModal';
 import SettingsModal from './modals/SettingsModal';
@@ -48,6 +48,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       case 'about':
         modals.openAbout();
         break;
+      case 'github':
+        window.open('https://github.com/Mariussgal/Defib_simulation', '_blank');
+        break;
       case 'reset':
         const confirmed = confirm('Redémarrer le simulateur ?');
         if (confirmed) {
@@ -82,6 +85,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       id: 'about',
       label: 'À propos',
       icon: <Info className="w-4 h-4" />,
+    },
+    {
+      id: 'github',
+      label: 'GitHub',
+      icon: <Github className="w-4 h-4" />,
     },
     { id: 'separator_2', label: 'separator' },
     {
