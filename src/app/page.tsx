@@ -670,8 +670,8 @@ const DefibInterface: React.FC = () => {
     // Vue aide plein écran
     if (scenario.showStepHelp) {
       return (
-        <div className="h-screen bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 flex flex-col">
-          <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-blue-600">
+        <div className="h-screen bg-[#0B1222] flex flex-col">
+          <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
             <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
               Aide - Étape {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
             </h1>
@@ -743,7 +743,7 @@ const DefibInterface: React.FC = () => {
 
     // Vue scénario normale
     return (
-      <div className="h-screen bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 flex flex-col">
+      <div className="h-screen bg-[#0B1222] flex flex-col">
         {/* Header */}
         <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
           <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
