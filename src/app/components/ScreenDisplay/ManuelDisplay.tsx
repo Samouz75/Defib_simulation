@@ -194,7 +194,9 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
 
             {/* SpO2 Value */}
             <div className="flex flex-row  gap-x-2">
-              <div className="text-blue-400 text-4xl font-bold">95</div>
+              <div className="text-blue-400 text-4xl font-bold -mt-2">
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '95'}
+              </div>
               <div className="flex flex-col items-center">
                 <div className="text-blue-400 text-xs">100</div>
                 <div className="text-blue-400 text-xs">90</div>

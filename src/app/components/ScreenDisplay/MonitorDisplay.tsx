@@ -322,8 +322,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
 
             {/* SpO2 Value */}
             <div className="flex flex-row items-center gap-x-2">
-              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '95'}
+              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center -mt-2">
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '92'}
               </div>
               <div className="flex flex-col items-center w-8">
                 <div className="text-blue-400 text-xs">100</div>
@@ -357,7 +357,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             </div>
             <div className="flex flex-row items-center gap-x-1 mt-1">
               <div className="text-white text-4xl min-w-[100px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '110/70'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '110/80'}
               </div>
               <div className="text-white text-xs min-w-[30px] text-center">
                 {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '' : '(80)'}
