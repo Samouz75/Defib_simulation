@@ -23,7 +23,9 @@ import { useDefibrillator } from "./hooks/useDefibrillator";
 import { useResponsiveScale } from "./hooks/useResponsiveScale";
 import { RotaryMappingService } from "./services/RotaryMappingService";
 import { useScenario } from "./hooks/useScenario";
+import { useElectrodeValidation } from "./hooks/useElectrodeValidation";
 import Synchro from "./components/buttons/Synchro";
+import ElectrodeValidationOverlay from "./components/ElectrodeValidationOverlay";
 
 import type { DisplayMode } from "./hooks/useDefibrillator";
 
@@ -35,6 +37,7 @@ const DefibInterface: React.FC = () => {
   const scale = useResponsiveScale();
   const defibrillator = useDefibrillator();
   const scenario = useScenario();
+  const electrodeValidation = useElectrodeValidation();
 
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<
@@ -94,6 +97,7 @@ const DefibInterface: React.FC = () => {
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
+      electrodeValidation.resetElectrodeValidation(); // Reset validation des électrodes
       defibrillator.setDisplayMode(newMode);
       return;
     }
@@ -539,6 +543,13 @@ const DefibInterface: React.FC = () => {
     defibrillator.stopCharging();
   }, [defibrillator.displayMode]);
 
+  // Reset de la validation des électrodes au début de chaque scénario
+  useEffect(() => {
+    if (scenario.currentScenario) {
+      electrodeValidation.resetElectrodeValidation();
+    }
+  }, [scenario.currentScenario]);
+
   // Gérer la validation depuis le popup
   const handleValidateFromPopup = () => {
     scenario.handleManualValidation();
@@ -570,6 +581,14 @@ const DefibInterface: React.FC = () => {
             </div>
           </div>
         </div>
+      );
+    }
+
+    if (defibrillator.displayMode !== "ARRET" && defibrillator.displayMode !== "DAE" && !electrodeValidation.isElectrodeValidated) {
+      return (
+        <ElectrodeValidationOverlay
+          onValidate={electrodeValidation.validateElectrodes}
+        />
       );
     }
 
