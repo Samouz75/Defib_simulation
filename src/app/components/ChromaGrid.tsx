@@ -129,7 +129,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
             
             {/* Filigrane individuel pour chaque carte */}
             <div
-              className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-15 group-hover:opacity-0"
+              className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-15 opacity-0 md:opacity-100 md:group-hover:opacity-0"
               style={getOverlayEffect}
             />
 
