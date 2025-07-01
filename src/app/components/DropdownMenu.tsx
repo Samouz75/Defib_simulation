@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Settings, Info, Power, FileText, Github } from 'lucide-react';
+import { ChevronDown, Settings, Info, Power, FileText, Github, Home } from 'lucide-react';
 import { useModals } from '../hooks/useModals';
 import AboutModal from './modals/AboutModal';
 import SettingsModal from './modals/SettingsModal';
@@ -16,7 +16,6 @@ interface DropdownMenuProps {
 const DropdownMenu: React.FC<DropdownMenuProps> = ({ 
   onMenuItemSelect, 
   onScenarioSelect, 
-  onModeSelect,
   onStartScenario
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +38,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   const handleMenuItemClick = async (action: string) => {
     switch (action) {
+      case 'home':
+        window.location.href = '/';
+        break;
       case 'scenarios':
         modals.openScenariosList();
         break;
