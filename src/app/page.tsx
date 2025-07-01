@@ -29,7 +29,6 @@ export default function LandingPage() {
           <a href="#features" className="text-gray-400 hover:text-white transition-colors">Fonctionnalités</a>
           <a href="#scenarios" className="text-gray-400 hover:text-white transition-colors">Scénarios</a>
           <a href="#about" className="text-gray-400 hover:text-white transition-colors">À propos</a>
-          <a href="#contributors" className="text-gray-400 hover:text-white transition-colors">Contributeurs</a>
         </div>
       </nav>
 
