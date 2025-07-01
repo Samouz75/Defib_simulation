@@ -7,7 +7,7 @@ import ChromaGrid from "./components/ChromaGrid";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-950 relative pb-40">
       {/* Background Particles */}
       <div className="fixed inset-0 z-0">
         <Particles
@@ -212,7 +212,7 @@ export default function LandingPage() {
 
           </div>
           
-          <div style={{ height: '600px', position: 'relative', marginTop: '100px'}}>
+          <div style={{ position: 'relative', marginTop: '100px'}}>
             <ChromaGrid 
               items={[
                 {
@@ -241,7 +241,7 @@ export default function LandingPage() {
                 }
               ]}
               radius={300}
-              imageSize="w-80 h-90"
+              imageSize="w-full h-full md:w-80 md:h-90"
               damping={0.45}
               ease="power3.out"
               imageClassName="p-4"
