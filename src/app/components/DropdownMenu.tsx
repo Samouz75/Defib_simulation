@@ -73,6 +73,12 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
   const menuItems = [
     {
+      id: 'home',
+      label: 'Accueil',
+      icon: <Home className="w-4 h-4" />,
+    },
+    { id: 'separator_1', label: 'separator' },
+    {
       id: 'scenarios',
       label: 'Scénarios',
       icon: <FileText className="w-4 h-4" />,

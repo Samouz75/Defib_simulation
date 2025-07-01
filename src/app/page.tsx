@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
 import Particles from "./components/Particles";
+import ChromaGrid from "./components/ChromaGrid";
 
 export default function LandingPage() {
   return (
@@ -28,6 +29,7 @@ export default function LandingPage() {
           <a href="#features" className="text-gray-400 hover:text-white transition-colors">Fonctionnalités</a>
           <a href="#scenarios" className="text-gray-400 hover:text-white transition-colors">Scénarios</a>
           <a href="#about" className="text-gray-400 hover:text-white transition-colors">À propos</a>
+          <a href="#contributors" className="text-gray-400 hover:text-white transition-colors">Contributeurs</a>
         </div>
       </nav>
 
@@ -197,6 +199,55 @@ export default function LandingPage() {
                 <span>Formation Sécurisée</span>
               </div>
             </div>
+        </div>
+      </section>
+
+      {/* Contributors Section */}
+      <section id="contributors" className="relative z-10 py-20 px-6 bg-gray-900/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Contributeurs
+            </h2>
+
+          </div>
+          
+          <div style={{ height: '600px', position: 'relative', marginTop: '100px'}}>
+            <ChromaGrid 
+              items={[
+                {
+                  image: "/images/marcdinh.jpg",
+                  title: "Marc Dinh",
+                  subtitle: "ML/Deep Learning Engineer",
+                  borderColor: "#3B82F6",
+                  gradient: "linear-gradient(145deg, #3B82F6, #000)",
+                  url: "https://www.linkedin.com/in/marc-dinh/"
+                },
+                {
+                  image: "/images/mariusgal.jpg",
+                  title: "Marius GAL",
+                  subtitle: "Stage dev web",
+                  borderColor: "#10B981",
+                  gradient: "linear-gradient(145deg, #3B82F6, #000)",
+                  url: "https://www.linkedin.com/in/marius-gal/"
+                },
+                {
+                  image: "/images/samiellouze.jpg",
+                  title: "Dr. Sami Ellouze",
+                  subtitle: "Médecin Urgentiste",
+                  borderColor: "#EF4444",
+                  gradient: "linear-gradient(145deg, #3B82F6, #000)",
+                  url: "https://www.linkedin.com/in/sami-ellouze-23791330/"
+                }
+              ]}
+              radius={300}
+              imageSize="w-80 h-90"
+              damping={0.45}
+              ease="power3.out"
+              imageClassName="p-4"
+              imageBorderRadius="rounded-3xl"
+            />
+          </div>
         </div>
       </section>
 
