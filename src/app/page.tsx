@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Zap, Heart, Shield, Users, Activity, Monitor, ChevronDown } from "lucide-react";
+import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
 import Particles from "./components/Particles";
 
 export default function LandingPage() {
@@ -24,7 +24,7 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center align-center justify-center p-6 backdrop-blur-sm">
-        <div className="hidden md:flex space-x-8 text-sm">
+        <div className=" md:flex space-x-8 text-sm">
           <a href="#features" className="text-gray-400 hover:text-white transition-colors">Fonctionnalités</a>
           <a href="#scenarios" className="text-gray-400 hover:text-white transition-colors">Scénarios</a>
           <a href="#about" className="text-gray-400 hover:text-white transition-colors">À propos</a>
@@ -34,16 +34,11 @@ export default function LandingPage() {
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white leading-tight">
-            Urgences Médicales
-            <span className="block text-gray-400 text-5xl md:text-7xl font-light mt-2">
-              Plateforme de Formation
+            <span className=" mb-8 block text-white text-5xl md:text-7xl font-light mt-2 leading-tight font-bold">
+              Plateforme de Formation aux techniques de défibrillation
             </span>
-          </h1>
-
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Simulation professionnelle de défibrillateur pour l'éducation en santé.
-            <br />
+  
             Formez-vous en sécurité, répondez avec confiance.
           </p>
 
