@@ -182,8 +182,7 @@ export default function LandingPage() {
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
-                Formation au Défibrillateur Automatisé Externe pour réponse aux
-                arrêts cardiaques.
+                Formation à l'utilisation du DAE pour intervenir en cas d'arrêt cardiaque.
               </p>
             </div>
 
