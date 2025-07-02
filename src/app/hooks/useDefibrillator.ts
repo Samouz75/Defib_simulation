@@ -135,7 +135,6 @@ export const useDefibrillator = () => {
     NotificationService.showShockDelivered({
       energy: 150, // Default energy value for notification
       shockNumber: newShockCount,
-      patientName: "Dupont, Samuel",
       frequency: 120, // Default frequency value for notification
     });
   };

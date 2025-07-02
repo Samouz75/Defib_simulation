@@ -3,7 +3,6 @@ import Swal from "sweetalert2";
 export interface ShockDeliveryData {
   energy: number;
   shockNumber: number;
-  patientName: string;
   frequency: number;
   timestamp?: Date;
 }
@@ -15,7 +14,7 @@ export class NotificationService {
     
     const result = await Swal.fire({
       icon: "warning",
-      title: "⚡ CHOC DÉLIVRÉ",
+      title: "CHOC DÉLIVRÉ",
       html: this.buildShockDeliveredHTML(data, timestamp),
       confirmButtonText: "Continuer",
       confirmButtonColor: "#f59e0b",
@@ -54,8 +53,7 @@ export class NotificationService {
             <p style="margin: 5px 0; color: #fbbf24;"><strong>Heure:</strong> <span style="color: #fff;">${timestamp.toLocaleTimeString("fr-FR")}</span></p>
           </div>
           <div>
-            <p style="margin: 5px 0; color: #60a5fa;"><strong>Patient:</strong> <span style="color: #fff;">${data.patientName}</span></p>
-            <p style="margin: 5px 0; color: #60a5fa;"><strong>Fréquence:</strong> <span style="color: #fff;">120 BPM</span></p>
+            <p style="margin: 5px 0; color: #60a5fa;"><strong>Fréquence:</strong> <span style="color: #fff;">${data.frequency} BPM</span></p>
             <p style="margin: 5px 0; color: #10b981;"><strong>Status:</strong> <span style="color: #fff;">✅ Délivré</span></p>
           </div>
         </div>
