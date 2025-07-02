@@ -408,6 +408,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             rhythmType={rhythmType} 
             showSynchroArrows={showSynchroArrows}
             heartRate={heartRate}
+            durationSeconds={7}
           />
         </div>
 

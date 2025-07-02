@@ -6,7 +6,8 @@ interface ECGDisplayProps {
   height?: number;
   rhythmType?: RhythmType;
   showSynchroArrows?: boolean;
-  heartRate?: number; 
+  heartRate?: number;
+  durationSeconds?: number;
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
@@ -14,196 +15,207 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   height = 80,
   rhythmType = 'sinus',
   showSynchroArrows = false,
-  heartRate = 70,
+  heartRate = 70, 
+  durationSeconds = 7,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
-
-  const animationState = useRef({
-    scanX: 0,
-    sampleIndex: 0,
-    lastY: null as number | null,
-    currentBuffer: [] as number[],
-    peakPositions: [] as { x: number, timestamp: number }[],
-    SCROLL_SPEED: 60, // px/s
+  
+  // Refs for data and animation state
+  const dataRef = useRef<number[]>([]);
+  const peakCandidateIndicesRef = useRef<Set<number>>(new Set());
+  const normalizationRef = useRef({ min: 0, max: 1 });
+  const scanAccumulatorRef = useRef<number>(0);
+  const lastFrameTimeRef = useRef<number>(0);
+  const lastArrowDrawTimeRef = useRef<number>(0);
+  const lastYRef = useRef<number | null>(null);
+  
+  // A ref to hold the latest props, accessible from the animation loop without re-triggering effects
+  const propsRef = useRef({ showSynchroArrows, durationSeconds, rhythmType, heartRate });
+  useEffect(() => {
+    propsRef.current = { showSynchroArrows, durationSeconds, rhythmType, heartRate };
   });
 
-  const createCycleBuffer = (rhythmType: RhythmType, bpm: number) => {
-    const baseData = getRhythmData(rhythmType);
+  // Effect for Data Loading and Peak Pre-computation. Runs only when data-related props change.
+  useEffect(() => {
+    const { rhythmType, heartRate } = propsRef.current;
     
-    if (rhythmType === 'asystole') {
-      return new Array(200).fill(2);
-    }
-    
-    if (rhythmType === 'fibrillationVentriculaire') {
-      return [...baseData];
-    }
-    
-    // Pour le rythme sinusal, utiliser exactement la même logique que le HTML
-    const spacing = Math.round(animationState.current.SCROLL_SPEED * (60 / bpm));
-    const buffer = new Array(spacing).fill(2);
-    
-    // Copier le battement dans le buffer
-    for (let i = 0; i < baseData.length && i < spacing; i++) {
-      buffer[i] = baseData[i];
-    }
-    
-    return buffer;
-  };
+    // Get the full data buffer for the selected rhythm.
+    const newBuffer = getRhythmData(rhythmType, heartRate);
+    dataRef.current = newBuffer;
 
+    // Pre-compute R-Peak candidates for the new buffer
+    const newPeakCandidates = new Set<number>();
+    const excludedRhythms: RhythmType[] = ['fibrillationVentriculaire', 'asystole'];
+
+    if (!excludedRhythms.includes(rhythmType)) {
+      const min = Math.min(...newBuffer);
+      const max = Math.max(...newBuffer);
+      const threshold = min + (max - min) * 0.7;
+      const searchWindowRadius = 5;
+      const refractoryPeriodSamples = 38; // 152ms @ 250Hz
+
+      for (let i = 0; i < newBuffer.length; i++) {
+          const value = newBuffer[i];
+          if (value < threshold) continue;
+          
+          let isWindowMax = true;
+          for (let j = 1; j <= searchWindowRadius; j++) {
+              if (value < newBuffer[(i - j + newBuffer.length) % newBuffer.length] || value < newBuffer[(i + j) % newBuffer.length]) {
+                  isWindowMax = false;
+                  break;
+              }
+          }
+          if (isWindowMax) {
+            newPeakCandidates.add(i);
+            i += refractoryPeriodSamples; 
+          }
+      }
+  
+    }
+    
+    peakCandidateIndicesRef.current = newPeakCandidates;
+    normalizationRef.current = {
+      min: Math.min(...newBuffer),
+      max: Math.max(...newBuffer),
+    };
+
+  }, [rhythmType, heartRate]); // Triggered only when the rhythm or its rate changes.
+
+
+  // Effect for Animation and Drawing. Runs only when canvas dimensions change.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const state = animationState.current;
     
-    // Mettre à jour la vitesse selon le rythme
-    state.SCROLL_SPEED = rhythmType === 'fibrillationVentriculaire' ? 120 : 60;
+    // Reset animation state only when this effect re-runs (e.g., on resize)
+    scanAccumulatorRef.current = 0;
+    lastFrameTimeRef.current = 0;
+    lastArrowDrawTimeRef.current = 0;
+    lastYRef.current = null;
+
+    const getNormalizedY = (value: number) => {
+      const { min, max } = normalizationRef.current;
+      const range = max - min;
+      const topMargin = height * 0.1;
+      const bottomMargin = height * 0.1;
+      const traceHeight = height - topMargin - bottomMargin;
+      const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
+      return topMargin + (1 - normalizedValue) * traceHeight;
+    };
     
-    // Créer le buffer cyclique
-    state.currentBuffer = createCycleBuffer(rhythmType, heartRate);
-    const maxValue = Math.max(...state.currentBuffer);
+    const drawGridColumn = (x: number) => {
+        const pixelsPerSecond = width / propsRef.current.durationSeconds;
+        ctx.strokeStyle = "#002200";
+        ctx.lineWidth = 0.5;
+        const timeStep = pixelsPerSecond / 5; // 200ms grid lines
+        if (x > 0 && Math.round(x) % Math.round(timeStep) === 0) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+        for (let y = 0; y < height; y += 10) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + 1, y);
+            ctx.stroke();
+        }
+    };
+    
+    const drawArrow = (x: number) => {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.moveTo(x, 15);
+        ctx.lineTo(x - 5, 5);
+        ctx.lineTo(x + 5, 5);
+        ctx.closePath();
+        ctx.fill();
+    };
 
-    const drawFrame = () => {
-      // Effacer la colonne actuelle
-      ctx.fillStyle = 'black';
-      ctx.fillRect(state.scanX, 0, 2, height);
+    // Initial clear and grid draw
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, width, height);
+    for (let x = 0; x < width; x++) {
+        drawGridColumn(x);
+    }
 
-      // Dessiner la grille à cette position
-      drawGridColumn(ctx, state.scanX);
-
-      // Récupérer la valeur du buffer
-      const value = state.currentBuffer[state.sampleIndex % state.currentBuffer.length];
+    const drawFrame = (currentTime: number) => {
+      if (!lastFrameTimeRef.current) lastFrameTimeRef.current = currentTime;
+      const deltaTime = currentTime - lastFrameTimeRef.current;
+      lastFrameTimeRef.current = currentTime;
       
-      let currentY;
-      if (rhythmType === 'asystole') {
-        currentY = height - 5; 
-      } else {
-        const normalized = value != null ? value / maxValue : 2 / maxValue;
-        const topMargin = height * 0.1;
-        const bottomMargin = height * 0.1;
-        const traceHeight = height - topMargin - bottomMargin;
-        currentY = topMargin + (1 - normalized) * traceHeight;
+      const data = dataRef.current;
+      if (data.length === 0) {
+          animationRef.current = requestAnimationFrame(drawFrame);
+          return;
       }
+      
+      const { durationSeconds, showSynchroArrows } = propsRef.current;
+      const samplingRate = 250;
+      const pixelsPerSecond = width / durationSeconds;
+      const pixelsToAdvance = (deltaTime / 1000) * pixelsPerSecond;
+      
 
-      // Dessiner le tracé ECG
-      ctx.strokeStyle = "#00ff00";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+      const oldAccumulator = scanAccumulatorRef.current;
+      scanAccumulatorRef.current += pixelsToAdvance;
+      
+      // The number of samples that should be visible on screen at any time
+      const samplesOnScreen = durationSeconds * samplingRate;
+      const samplesPerPixel = samplesOnScreen / width;
+      
+      const oldScanX = Math.floor(oldAccumulator);
+      const newScanX = Math.floor(scanAccumulatorRef.current);
+      
+      for (let currentX = oldScanX; currentX < newScanX; currentX++) {
+          const x = currentX % width;
+          
+          // Calculate the starting sample of the current visible window
+          const windowOffset = Math.floor(currentX - x); 
+          const startSampleOfWindow = Math.floor(windowOffset * samplesPerPixel);
+          
+          // Calculate the sample within the window corresponding to the current pixel
+          const sampleInWindow = Math.floor(x * samplesPerPixel);
+          
+          // The final index into the master data buffer
+          const sampleIndex = (startSampleOfWindow + sampleInWindow) % data.length;
 
-      if (state.lastY !== null && Math.abs(state.lastY - currentY) > 0.5) {
-        ctx.moveTo(state.scanX, state.lastY);
-        ctx.lineTo(state.scanX, currentY);
-      } else {
-        ctx.moveTo(state.scanX, currentY - 0.5);
-        ctx.lineTo(state.scanX, currentY + 0.5);
+          const barX = (x + 2) % width;
+          ctx.fillStyle = 'black';
+          ctx.fillRect(barX, 0, 3, height);
+          drawGridColumn(barX);
+
+          const value = data[sampleIndex];
+          const currentY = getNormalizedY(value);
+          ctx.strokeStyle = "#00ff00";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (lastYRef.current !== null && x > 0 && x - 1 === ((currentX - 1) % width)) {
+            ctx.moveTo(x - 1, lastYRef.current);
+            ctx.lineTo(x, currentY);
+          } else {
+            ctx.moveTo(x, currentY);
+            ctx.lineTo(x, currentY);
+          }
+          ctx.stroke();
+          lastYRef.current = currentY;
+          
+          if (showSynchroArrows && peakCandidateIndicesRef.current.has(sampleIndex)) {
+             
+                drawArrow(x);
+                
+          }
       }
-      ctx.stroke();
-
-      // Détecter les pics R pour les flèches synchro
-      if (showSynchroArrows && rhythmType === 'sinus' && value === 83) {
-        state.peakPositions.push({
-          x: state.scanX,
-          timestamp: Date.now()
-        });
-        
-        // Nettoyer les anciens pics
-        state.peakPositions = state.peakPositions.filter(peak => {
-          const elapsed = Date.now() - peak.timestamp;
-          const pixelsTraveled = elapsed * state.SCROLL_SPEED / 1000;
-          return pixelsTraveled < width;
-        });
-      }
-
-      // Dessiner les flèches synchro
-      if (showSynchroArrows) {
-        drawSynchroArrows(ctx);
-      }
-
-      // Mise à jour
-      state.lastY = currentY;
-      state.scanX = (state.scanX + 1) % width;
-      state.sampleIndex++;
 
       animationRef.current = requestAnimationFrame(drawFrame);
     };
 
-    const drawGridColumn = (ctx: CanvasRenderingContext2D, x: number) => {
-      ctx.strokeStyle = "#002200";
-      ctx.lineWidth = 0.5;
+    animationRef.current = requestAnimationFrame(drawFrame);
 
-      if (x % 20 === 0) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      if (x % 100 === 0) {
-        ctx.strokeStyle = "#004400";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-
-      // Lignes horizontales
-      ctx.strokeStyle = "#002200";
-      ctx.lineWidth = 0.5;
-      for (let y = 0; y < height; y += 10) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + 1, y);
-        ctx.stroke();
-      }
-
-      ctx.strokeStyle = "#004400";
-      ctx.lineWidth = 1;
-      for (let y = 0; y < height; y += 50) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + 1, y);
-        ctx.stroke();
-      }
-    };
-
-    const drawSynchroArrows = (ctx: CanvasRenderingContext2D) => {
-      const arrowHeight = Math.min(12, height * 0.15);
-      const arrowWidth = Math.min(6, arrowHeight * 0.5);
-      
-      state.peakPositions.forEach(peak => {
-        const elapsed = Date.now() - peak.timestamp;
-        const pixelsTraveled = elapsed * state.SCROLL_SPEED / 1000;
-        const currentX = (peak.x - pixelsTraveled + width) % width;
-        
-        if (currentX >= 0 && currentX < width) {
-          ctx.fillStyle = 'white';
-          
-          const arrowTop = 5;
-          const arrowBottom = arrowTop + arrowHeight;
-          
-          ctx.beginPath();
-          ctx.moveTo(currentX, arrowBottom);
-          ctx.lineTo(currentX - arrowWidth, arrowTop);
-          ctx.lineTo(currentX + arrowWidth, arrowTop);
-          ctx.closePath();
-          ctx.fill();
-        }
-      });
-    };
-
-    drawFrame();
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [width, height, rhythmType, showSynchroArrows, heartRate]);
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [width, height]);
 
   return (
     <div className="flex flex-col bg-black rounded w-full">
@@ -213,7 +225,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
           width={width}
           height={height}
           className="w-full"
-          style={{ imageRendering: "pixelated", height: height }}
+          style={{ imageRendering: "auto", height: height }}
         />
       </div>
     </div>

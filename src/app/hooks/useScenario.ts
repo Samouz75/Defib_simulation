@@ -41,11 +41,13 @@ export const useScenario = () => {
       description: "Tournez la mollette verte pour passer du mode ARRÊT au mode Moniteur",
     },
     {
+
       title: "",
       description: "Observez le tracé ECG sur l'écran pendant quelques secondes",
     },
     {
       title: "",
+
       description: "Arrêter le massage pour analyser le rythme: Fibrillation ventriculaire détectée",
     },
     {

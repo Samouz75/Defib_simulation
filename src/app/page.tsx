@@ -58,6 +58,7 @@ export default function LandingPage() {
         </div>
       </div>
 
+
       {/* Stats Section */}
       <section className="relative z-10 py-16 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
@@ -65,6 +66,7 @@ export default function LandingPage() {
             <div>
               <div className="text-3xl font-bold text-white mb-2">4+</div>
               <div className="text-gray-500 text-sm">Scénarios de Formation</div>
+
             </div>
             <div>
               <div className="text-3xl font-bold text-white mb-2">100%</div>
@@ -74,6 +76,7 @@ export default function LandingPage() {
               <div className="text-3xl font-bold text-white mb-2">24/7</div>
               <div className="text-gray-500 text-sm">Accès</div>
             </div>
+
             <div>
               <div className="text-3xl font-bold text-white mb-2">Gratuit</div>
               <div className="text-gray-500 text-sm">Sans Limitation</div>
