@@ -274,7 +274,7 @@ export default function LandingPage() {
                 {
                   image: "/images/mariusgal.jpg",
                   title: "Marius GAL",
-                  subtitle: "Stage dev web",
+                  subtitle: "Engineering student",
                   borderColor: "#10B981",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                   url: "https://www.linkedin.com/in/marius-gal/",
