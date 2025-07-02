@@ -755,7 +755,7 @@ const DefibInterface: React.FC = () => {
         <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
           <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
             {scenario.showStepHelp 
-              ? `Aide - Étape ${scenario.currentStep + 1}/${scenario.getCurrentScenarioSteps().length}`
+              ? `Aide - Étape ${scenario.currentStep}/${scenario.getCurrentScenarioSteps().length}`
               : getScenarioTitle()
             }
           </h1>
@@ -764,7 +764,7 @@ const DefibInterface: React.FC = () => {
           <div className="flex items-center gap-0.5 sm:gap-1 md:gap-0.5 lg:gap-1 flex-shrink-0">
             {!scenario.showStepHelp && (
               <span className="text-xs sm:text-sm md:text-xs lg:text-base text-white font-medium">
-                {scenario.currentStep + 1}/{scenario.getCurrentScenarioSteps().length}
+                {scenario.currentStep}/{scenario.getCurrentScenarioSteps().length}
               </span>
             )}
             
@@ -1001,7 +1001,7 @@ const DefibInterface: React.FC = () => {
 
               <div className="bg-blue-50 rounded-lg p-3 mb-3">
                 <p className="text-gray-800 text-xs leading-relaxed">
-                  <strong>Étape {scenario.currentStep + 1}:</strong>{" "}
+                  <strong>Étape {scenario.currentStep}:</strong>{" "}
                   {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
                 </p>
               </div>
