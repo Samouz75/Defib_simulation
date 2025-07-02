@@ -4,7 +4,6 @@ import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 
 interface ManuelDisplayProps {
-
   frequency: string;
   chargeProgress: number;
   shockCount: number;
@@ -13,7 +12,8 @@ interface ManuelDisplayProps {
   showSynchroArrows?: boolean;
   heartRate?: number;
   isCharged?: boolean;
-  onCancelCharge?: () => boolean
+  onCancelCharge?: () => boolean;
+  displayMode?: string; // prop pour détecter les changements de mode
 }
 
 export interface ManuelDisplayRef {
@@ -26,13 +26,12 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   shockCount,
   isCharging,
   rhythmType = 'sinus',
-
   showSynchroArrows = false,
   heartRate = 70,
   isCharged = false,
-  onCancelCharge
+  onCancelCharge,
+  displayMode
 }, ref) => {
-
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
   const [showCPRMessage, setShowCPRMessage] = useState(false);
@@ -52,7 +51,6 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
       setShowCPRMessage(false);
     }
   }, [isCharging]);
-
 
   useEffect(() => {
     if (shockCount > 0) {
@@ -77,6 +75,13 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
       return () => clearInterval(interval);
     }
   }, [rhythmType]);
+
+  // Réinitialiser les messages quand on change de mode
+  useEffect(() => {
+    clearAllTimers();
+    setShowShockDelivered(false);
+    setShowCPRMessage(false);
+  }, [displayMode]);
 
   useImperativeHandle(ref, () => ({
     triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false

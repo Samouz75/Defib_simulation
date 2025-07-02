@@ -676,6 +676,7 @@ const DefibInterface: React.FC = () => {
             heartRate={scenario.heartRate}
             isCharged={defibrillator.isCharged}
             onCancelCharge={defibrillator.cancelCharge}
+            displayMode={defibrillator.displayMode}
           />
         );
       default:
