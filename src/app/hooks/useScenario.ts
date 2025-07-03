@@ -211,15 +211,11 @@ export const useScenario = () => {
         }
         
         updateState({ showScenarioComplete: true });
-        setTimeout(() => {
-          updateState({
-            currentScenario: null,
-            currentStep: 0,
-            showScenarioComplete: false,
-            // Revenir au rythme manuel après la fin du scénario
-            currentRhythm: state.manualRhythm,
-          });
-        }, 3000);
+        
+        // Auto-hide congratulations popup after 5 seconds
+        scenarioTimeoutRef.current = setTimeout(() => {
+          updateState({ showScenarioComplete: false });
+        }, 5000);
       }
     }
   };
@@ -294,21 +290,21 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'sinus', 
+        currentRhythm: 'fibrillationVentriculaire', 
       });
     } else if (scenarioId === "scenario_3") {
       updateState({
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'asystole', // BAV 3 - rythme très lent (simulé par asystolie)
+        currentRhythm: 'bav3', // BAV 3 - rythme très lent
       });
     } else if (scenarioId === "scenario_4") {
       updateState({
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillationVentriculaire', // ACFA rapide (simulé par fibrillation)
+        currentRhythm: 'fibrillationAtriale', // ACFA rapide (simulé par fibrillation)
       });
     }
   };
