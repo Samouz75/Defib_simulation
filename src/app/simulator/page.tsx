@@ -38,8 +38,13 @@ const DefibInterface: React.FC = () => {
   const getEffectiveHeartRate = () => {
     const currentRhythm = scenario.getEffectiveRhythm();
     
+    // Si on est dans le scénario 4 avec fibrillation atriale, utiliser la valeur du scénario
+    if (scenario.currentScenario === 'scenario_4') {
+      return scenario.heartRate;
+    }
+    
     if (currentRhythm === 'fibrillationVentriculaire' || currentRhythm === 'fibrillationAtriale') {
-      return Math.floor(160 + Math.random() * 30); // 160-190 BPM
+      return Math.floor(160 + Math.random() * 30); // 160-190 BPM 
     }
     if (currentRhythm === 'asystole') {
       return 0;
@@ -641,6 +646,7 @@ const DefibInterface: React.FC = () => {
               rhythmType={effectiveRhythm}
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
+              isScenario4={scenario.currentScenario === 'scenario_4'}
             />
             <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400 mt-3">
               <span>
@@ -697,6 +703,7 @@ const DefibInterface: React.FC = () => {
             ref={monitorDisplayRef}
             rhythmType={effectiveRhythm}
             heartRate={scenario.heartRate}
+            isScenario4={scenario.currentScenario === 'scenario_4'}
           />
         );
     }

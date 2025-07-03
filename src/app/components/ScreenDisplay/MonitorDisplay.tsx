@@ -9,6 +9,7 @@ interface MonitorDisplayProps {
   rhythmType?: RhythmType;
   showSynchroArrows?: boolean; 
   heartRate?: number; 
+  isScenario4?: boolean;
 }
 
 export interface MonitorDisplayRef {
@@ -24,7 +25,8 @@ export interface MonitorDisplayRef {
 const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({ 
   rhythmType = 'sinus',
   showSynchroArrows = false,
-  heartRate = 70 
+  heartRate = 70,
+  isScenario4 = false
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   
@@ -302,7 +304,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold w-[65px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale'
+                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4)
                   ? fvVitalSigns.heartRate 
                   : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
@@ -337,7 +339,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
               </div>
             </div>
             <div className="flex flex-col items-center w-8 ml-2">

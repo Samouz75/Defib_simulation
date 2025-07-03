@@ -250,7 +250,17 @@ export const useScenario = () => {
       clearTimeout(rhythmTransitionTimeoutRef.current);
     }
     
-    updateState({ currentRhythm: 'sinus' });
+    updateState({ 
+      currentRhythm: 'asystole',
+      heartRate: 0
+    });
+    
+    rhythmTransitionTimeoutRef.current = setTimeout(() => {
+      updateState({ 
+        currentRhythm: 'sinus',
+        heartRate: 75
+      });
+    }, 3000);
   };
 
   const handleManualValidation = () => {
@@ -304,7 +314,8 @@ export const useScenario = () => {
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillationAtriale', // ACFA rapide (simulé par fibrillation)
+        currentRhythm: 'fibrillationAtriale', // ACFA 160/min
+        heartRate: 160, // Fréquence cardiaque de 160 BPM pour l'ACFA
       });
     }
   };
@@ -363,8 +374,7 @@ export const useScenario = () => {
       currentScenario: null,
       currentStep: 0,
       showScenarioComplete: false,
-      currentRhythm: state.manualRhythm,
-    });
+      currentRhythm: state.manualRhythm,    });
   };
 
   return {
