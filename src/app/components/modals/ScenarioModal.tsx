@@ -35,11 +35,9 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
           <div>
             <p className="text-sm mb-3 text-justify">{scenario.description}</p>
             
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid gap-4 mb-4">
           
-              <div className="bg-gray-700 rounded-lg p-3">
-                <h4 className="font-medium text-white mb-1">Durée estimée</h4>
-                <p className="text-sm">{scenario.duration}</p>
+              <div className="bg-gray-700 rounded-lg p-1 w-full">
               </div>
             </div>
           </div>
