@@ -87,8 +87,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
     triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false
   }));
 
-  // Ajout pour la gestion dynamique de la marge basse
-  const isAnyActive = isCharged || showShockDelivered || showCPRMessage;
+
 
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -203,45 +202,41 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
 
 
         {/* Row 5 & 6 - Messages and Footer */}
-        <div className="relative bg-black">
-          {isCharged && (
-            <div className="h-6 flex items-center justify-center bg-black z-10">
-              <div className="bg-white px-2 -mb-2 rounded-xs mt-2">
+        <div className="bg-black flex flex-col">
+          <div className="h-6 flex items-center justify-center relative mt-1">
+            {isCharged && (
+              <div className="bg-white px-2 py-0.5 ">
                 <span className="text-black text-xs font-bold">Délivrez le choc maintenant</span>
-
               </div>
-            </div>
-          )}
-          {showShockDelivered && (
-             <div className="h-6 flex items-center justify-center bg-black z-10">
-               <div className="bg-white px-2 py-0.2 rounded-xs mt-2">
-                 <span className="text-black text-xs font-bold">Choc délivré</span>
-               </div>
-             </div>
-           )}
-           {showCPRMessage && (
-             <div className="h-6 flex items-center justify-center bg-black z-10">
-               <div className="bg-white px-2 py-0.2 rounded-xs mt-2">
-                 <span className="text-black text-xs font-bold">Commencez la réanimation cardio pulmonaire</span>
-               </div>
-             </div>
-           )}
-          <div className="pt-5 pb-1 flex items-center justify-between text-white text-xs px-2">
+            )}
+            {showShockDelivered && (
+              <div className="bg-white px-2 py-0.5 ">
+                <span className="text-black text-xs font-bold">Choc délivré</span>
+              </div>
+            )}
+            {showCPRMessage && (
+              <div className="bg-white px-2 py-0.5 ">
+                <span className="text-black text-xs font-bold">Commencez la réanimation cardio pulmonaire</span>
+              </div>
+            )}
+          </div>
+          
+          <div className="-pt-1 flex items-center justify-between text-white text-xs px-2">
             <div className="flex gap-2">
-              <div className={`bg-gray-500 ${isAnyActive ? 'mb-5' : 'mb-0'}  px-2  h-full flex flex-col justify-center text-xs`}>
+              <div className="bg-gray-500 px-2 py-1  text-xs">
                 <span>Début PNI</span>
               </div>
-              <div className={`bg-gray-500 ${isAnyActive ? 'mb-5' : 'mb-0'} px-2 h-full flex flex-col justify-center text-xs`}>
+              <div className="bg-gray-500 px-2 py-1  text-xs">
                 <span>Début RCP</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className={`px-2 ${isAnyActive ? 'mb-5' : 'mb-0'} h-full flex flex-col justify-center text-xs ${
+              <div className={`px-2 py-1  text-xs ${
                 isCharged ? 'bg-red-500 text-white' : 'bg-gray-500 text-gray-300'
               }`}>
                 <span>Annuler Charge</span>
               </div>
-              <div className={`bg-gray-500 ${isAnyActive ? 'mb-5' : 'mb-0'} px-2  h-full flex flex-col justify-center text-xs`}>
+              <div className="bg-gray-500 px-2 py-1  text-xs">
                 <span>Menu</span>
               </div>
             </div>
