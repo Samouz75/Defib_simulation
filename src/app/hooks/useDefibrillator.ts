@@ -25,7 +25,7 @@ export interface DefibrillatorState {
   isSynchroMode: boolean;
 }
 
-export const useDefibrillator = () => {
+export const useDefibrillator = (isInScenario?: () => boolean, currentHeartRate?: number) => {
   const [state, setState] = useState<DefibrillatorState>({
     displayMode: "ARRET",
     manualFrequency: "1-10",
@@ -131,12 +131,14 @@ export const useDefibrillator = () => {
       }, 2000);
     }
 
-    // Show notification
-    NotificationService.showShockDelivered({
-      energy: 150, // Default energy value for notification
-      shockNumber: newShockCount,
-      frequency: 120, // Default frequency value for notification
-    });
+    // Show notification only if not in scenario
+    if (!isInScenario || !isInScenario()) {
+      NotificationService.showShockDelivered({
+        energy: 150, // Default energy value for notification
+        shockNumber: newShockCount,
+        frequency: currentHeartRate || 120, 
+      });
+    }
   };
 
   const setSelectedChannel = (channel: number) => {

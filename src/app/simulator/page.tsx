@@ -34,8 +34,20 @@ const DefibInterface: React.FC = () => {
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
   const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
   const scale = useResponsiveScale();
-  const defibrillator = useDefibrillator();
   const scenario = useScenario();
+  const getEffectiveHeartRate = () => {
+    const currentRhythm = scenario.getEffectiveRhythm();
+    
+    if (currentRhythm === 'fibrillationVentriculaire' || currentRhythm === 'fibrillationAtriale') {
+      return Math.floor(160 + Math.random() * 30); // 160-190 BPM
+    }
+    if (currentRhythm === 'asystole') {
+      return 0;
+    }
+    return scenario.heartRate;
+  };
+
+  const defibrillator = useDefibrillator(scenario.isScenarioActive, getEffectiveHeartRate());
   const electrodeValidation = useElectrodeValidation();
 
   // État pour la synchronisation avec le DAE
