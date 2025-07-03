@@ -16,6 +16,7 @@ interface ManuelDisplayProps {
   displayMode?: string; // prop pour détecter les changements de mode
   isScenario4?: boolean; 
   onDelayedShock?: () => void; // callback pour le choc retardé
+  isScenario1Completed?: boolean;
 }
 
 export interface ManuelDisplayRef {
@@ -35,7 +36,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   onCancelCharge,
   displayMode,
   isScenario4 = false,
-  onDelayedShock
+  onDelayedShock,
+  isScenario1Completed = false
 }, ref) => {
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
@@ -180,7 +182,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             </div>
             <div className="flex flex-row  gap-x-2">
               <div className="text-blue-400 text-4xl font-bold -mt-2">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '95'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '92'}
               </div>
               <div className="flex flex-col items-center">
                 <div className="text-blue-400 text-xs">100</div>
@@ -193,7 +195,12 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             <div className="flex flex-col ">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' ? '--' 
+                  : rhythmType === 'asystole' ? '0' 
+                  : rhythmType === 'fibrillationAtriale' ? '--' 
+                  : isScenario1Completed 
+                    ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
+                    : heartRate}
               </div>
             </div>
             <div className="flex flex-col ">

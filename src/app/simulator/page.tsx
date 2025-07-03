@@ -662,6 +662,7 @@ const DefibInterface: React.FC = () => {
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
               isScenario4={scenario.currentScenario === 'scenario_4'}
+              isScenario1Completed={scenario.isScenario1Completed}
             />
             <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400 mt-3">
               <span>
@@ -694,6 +695,7 @@ const DefibInterface: React.FC = () => {
             rhythmType={effectiveRhythm}
             showSynchroArrows={defibrillator.isSynchroMode}
             heartRate={scenario.heartRate}
+            isScenario1Completed={scenario.isScenario1Completed}
           />
         );
       case "Manuel":
@@ -712,6 +714,7 @@ const DefibInterface: React.FC = () => {
             displayMode={defibrillator.displayMode}
             isScenario4={scenario.currentScenario === 'scenario_4'}
             onDelayedShock={handleDelayedShock}
+            isScenario1Completed={scenario.isScenario1Completed}
           />
         );
       default:

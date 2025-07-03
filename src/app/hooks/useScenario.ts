@@ -16,6 +16,7 @@ export interface ScenarioState {
   currentRhythm: RhythmType;
   manualRhythm: RhythmType; 
   heartRate: number; 
+  isScenario1Completed: boolean;
 }
 
 export const useScenario = () => {
@@ -29,6 +30,7 @@ export const useScenario = () => {
     currentRhythm: 'sinus',
     manualRhythm: 'sinus', 
     heartRate: 70,
+    isScenario1Completed: false,
   });
 
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -226,6 +228,9 @@ export const useScenario = () => {
       clearTimeout(rhythmTransitionTimeoutRef.current);
     }
     
+    // Marquer le scénario 1 comme terminé pour mise à jour des constantes vitales
+    updateState({ isScenario1Completed: true });
+    
     // Phase 1: Passage en asystolie après le choc
     updateState({ currentRhythm: 'asystole' });
     
@@ -294,13 +299,15 @@ export const useScenario = () => {
         currentStep: 0,
         showScenarioComplete: false,
         currentRhythm: 'fibrillationVentriculaire', // Fibrillation ventriculaire
+        isScenario1Completed: false, 
       });
     } else if (scenarioId === "scenario_2") {
       updateState({
         currentScenario: scenarioId,
         currentStep: 0,
         showScenarioComplete: false,
-        currentRhythm: 'fibrillationVentriculaire', 
+        currentRhythm: 'fibrillationVentriculaire',
+        isScenario1Completed: false, 
       });
     } else if (scenarioId === "scenario_3") {
       updateState({
@@ -308,6 +315,7 @@ export const useScenario = () => {
         currentStep: 0,
         showScenarioComplete: false,
         currentRhythm: 'bav3', // BAV 3 - rythme très lent
+        isScenario1Completed: false, 
       });
     } else if (scenarioId === "scenario_4") {
       updateState({
@@ -316,6 +324,7 @@ export const useScenario = () => {
         showScenarioComplete: false,
         currentRhythm: 'fibrillationAtriale', // ACFA 160/min
         heartRate: 160, // Fréquence cardiaque de 160 BPM pour l'ACFA
+        isScenario1Completed: false, 
       });
     }
   };
@@ -374,7 +383,9 @@ export const useScenario = () => {
       currentScenario: null,
       currentStep: 0,
       showScenarioComplete: false,
-      currentRhythm: state.manualRhythm,    });
+      currentRhythm: state.manualRhythm,
+      isScenario1Completed: false, 
+    });
   };
 
   return {

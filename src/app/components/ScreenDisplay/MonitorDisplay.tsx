@@ -10,6 +10,7 @@ interface MonitorDisplayProps {
   showSynchroArrows?: boolean; 
   heartRate?: number; 
   isScenario4?: boolean;
+  isScenario1Completed?: boolean;
 }
 
 export interface MonitorDisplayRef {
@@ -26,7 +27,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   rhythmType = 'sinus',
   showSynchroArrows = false,
   heartRate = 70,
-  isScenario4 = false
+  isScenario4 = false,
+  isScenario1Completed = false
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   
@@ -339,7 +341,13 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             <div className="flex flex-col items-center">
               <div className="text-blue-400 text-xs">Pouls</div>
               <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) ? '-?-' : rhythmType === 'asystole' ? '0' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) 
+                  ? '-?-' 
+                  : rhythmType === 'asystole' 
+                    ? '0' 
+                    : isScenario1Completed 
+                      ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
+                      : heartRate}
               </div>
             </div>
             <div className="flex flex-col items-center w-8 ml-2">
