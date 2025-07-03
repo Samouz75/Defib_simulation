@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
 import Particles from "./components/Particles";
 import ChromaGrid from "./components/ChromaGrid";
+import SpotlightCard from './components/SpotlightCard';
+
 
 export default function LandingPage() {
   return (
@@ -115,34 +117,34 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-10 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 hover:border-gray-700 transition-colors flex flex-col items-center justify-center">
-              <h3 className="text-xl font-semibold text-white mb-3 text-center">
+          <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+          <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 ECG Réaliste
               </h3>
               <p className="text-gray-400 text-sm text-center">
                 Rythmes cardiaques authentiques incluant rythme sinusal, FV, TV,
                 asystolie avec modification en temps réel.
               </p>
-            </div>
+            </SpotlightCard>
 
-            <div className="p-10 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 hover:border-gray-700 transition-colors flex flex-col items-center justify-center">
-              <h3 className="text-xl font-semibold text-white mb-3 text-center">
+            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+            <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 Modes Multiples
               </h3>
               <p className="text-gray-400 text-sm text-center">
                 Modes DAE, Manuel, Moniteur et Stimulateur.
               </p>
-            </div>
+            </SpotlightCard>
 
-            <div className="p-10 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 hover:border-gray-700 transition-colors flex flex-col items-center justify-center">
-              <h3 className="text-xl font-semibold text-white mb-3 text-center">
+            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+            <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 Qualité Hospitalière
               </h3>
               <p className="text-gray-400 text-sm text-center">
                 Scénarios développés avec l'Hôpital Saint-Louis pour une
                 formation authentique.
               </p>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
@@ -163,8 +165,8 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800">
-              <div className="flex items-center justify-between mb-4">
+          <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+          <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Fibrillation Ventriculaire
                 </h3>
@@ -173,9 +175,9 @@ export default function LandingPage() {
                 Défibrillation d'urgence avec défibrillateur manuel. Maîtrisez
                 la reconnaissance ECG et la délivrance de choc.
               </p>
-            </div>
+            </SpotlightCard>
 
-            <div className="p-6 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800">
+            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Utilisation DAE
@@ -184,9 +186,9 @@ export default function LandingPage() {
               <p className="text-gray-400 text-sm">
                 Formation à l'utilisation du DAE pour intervenir en cas d'arrêt cardiaque.
               </p>
-            </div>
+            </SpotlightCard>
 
-            <div className="p-6 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800">
+            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Stimulation Cardiaque
@@ -196,9 +198,9 @@ export default function LandingPage() {
                 Stimulation cardiaque d'urgence pour bradycardie avec ajustement
                 des paramètres.
               </p>
-            </div>
+            </SpotlightCard>
 
-            <div className="p-6 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800">
+            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Cardioversion
@@ -208,7 +210,7 @@ export default function LandingPage() {
                 Cardioversion synchronisée pour traitement de la fibrillation
                 atriale.
               </p>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
