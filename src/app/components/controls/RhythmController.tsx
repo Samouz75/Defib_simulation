@@ -52,7 +52,21 @@ const RhythmController: React.FC<RhythmControllerProps> = ({
       icon: <Activity className="w-4 h-4" />,
       color: 'bg-red-500 hover:bg-red-600',
       description: 'Accéléré et irrégulier'
-    }
+    },
+    {
+      type: 'electroEntrainement' as RhythmType,
+      label: 'électro entrainement',
+      icon: <Heart className="w-4 h-4" />,
+      color: 'bg-green-500 hover:bg-green-600',
+      description: 'mode stimulateur'
+    },
+    {
+      type: 'choc' as RhythmType,
+      label: 'choc',
+      icon: <Heart className="w-4 h-4" />,
+      color: 'bg-green-500 hover:bg-green-600',
+      description: 'mode stimulateur'
+    },
   ];
 
   return (

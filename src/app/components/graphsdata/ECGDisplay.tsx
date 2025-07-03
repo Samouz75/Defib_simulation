@@ -8,11 +8,12 @@ interface ECGDisplayProps {
   showSynchroArrows?: boolean;
   heartRate?: number;
   durationSeconds?: number;
+  
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
   width = 800,
-  height = 80,
+  height = 65,
   rhythmType = 'sinus',
   showSynchroArrows = false,
   heartRate = 70, 
@@ -24,6 +25,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   // Refs for data and animation state
   const dataRef = useRef<number[]>([]);
   const peakCandidateIndicesRef = useRef<Set<number>>(new Set());
+  const pacingSpikeIndicesRef = useRef<Set<number>>(new Set());
   const normalizationRef = useRef({ min: 0, max: 1 });
   const scanAccumulatorRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number>(0);
@@ -46,6 +48,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
     // Pre-compute R-Peak candidates for the new buffer
     const newPeakCandidates = new Set<number>();
+    
     const excludedRhythms: RhythmType[] = ['fibrillationVentriculaire', 'asystole'];
 
     if (!excludedRhythms.includes(rhythmType)) {
@@ -79,7 +82,16 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       min: Math.min(...newBuffer),
       max: Math.max(...newBuffer),
     };
-
+    const newPacingSpikes = new Set<number>();
+    if (rhythmType === 'electroEntrainement') {
+        for (let i = 1; i < newBuffer.length; i++) {
+            // A pacing spike is characterized by a very large, sudden positive jump.
+            if (newBuffer[i] - newBuffer[i-1] >= 0.4) {
+                newPacingSpikes.add(i);
+            }
+        }
+    }
+    pacingSpikeIndicesRef.current = newPacingSpikes;
   }, [rhythmType, heartRate]); // Triggered only when the rhythm or its rate changes.
 
 
@@ -103,7 +115,15 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
       const bottomMargin = height * 0.1;
       const traceHeight = height - topMargin - bottomMargin;
       const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
-      return topMargin + (1 - normalizedValue) * traceHeight;
+      const canvasCenter = topMargin + traceHeight / 2;
+      const { rhythmType } = propsRef.current;
+      if (rhythmType === 'electroEntrainement'  || rhythmType === 'choc') {
+        // For pacing, use a fixed gain (pixels per mV) and center the trace.
+        // This causes large spikes to go off-screen (clipping).
+        const gain = 40; // 20px per 1mV
+        return (canvasCenter - (value * gain))/0.6;
+      } else
+      {return topMargin + (1 - normalizedValue) * traceHeight;}
     };
     
     const drawGridColumn = (x: number) => {
@@ -134,7 +154,14 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
         ctx.closePath();
         ctx.fill();
     };
-
+    const drawPacingSpike = ( x: number) => {
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+  };
     // Initial clear and grid draw
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, width, height);
@@ -207,6 +234,10 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
                 drawArrow(x);
                 
           }
+
+          if (pacingSpikeIndicesRef.current.has(sampleIndex)) {
+            drawPacingSpike(x);
+        }
       }
 
       animationRef.current = requestAnimationFrame(drawFrame);
