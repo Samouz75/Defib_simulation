@@ -45,6 +45,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [limitesBassesFCValue, setLimitesBassesFCValue] = useState(50);
   const [selectedFrequencePNI, setSelectedFrequencePNI] = useState('Manuel');
   const [frequencePNIStartIndex, setFrequencePNIStartIndex] = useState(0);
+  const [showPNIValues, setShowPNIValues] = useState(false);
+  const [showVitalSigns, setShowVitalSigns] = useState(false);
 
   // Configuration du menu
   const menuConfigs = {
@@ -317,48 +319,63 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             </div>
           </div>
 
-          {/* SpO2 */}
-          <div className="flex flex-col items-center w-28 ml-4">
-            <div className="flex flex-row items-center gap-x-2">
-              <div className="text-blue-400 text-2xl font-bold">SpO2</div>
-              <div className="text-blue-400 text-xs">%</div>
+          {/* SpO2 et Pouls - Conteneur global avec hover  */}
+          <div 
+            className="flex flex-row items-center gap-4  cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
+            onClick={() => setShowVitalSigns(!showVitalSigns)}
+          >
+            {/* SpO2 */}
+            <div className="flex flex-col items-center w-28">
+              <div className="flex flex-row items-center gap-x-2">
+                <div className="text-blue-400 text-2xl font-bold">SpO2</div>
+                <div className="text-blue-400 text-xs">%</div>
+              </div>
+
+              {/* SpO2 Value */}
+              <div className="flex flex-row items-center gap-x-2">
+                <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center -mt-2">
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' 
+                    ? '--' 
+                    : showVitalSigns 
+                      ? '92' 
+                      : '--'}
+                </div>
+                <div className="flex flex-col items-center w-8">
+                  <div className="text-blue-400 text-xs">100</div>
+                  <div className="text-blue-400 text-xs">90</div>
+                </div>
+              </div>
             </div>
 
-            {/* SpO2 Value */}
-            <div className="flex flex-row items-center gap-x-2">
-              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center -mt-2">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '92'}
+            {/* Pouls */}
+            <div className="flex flex-row items-center w-28">
+              <div className="flex flex-col items-center">
+                <div className="text-blue-400 text-xs">Pouls</div>
+                <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
+                  {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) 
+                    ? '-?-' 
+                    : rhythmType === 'asystole' 
+                      ? '0' 
+                      : showVitalSigns
+                        ? (isScenario1Completed 
+                            ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
+                            : heartRate)
+                        : '--'}
+                </div>
               </div>
-              <div className="flex flex-col items-center w-8">
-                <div className="text-blue-400 text-xs">100</div>
-                <div className="text-blue-400 text-xs">90</div>
+              <div className="flex flex-col items-center w-8 ml-2">
+                <div className="text-blue-400 text-xs mb-2">bpm</div>
+                <div className="text-blue-400 text-xs">120</div>
+                <div className="text-blue-400 text-xs">50</div>
               </div>
             </div>
           </div>
 
-          {/* Pouls */}
-          <div className="flex flex-row items-center w-28 ml-4">
-            <div className="flex flex-col items-center">
-              <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) 
-                  ? '-?-' 
-                  : rhythmType === 'asystole' 
-                    ? '0' 
-                    : isScenario1Completed 
-                      ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
-                      : heartRate}
-              </div>
-            </div>
-            <div className="flex flex-col items-center w-8 ml-2">
-              <div className="text-blue-400 text-xs mb-2">bpm</div>
-              <div className="text-blue-400 text-xs">120</div>
-              <div className="text-blue-400 text-xs">50</div>
-            </div>
-          </div>
-
-          {/* PNI */}
-          <div className="flex flex-col items-center w-40 ml-4">
+          {/* PNI - Conteneur global avec hover*/}
+          <div 
+            className="flex flex-col items-center w-45  cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
+            onClick={() => setShowPNIValues(!showPNIValues)}
+          >
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-white text-xs font-bold">PNI</div>
               <div className="text-white text-xs font-bold w-12 text-center">{selectedFrequencePNI}</div>
@@ -367,10 +384,18 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             </div>
             <div className="flex flex-row items-center gap-x-1 mt-1">
               <div className="text-white text-4xl min-w-[100px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '-?-' : '110/80'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' 
+                  ? '-?-' 
+                  : showPNIValues 
+                    ? '110/80'
+                    : '--'}
               </div>
               <div className="text-white text-xs min-w-[30px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '' : '(80)'}
+                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' 
+                  ? '' 
+                  : showPNIValues 
+                    ? '(80)' 
+                    : ''}
               </div>
               <div className="flex flex-col items-center w-8">
                 <div className="text-white text-xs">MOY</div>
@@ -381,10 +406,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           </div>
 
           {/* CO2 et FR */}
-          <div className="flex flex-row items-center gap-x-6 ml-4">
+          <div className="flex flex-row items-center gap-x-6 ">
             {/* Colonne CO2 */}
             <div className="flex flex-col items-center w-20">
-              <div className="flex flex-row items-center gap-x-1">
+              <div className="flex flex-row items-center gap-x-1 mb-3">
                 <div className="text-white text-xs font-bold">CO2ie</div>
                 <div className="text-white text-xs font-bold">mmHg</div>
               </div>
