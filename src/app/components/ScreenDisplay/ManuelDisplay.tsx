@@ -14,10 +14,13 @@ interface ManuelDisplayProps {
   isCharged?: boolean;
   onCancelCharge?: () => boolean;
   displayMode?: string; // prop pour détecter les changements de mode
+  isScenario4?: boolean; 
+  onDelayedShock?: () => void; // callback pour le choc retardé
 }
 
 export interface ManuelDisplayRef {
   triggerCancelCharge: () => boolean;
+  triggerDelayedShock: () => void;
 }
 
 const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
@@ -30,7 +33,9 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   heartRate = 70,
   isCharged = false,
   onCancelCharge,
-  displayMode
+  displayMode,
+  isScenario4 = false,
+  onDelayedShock
 }, ref) => {
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
@@ -38,10 +43,12 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   const [fibBlink, setFibBlink] = useState(false);
   const timer1Ref = useRef<NodeJS.Timeout | null>(null);
   const timer2Ref = useRef<NodeJS.Timeout | null>(null);
+  const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearAllTimers = () => {
     if (timer1Ref.current) clearTimeout(timer1Ref.current);
     if (timer2Ref.current) clearTimeout(timer2Ref.current);
+    if (delayTimerRef.current) clearTimeout(delayTimerRef.current);
   };
 
   useEffect(() => {
@@ -83,8 +90,19 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
     setShowCPRMessage(false);
   }, [displayMode]);
 
+  const handleDelayedShock = () => {
+    if (!isScenario4 || !isCharged) return;
+    
+    delayTimerRef.current = setTimeout(() => {
+      if (onDelayedShock) {
+        onDelayedShock();
+      }
+    }, 5000);
+  };
+
   useImperativeHandle(ref, () => ({
-    triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false
+    triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false,
+    triggerDelayedShock: handleDelayedShock
   }));
 
 

@@ -78,6 +78,8 @@ const DefibInterface: React.FC = () => {
   
   // État pour le popup de validation
   const [showValidationPopup, setShowValidationPopup] = useState(false);
+  
+  const [isShockButtonBlinking, setIsShockButtonBlinking] = useState(false);
 
   // Références pour les timers de boot
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -428,25 +430,35 @@ const DefibInterface: React.FC = () => {
         }
       }
     } else if (defibrillator.displayMode === "Manuel") {
-      // En mode Manuel, utiliser la logique existante
-      defibrillator.deliverShock();
+      if (scenario.currentScenario === "scenario_4" && defibrillator.chargeProgress === 100) {
+        setIsShockButtonBlinking(true); 
+        if (manuelDisplayRef.current) {
+          manuelDisplayRef.current.triggerDelayedShock();
+        }
+      } else {
+        defibrillator.deliverShock();
 
-      // Validation scénario 1 - étape 6 : délivrer le choc
-      if (
-        scenario.currentScenario === "scenario_1" &&
-        defibrillator.chargeProgress === 100
-      ) {
-        scenario.validateScenarioStep(5);
+        // Validation scénario 1 - étape 6 : délivrer le choc
+        if (
+          scenario.currentScenario === "scenario_1" &&
+          defibrillator.chargeProgress === 100
+        ) {
+          scenario.validateScenarioStep(5);
+        }
       }
+    }
+  };
 
-      // Validation scénario 4 - étape 6 : choquer (cardioversion)
-      if (
-        scenario.currentScenario === "scenario_4" &&
-        defibrillator.chargeProgress === 100 &&
-        defibrillator.isSynchroMode
-      ) {
-        scenario.validateScenarioStep(5);
-      }
+  const handleDelayedShock = () => {
+    setIsShockButtonBlinking(false); 
+    defibrillator.deliverShock();
+    
+    // Validation scénario 4 - étape 6 : choquer (cardioversion)
+    if (
+      scenario.currentScenario === "scenario_4" &&
+      defibrillator.isSynchroMode
+    ) {
+      scenario.validateScenarioStep(5);
     }
   };
 
@@ -559,12 +571,15 @@ const DefibInterface: React.FC = () => {
   // Arrête toute charge en cours quand le mode change 
   useEffect(() => {
     defibrillator.stopCharging();
+    setIsShockButtonBlinking(false); // Arrêter le clignotement si on change de mode
   }, [defibrillator.displayMode]);
 
   // Reset de la validation des électrodes au début de chaque scénario
   useEffect(() => {
     if (scenario.currentScenario) {
       electrodeValidation.resetElectrodeValidation();
+    } else {
+      setIsShockButtonBlinking(false); // Arrêter le clignotement si le scénario s'arrête
     }
   }, [scenario.currentScenario]);
 
@@ -695,6 +710,8 @@ const DefibInterface: React.FC = () => {
             isCharged={defibrillator.isCharged}
             onCancelCharge={defibrillator.cancelCharge}
             displayMode={defibrillator.displayMode}
+            isScenario4={scenario.currentScenario === 'scenario_4'}
+            onDelayedShock={handleDelayedShock}
           />
         );
       default:
@@ -943,9 +960,11 @@ const DefibInterface: React.FC = () => {
                       className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
                         defibrillator.isShockButtonPressed
                           ? "scale-95 bg-orange-300 border-orange-200"
-                          : defibrillator.selectedChannel === 3
-                            ? "bg-orange-400 border-orange-300 shadow-lg"
-                            : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                          : isShockButtonBlinking
+                            ? "bg-orange-500 border-orange-400 shadow-lg animate-pulse"
+                            : defibrillator.selectedChannel === 3
+                              ? "bg-orange-400 border-orange-300 shadow-lg"
+                              : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                       }`}
                       onClick={handleShockButtonClick}
                     >
@@ -953,13 +972,15 @@ const DefibInterface: React.FC = () => {
                         className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
                           defibrillator.isShockButtonPressed
                             ? "from-orange-300 to-orange-400"
-                            : defibrillator.displayMode === "DAE" &&
-                                daePhase === "attente_choc"
+                            : isShockButtonBlinking
                               ? "from-orange-400 to-orange-500"
                               : defibrillator.displayMode === "DAE" &&
-                                  daePhase !== "attente_choc"
-                                ? "from-gray-400 to-gray-500"
-                                : "from-orange-400 to-orange-500"
+                                  daePhase === "attente_choc"
+                                ? "from-orange-400 to-orange-500"
+                                : defibrillator.displayMode === "DAE" &&
+                                    daePhase !== "attente_choc"
+                                  ? "from-gray-400 to-gray-500"
+                                  : "from-orange-400 to-orange-500"
                         }`}
                       >
                         <div className="absolute left-2">
