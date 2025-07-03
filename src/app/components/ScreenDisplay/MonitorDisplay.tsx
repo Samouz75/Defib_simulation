@@ -49,6 +49,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [frequencePNIStartIndex, setFrequencePNIStartIndex] = useState(0);
   const [showPNIValues, setShowPNIValues] = useState(false);
   const [showVitalSigns, setShowVitalSigns] = useState(false);
+  const [showFCValue, setShowFCValue] = useState(false);
 
   // Configuration du menu
   const menuConfigs = {
@@ -303,16 +304,21 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
         {/* Rangée 2 - Paramètres médicaux */}
         <div className="h-1/4 border-b border-gray-600 flex items-center text-sm bg-black px-2">
           {/* FC (Fréquence Cardiaque) */}
-          <div className="flex flex-col items-center w-24">
+          <div 
+            className="flex flex-col items-center w-24 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
+            onClick={() => setShowFCValue(!showFCValue)}
+          >
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-gray-400 text-xs">FC</div>
               <div className="text-gray-400 text-xs">bpm</div>
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold w-[65px] text-center">
-                {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4)
-                  ? fvVitalSigns.heartRate 
-                  : rhythmType === 'asystole' ? '0' : heartRate}
+                {showFCValue 
+                  ? (rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4)
+                      ? fvVitalSigns.heartRate 
+                      : rhythmType === 'asystole' ? '0' : heartRate)
+                  : '--'}
               </div>
                 <div className="flex flex-col items-center w-8">
                   <div className="text-green-400 text-xs text-center">{limitesFCValue}</div>
@@ -442,10 +448,11 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           <ECGDisplay 
             width={800} 
             height={65} 
-            rhythmType={rhythmType} 
+            rhythmType={showFCValue ? rhythmType : 'asystole'} 
             showSynchroArrows={showSynchroArrows}
             heartRate={heartRate}
             durationSeconds={7}
+            isDottedAsystole={!showFCValue}
           />
         </div>
 

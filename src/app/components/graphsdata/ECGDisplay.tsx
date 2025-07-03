@@ -8,7 +8,7 @@ interface ECGDisplayProps {
   showSynchroArrows?: boolean;
   heartRate?: number;
   durationSeconds?: number;
-  
+  isDottedAsystole?: boolean;
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
@@ -18,6 +18,7 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   showSynchroArrows = false,
   heartRate = 70, 
   durationSeconds = 7,
+  isDottedAsystole = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -33,9 +34,9 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   const lastYRef = useRef<number | null>(null);
   
   // A ref to hold the latest props, accessible from the animation loop without re-triggering effects
-  const propsRef = useRef({ showSynchroArrows, durationSeconds, rhythmType, heartRate });
+  const propsRef = useRef({ showSynchroArrows, durationSeconds, rhythmType, heartRate, isDottedAsystole });
   useEffect(() => {
-    propsRef.current = { showSynchroArrows, durationSeconds, rhythmType, heartRate };
+    propsRef.current = { showSynchroArrows, durationSeconds, rhythmType, heartRate, isDottedAsystole };
   });
 
   // Effect for Data Loading and Peak Pre-computation. Runs only when data-related props change.
@@ -214,20 +215,35 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
           ctx.fillRect(barX, 0, 3, height);
           drawGridColumn(barX);
 
-          const value = data[sampleIndex];
-          const currentY = getNormalizedY(value);
-          ctx.strokeStyle = "#00ff00";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          if (lastYRef.current !== null && x > 0 && x - 1 === ((currentX - 1) % width)) {
-            ctx.moveTo(x - 1, lastYRef.current);
-            ctx.lineTo(x, currentY);
+          const { isDottedAsystole } = propsRef.current;
+          
+          if (isDottedAsystole) {
+            const centerY = height / 2;
+            const dotPattern = 4; 
+            const dotSize = 2;
+            
+            if (x % dotPattern === 0) {
+              ctx.fillStyle = "#00ff00";
+              ctx.fillRect(x, centerY - dotSize/2, dotSize, dotSize);
+            }
+            lastYRef.current = centerY;
           } else {
-            ctx.moveTo(x, currentY);
-            ctx.lineTo(x, currentY);
+            // Mode ECG normal
+            const value = data[sampleIndex];
+            const currentY = getNormalizedY(value);
+            ctx.strokeStyle = "#00ff00";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (lastYRef.current !== null && x > 0 && x - 1 === ((currentX - 1) % width)) {
+              ctx.moveTo(x - 1, lastYRef.current);
+              ctx.lineTo(x, currentY);
+            } else {
+              ctx.moveTo(x, currentY);
+              ctx.lineTo(x, currentY);
+            }
+            ctx.stroke();
+            lastYRef.current = currentY;
           }
-          ctx.stroke();
-          lastYRef.current = currentY;
           
           if (showSynchroArrows && peakCandidateIndicesRef.current.has(sampleIndex)) {
              
