@@ -31,6 +31,7 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   
   const dataRef = useRef<number[]>([]);
   const peakCandidateIndicesRef = useRef<Set<number>>(new Set());
+  const pacingSpikeIndicesRef = useRef<Set<number>>(new Set());
   const normalizationRef = useRef({ min: 0, max: 1 });
   const scanAccumulatorRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number>(0);
@@ -83,6 +84,17 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
       max: Math.max(...newBuffer),
     };
 
+    //detect pacing spikes
+    const newPacingSpikes = new Set<number>();
+    if (rhythmType === 'electroEntrainement') {
+        for (let i = 1; i < newBuffer.length; i++) {
+            // A pacing spike is characterized by a very large, sudden positive jump.
+            if (newBuffer[i] - newBuffer[i-1] >= 0.4) {
+                newPacingSpikes.add(i);
+            }
+        }
+    }
+    pacingSpikeIndicesRef.current = newPacingSpikes;
   }, [rhythmType, heartRate]);
 
   // Effect for Animation and Drawing
@@ -107,7 +119,15 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
       const bottomMargin = heightPerTrace * 0.1;
       const traceHeight = heightPerTrace - topMargin - bottomMargin;
       const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
-      return topMargin + (1 - normalizedValue) * traceHeight;
+      const canvasCenter = topMargin + traceHeight / 2;
+      const { rhythmType } = propsRef.current;
+      if (rhythmType === 'electroEntrainement'  || rhythmType === 'choc') {
+        // For pacing, use a fixed gain (pixels per mV) and center the trace.
+        // This causes large spikes to go off-screen (clipping).
+        const gain = 40; // 20px per 1mV
+        return (canvasCenter - (value * gain))/0.6;
+      } else
+      {return topMargin + (1 - normalizedValue) * traceHeight;}
     };
     
     const drawGridColumn = (ctx: CanvasRenderingContext2D, x: number) => {
@@ -138,7 +158,14 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
         ctx.closePath();
         ctx.fill();
     };
-
+    const drawPacingSpike = (ctx: CanvasRenderingContext2D, x: number) => {
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, heightPerTrace);
+      ctx.stroke();
+  };
     topCtx.fillStyle = 'black';
     topCtx.fillRect(0, 0, width, heightPerTrace);
     bottomCtx.fillStyle = 'black';
@@ -187,6 +214,9 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
           activeCtx.fillRect(barX, 0, 3, heightPerTrace);
           drawGridColumn(activeCtx, barX);
 
+        if ( pacingSpikeIndicesRef.current.has(sampleIndex)) {
+            drawPacingSpike(activeCtx, x);
+        }
           const value = data[sampleIndex];
           const currentY = getNormalizedY(value);
           activeCtx.strokeStyle = "#00ff00";

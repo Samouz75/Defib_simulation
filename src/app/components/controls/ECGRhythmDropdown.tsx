@@ -98,6 +98,20 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       color: "bg-orange-500 hover:bg-orange-600",
       description: "Bloc de branche droite",
     },
+     {
+          type: 'electroEntrainement' as RhythmType,
+          label: 'électro entrainement',
+          icon: <Heart className="w-4 h-4" />,
+          color: 'bg-green-500 hover:bg-green-600',
+          description: 'mode stimulateur'
+        },
+      {
+            type: 'choc' as RhythmType,
+            label: 'choc',
+            icon: <Heart className="w-4 h-4" />,
+            color: 'bg-green-500 hover:bg-green-600',
+            description: 'choc défibrillation'
+          },
   ];
 
   const handleRhythmSelect = (rhythm: RhythmType) => {
@@ -170,7 +184,7 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
               ))}
             </div>
 
-            {currentRhythm === "sinus" && (
+            {(
               <div className="mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600 mx-3 mb-2">
                 <h4 className="text-white text-xs font-bold mb-3 flex items-center gap-2">
                   <Heart className="w-3 h-3 text-red-400" />
