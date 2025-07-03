@@ -3,11 +3,22 @@ import React, { useRef, useEffect } from 'react';
 interface PlethDisplayProps {
   width?: number;
   height?: number;
+  isDotted?: boolean;
+  animationState?: {
+    getScanX: () => number;
+    setScanX: (value: number) => void;
+    getSampleIndex: () => number;
+    setSampleIndex: (value: number) => void;
+    getLastY: () => number | null;
+    setLastY: (value: number | null) => void;
+  };
 }
 
 const PlethDisplay: React.FC<PlethDisplayProps> = ({ 
   width = 800, 
-  height = 80
+  height = 80,
+  isDotted = false,
+  animationState
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -75,16 +86,18 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
     0.7556, 0.754866667, 0.753766667, 0.752666667, 0.751566667, 0.750466667, 0.749366667, 0.748266667, 0.747166667, 0.746066667
   ];
 
-  const animationState = useRef({
-    scanX: 0,
-    sampleIndex: 0,
-    lastY: null as number | null,
+  const localAnimationState = useRef({
     currentBuffer: [] as number[],
     SCROLL_SPEED: 60, // px/s
+    dotPattern: 2, // pixels between dots
+    dotSize: 3
   });
 
+  const isDottedRef = useRef(isDotted);
+  isDottedRef.current = isDotted;
+
   const createPlethBuffer = () => {
-    const spacing = Math.round(animationState.current.SCROLL_SPEED * (60 / 70)); 
+    const spacing = Math.round(localAnimationState.current.SCROLL_SPEED * (60 / 70)); 
     const buffer = new Array(spacing * 3).fill(0); 
     
     for (let i = 0; i < buffer.length; i++) {
@@ -103,7 +116,7 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const state = animationState.current;
+    const state = localAnimationState.current;
     
     // Créer le buffer cyclique
     state.currentBuffer = createPlethBuffer();
@@ -111,49 +124,10 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
     const maxValue = Math.max(...state.currentBuffer);
     const range = maxValue - minValue;
 
-    const drawFrame = () => {
-      // Effacer la colonne actuelle
-      ctx.fillStyle = 'black';
-      ctx.fillRect(state.scanX, 0, 2, height);
-
-      // Dessiner la grille à cette position
-      drawGridColumn(ctx, state.scanX);
-
-      const value = state.currentBuffer[state.sampleIndex % state.currentBuffer.length];
-      
-      // Normaliser et positionner la valeur
-      const normalized = (value - minValue) / range;
-      const topMargin = 5;
-      const bottomMargin = 15;
-      const traceHeight = height - topMargin - bottomMargin;
-      const currentY = topMargin + (1 - normalized) * traceHeight;
-
-      ctx.strokeStyle = "#00bfff";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-
-      if (state.lastY !== null && Math.abs(state.lastY - currentY) > 0.5) {
-        ctx.moveTo(state.scanX, state.lastY);
-        ctx.lineTo(state.scanX, currentY);
-      } else {
-        ctx.moveTo(state.scanX, currentY - 0.5);
-        ctx.lineTo(state.scanX, currentY + 0.5);
-      }
-      ctx.stroke();
-
-      // Mise à jour
-      state.lastY = currentY;
-      state.scanX = (state.scanX + 1) % width;
-      state.sampleIndex++;
-
-      animationRef.current = requestAnimationFrame(drawFrame);
-    };
-
     const drawGridColumn = (ctx: CanvasRenderingContext2D, x: number) => {
       ctx.strokeStyle = "#001122"; 
       ctx.lineWidth = 0.3;
 
-      // Lignes verticales
       if (x % 50 === 0) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -161,13 +135,65 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
         ctx.stroke();
       }
 
-      // Lignes horizontales
       for (let y = 0; y < height; y += 25) {
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + 1, y);
         ctx.stroke();
       }
+    };
+
+    //laisse le tracé précédent visible
+
+    const drawFrame = () => {
+      const currentScanX = animationState?.getScanX() || 0;
+      const currentSampleIndex = animationState?.getSampleIndex() || 0;
+      const currentLastY = animationState?.getLastY() || null;
+
+      // Effacer la colonne actuelle
+      ctx.fillStyle = 'black';
+      ctx.fillRect(currentScanX, 0, 2, height);
+
+      // Dessiner la grille à cette position
+      drawGridColumn(ctx, currentScanX);
+
+      if (isDottedRef.current) {
+        const centerY = height / 2;
+        ctx.strokeStyle = "#00bfff";
+        ctx.lineWidth = 1;       
+        if (currentScanX % state.dotPattern === 0) {
+          ctx.fillStyle = "#00bfff";
+          ctx.fillRect(currentScanX, centerY - state.dotSize/2, state.dotSize, state.dotSize);
+        }
+      } else {
+        const value = state.currentBuffer[currentSampleIndex % state.currentBuffer.length];
+        
+        const normalized = (value - minValue) / range;
+        const topMargin = 5;
+        const bottomMargin = 15;
+        const traceHeight = height - topMargin - bottomMargin;
+        const currentY = topMargin + (1 - normalized) * traceHeight;
+
+        ctx.strokeStyle = "#00bfff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        if (currentLastY !== null && Math.abs(currentLastY - currentY) > 0.5) {
+          ctx.moveTo(currentScanX, currentLastY);
+          ctx.lineTo(currentScanX, currentY);
+        } else {
+          ctx.moveTo(currentScanX, currentY - 0.5);
+          ctx.lineTo(currentScanX, currentY + 0.5);
+        }
+        ctx.stroke();
+
+        animationState?.setLastY(currentY);
+      }
+
+      animationState?.setScanX((currentScanX + 1) % width);
+      animationState?.setSampleIndex(currentSampleIndex + 1);
+
+      animationRef.current = requestAnimationFrame(drawFrame);
     };
 
     drawFrame();

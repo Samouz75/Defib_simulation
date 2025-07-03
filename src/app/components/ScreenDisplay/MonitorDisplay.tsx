@@ -4,6 +4,7 @@ import PlethDisplay from '../graphsdata/PlethDisplay';
 import TimerDisplay from '../TimerDisplay';
 import type { RhythmType } from '../graphsdata/ECGRhythms';
 import { useFVVitalSigns } from '../../hooks/useFVVitalSigns';
+import { usePlethAnimation } from '../../hooks/usePlethAnimation';
 
 interface MonitorDisplayProps {
   rhythmType?: RhythmType;
@@ -31,6 +32,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   isScenario1Completed = false
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
+  const plethAnimation = usePlethAnimation();
   
   // États pour le menu
   const [showMenu, setShowMenu] = useState(false);
@@ -456,7 +458,12 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
 
         {/* Row 5 */}
         <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <PlethDisplay width={800} height={45} />
+          <PlethDisplay 
+            width={800} 
+            height={45} 
+            animationState={plethAnimation} 
+            isDotted={!showVitalSigns}
+          />
         </div>
 
         {/* Row 6 */}
