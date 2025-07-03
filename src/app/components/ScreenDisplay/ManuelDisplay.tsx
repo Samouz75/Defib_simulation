@@ -43,6 +43,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   const [showShockDelivered, setShowShockDelivered] = useState(false);
   const [showCPRMessage, setShowCPRMessage] = useState(false);
   const [fibBlink, setFibBlink] = useState(false);
+  const [showFCValue, setShowFCValue] = useState(false);
+  const [showVitalSigns, setShowVitalSigns] = useState(false);
   const timer1Ref = useRef<NodeJS.Timeout | null>(null);
   const timer2Ref = useRef<NodeJS.Timeout | null>(null);
   const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -146,7 +148,10 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
         {/* Row 2 - Medical Parameters */}
         <div className="text-left h-1/4 border-b border-gray-600 flex items-center gap-8 px-4 text-sm bg-black">
           {/* FC */}
-          <div className="flex flex-col">
+          <div 
+            className="flex flex-col cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
+            onClick={() => setShowFCValue(!showFCValue)}
+          >
             {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') ? (
 
               // Composant clignotant pour les fibrillations
@@ -169,44 +174,58 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             )}
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate}
+                {showFCValue 
+                  ? (rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '0' : rhythmType === 'fibrillationAtriale' ? '--' : heartRate)
+                  : '--'}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
           </div>
-          {/* SpO2 */}
-          <div className="flex flex-col">
-            <div className="flex flex-row items-center gap-x-2">
-              <div className="text-blue-400 text-2xl font-bold">SpO2</div>
-              <div className="text-blue-400 text-xs">%</div>
+          {/* SpO2 et Pouls - Conteneur global avec hover */}
+          <div 
+            className="flex flex-row items-center gap-4 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
+            onClick={() => setShowVitalSigns(!showVitalSigns)}
+          >
+            {/* SpO2 */}
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center gap-x-2">
+                <div className="text-blue-400 text-2xl font-bold">SpO2</div>
+                <div className="text-blue-400 text-xs">%</div>
+              </div>
+              <div className="flex flex-row  gap-x-2">
+                <div className="text-blue-400 text-4xl font-bold -mt-2">
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' 
+                    ? '--' 
+                    : showVitalSigns 
+                      ? '92' 
+                      : '--'}
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-blue-400 text-xs">100</div>
+                  <div className="text-blue-400 text-xs">90</div>
+                </div>
+              </div>
             </div>
+            {/* Pouls */}
             <div className="flex flex-row  gap-x-2">
-              <div className="text-blue-400 text-4xl font-bold -mt-2">
-                {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' ? '--' : '92'}
+              <div className="flex flex-col ">
+                <div className="text-blue-400 text-xs">Pouls</div>
+                <div className="text-blue-400 text-4xl font-bold">
+                  {rhythmType === 'fibrillationVentriculaire' ? '--' 
+                    : rhythmType === 'asystole' ? '0' 
+                    : rhythmType === 'fibrillationAtriale' ? '--' 
+                    : showVitalSigns
+                      ? (isScenario1Completed 
+                          ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
+                          : heartRate)
+                      : '--'}
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                <div className="text-blue-400 text-xs">100</div>
-                <div className="text-blue-400 text-xs">90</div>
+              <div className="flex flex-col ">
+                <div className="text-blue-400 text-xs mb-2">bpm</div>
+                <div className="text-blue-400 text-xs">120</div>
+                <div className="text-blue-400 text-xs">50</div>
               </div>
-            </div>
-          </div>
-          {/* Pouls */}
-          <div className="flex flex-row  gap-x-2">
-            <div className="flex flex-col ">
-              <div className="text-blue-400 text-xs">Pouls</div>
-              <div className="text-blue-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' 
-                  : rhythmType === 'asystole' ? '0' 
-                  : rhythmType === 'fibrillationAtriale' ? '--' 
-                  : isScenario1Completed 
-                    ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
-                    : heartRate}
-              </div>
-            </div>
-            <div className="flex flex-col ">
-              <div className="text-blue-400 text-xs mb-2">bpm</div>
-              <div className="text-blue-400 text-xs">120</div>
-              <div className="text-blue-400 text-xs">50</div>
             </div>
           </div>
         </div>
@@ -216,18 +235,19 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
           <TwoLeadECGDisplay 
             width={800}
             heightPerTrace={65}
-            rhythmType={rhythmType}
+            rhythmType={showFCValue ? rhythmType : 'asystole'}
             showSynchroArrows={showSynchroArrows}
             heartRate={heartRate}
             chargeProgress={chargeProgress}
             shockCount={shockCount}
             frequency={frequency}
+            isDottedAsystole={!showFCValue}
           />
         </div>
 
 
         {/* Row 5 & 6 - Messages and Footer */}
-        <div className="bg-black flex flex-col">
+        <div className="bg-black flex flex-col -mt-2 mb-4">
           <div className="h-6 flex items-center justify-center relative mt-1">
             {isCharged && (
               <div className="bg-white px-2 py-0.5 ">
@@ -246,7 +266,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             )}
           </div>
           
-          <div className="-pt-1 flex items-center justify-between text-white text-xs px-2">
+          <div className="flex items-center justify-between text-white text-xs px-2 mt-1">
             <div className="flex gap-2">
               <div className="bg-gray-500 px-2 py-1  text-xs">
                 <span>Début PNI</span>

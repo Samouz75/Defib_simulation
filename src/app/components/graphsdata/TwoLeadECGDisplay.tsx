@@ -12,6 +12,7 @@ interface TwoLeadECGDisplayProps {
   chargeProgress: number;
   shockCount: number;
   frequency: string;
+  isDottedAsystole?: boolean;
 }
 
 const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
@@ -24,6 +25,7 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   chargeProgress,
   shockCount,
   frequency,
+  isDottedAsystole = false,
 }) => {
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,9 +40,9 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   const lastArrowDrawTimeRef = useRef<number>(0);
   const lastYRefs = useRef<{ top: number | null, bottom: number | null }>({ top: null, bottom: null });
   
-  const propsRef = useRef({ showSynchroArrows, rhythmType, heartRate, durationSeconds });
+  const propsRef = useRef({ showSynchroArrows, rhythmType, heartRate, durationSeconds, isDottedAsystole });
   useEffect(() => {
-    propsRef.current = { showSynchroArrows, rhythmType, heartRate, durationSeconds };
+    propsRef.current = { showSynchroArrows, rhythmType, heartRate, durationSeconds, isDottedAsystole };
   });
 
   // Effect for Data Loading and Peak Pre-computation
@@ -217,26 +219,36 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
         if ( pacingSpikeIndicesRef.current.has(sampleIndex)) {
             drawPacingSpike(activeCtx, x);
         }
-          const value = data[sampleIndex];
-          const currentY = getNormalizedY(value);
-          activeCtx.strokeStyle = "#00ff00";
-          activeCtx.lineWidth = 2;
-          activeCtx.beginPath();
-
-          const lastY = isTopTrace ? lastYRefs.current.top : lastYRefs.current.bottom;
-          if (lastY !== null && x > 0 && x - 1 === ((currentX - 1) % width)) {
-            activeCtx.moveTo(x - 1, lastY);
-            activeCtx.lineTo(x, currentY);
-          } else {
-            activeCtx.moveTo(x, currentY);
-            activeCtx.lineTo(x, currentY);
-          }
-          activeCtx.stroke();
+          const { isDottedAsystole } = propsRef.current;
           
-          if(isTopTrace) {
-            lastYRefs.current.top = currentY;
+          if (isDottedAsystole) {
+            const centerY = heightPerTrace / 2;
+            if (x % 4 === 0) { 
+              activeCtx.fillStyle = "#00ff00";
+              activeCtx.fillRect(x, centerY - 1, 2, 2);
+            }
           } else {
-            lastYRefs.current.bottom = currentY;
+            const value = data[sampleIndex];
+            const currentY = getNormalizedY(value);
+            activeCtx.strokeStyle = "#00ff00";
+            activeCtx.lineWidth = 2;
+            activeCtx.beginPath();
+
+            const lastY = isTopTrace ? lastYRefs.current.top : lastYRefs.current.bottom;
+            if (lastY !== null && x > 0 && x - 1 === ((currentX - 1) % width)) {
+              activeCtx.moveTo(x - 1, lastY);
+              activeCtx.lineTo(x, currentY);
+            } else {
+              activeCtx.moveTo(x, currentY);
+              activeCtx.lineTo(x, currentY);
+            }
+            activeCtx.stroke();
+            
+            if(isTopTrace) {
+              lastYRefs.current.top = currentY;
+            } else {
+              lastYRefs.current.bottom = currentY;
+            }
           }
           
           if (showSynchroArrows && peakCandidateIndicesRef.current.has(sampleIndex)) {
