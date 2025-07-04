@@ -263,6 +263,12 @@ const DefibInterface: React.FC = () => {
     }
   };
 
+  const handleStimulatorStartButton = () => {
+    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+      //do something about scenario 3
+      stimulateurDisplayRef.current.triggerStimulation();
+    }
+  }
   // État pour gérer la logique de rotation du joystick
   const [lastJoystickAngle, setLastJoystickAngle] = useState(0);
   const [joystickRotationThreshold] = useState(30);
@@ -862,6 +868,8 @@ const DefibInterface: React.FC = () => {
                                 handleStimulatorSettingsButton();
                               } else if (i === 3) {
                                 handleStimulatorMenuButton();
+                              } else if (i === 1) {
+                                handleStimulatorStartButton()
                               }
                             }
                             // Bouton en mode Manuel (2ème en partant de la droite = index 2)
@@ -1229,6 +1237,8 @@ const DefibInterface: React.FC = () => {
                             handleStimulatorSettingsButton();
                           } else if (i === 3) {
                             handleStimulatorMenuButton();
+                          } else if (i === 1) {
+                            handleStimulatorStartButton();
                           }
                         }
                         // Bouton en mode Manuel (2ème en partant de la droite = index 2)

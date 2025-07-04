@@ -13,12 +13,14 @@ interface StimulateurDisplayProps {
 export interface StimulateurDisplayRef {
   triggerReglagesStimulateur: () => void;
   triggerMenu: () => void;
+  triggerStimulation: () => void;
   navigateUp: () => void;
   navigateDown: () => void;
   selectCurrentItem: () => void;
   incrementValue: () => void;
   decrementValue: () => void;
   isInValueEditMode: () => boolean;
+  
 }
 
 const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayProps>(({ 
@@ -30,6 +32,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
   const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
+  const [isPacing, setPacing] = useState(false);
 
    
   const [showReglagesStimulateur, setShowReglagesStimulateur] = useState(false);
@@ -60,7 +63,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
     if (showStimulationModeMenu) return menuConfigs.stimMode;
     return [];
   };
-
+  
   // Fonction pour rendre un menu générique
   const renderMenu = (title: string, items: string[], onClose: () => void) => (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
@@ -103,6 +106,10 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
       }
       setShowMenu(!showMenu);
       setSelectedMenuIndex(0); // Reset selection
+    },
+
+    triggerStimulation: () => {
+       setPacing(!isPacing)
     },
     navigateUp: () => {
       const menuItems = getCurrentMenuItems();
@@ -224,7 +231,7 @@ return (
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '30' : heartRate}
+                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '30' : isPacing ? frequenceValue :heartRate}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
@@ -279,9 +286,9 @@ return (
           <ECGDisplay 
             width={800} 
             height={65} 
-            rhythmType={rhythmType} 
+            rhythmType={isPacing ? "electroEntrainement" : rhythmType} 
             showSynchroArrows={showSynchroArrows} 
-            heartRate={heartRate}
+            heartRate={isPacing ? frequenceValue : heartRate}
           />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
             <span>
@@ -323,7 +330,7 @@ return (
               </div>
               <div className="flex items-center gap-2">
               <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
-                <span>Début stimulateur</span>
+                <span>{ isPacing ? "Pause Stimulateur" : "Début Stimulateur"}</span>
               </div>
             </div>
             </div>
