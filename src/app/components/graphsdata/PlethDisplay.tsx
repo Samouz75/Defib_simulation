@@ -4,6 +4,7 @@ interface PlethDisplayProps {
   width?: number;
   height?: number;
   isDotted?: boolean;
+  isFlatLine?: boolean;
   animationState?: {
     getScanX: () => number;
     setScanX: (value: number) => void;
@@ -18,6 +19,7 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
   width = 800, 
   height = 80,
   isDotted = false,
+  isFlatLine = false,
   animationState
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,6 +97,9 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
 
   const isDottedRef = useRef(isDotted);
   isDottedRef.current = isDotted;
+  
+  const isFlatLineRef = useRef(isFlatLine);
+  isFlatLineRef.current = isFlatLine;
 
   const createPlethBuffer = () => {
     const spacing = Math.round(localAnimationState.current.SCROLL_SPEED * (60 / 70)); 
@@ -157,7 +162,16 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
       // Dessiner la grille à cette position
       drawGridColumn(ctx, currentScanX);
 
-      if (isDottedRef.current) {
+      if (isFlatLineRef.current) {
+        // Ligne plate continue pour fibrillation 
+        const centerY = height / 2;
+        ctx.strokeStyle = "#00bfff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(currentScanX, centerY);
+        ctx.lineTo(currentScanX + 1, centerY);
+        ctx.stroke();
+      } else if (isDottedRef.current) {
         const centerY = height / 2;
         ctx.strokeStyle = "#00bfff";
         ctx.lineWidth = 1;       
@@ -203,7 +217,7 @@ const PlethDisplay: React.FC<PlethDisplayProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height]);
+  }, [width, height, isFlatLine]);
 
   return (
     <div className="flex flex-col bg-black rounded w-full">
