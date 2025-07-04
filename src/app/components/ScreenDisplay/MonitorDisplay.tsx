@@ -15,7 +15,10 @@ interface MonitorDisplayProps {
   frequency?: string;
   chargeProgress?: number;
   shockCount?: number;
+  showFCValue?: boolean;
+  showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
+  onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
 }
 
 export interface MonitorDisplayRef {
@@ -37,7 +40,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   frequency = '50',
   chargeProgress = 0,
   shockCount = 0,
-  onShowFCValueChange
+  showFCValue = false,
+  showVitalSigns = false,
+  onShowFCValueChange,
+  onShowVitalSignsChange
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   const plethAnimation = usePlethAnimation();
@@ -56,8 +62,6 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [selectedFrequencePNI, setSelectedFrequencePNI] = useState('Manuel');
   const [frequencePNIStartIndex, setFrequencePNIStartIndex] = useState(0);
   const [showPNIValues, setShowPNIValues] = useState(false);
-  const [showVitalSigns, setShowVitalSigns] = useState(false);
-  const [showFCValue, setShowFCValue] = useState(false);
 
   // Configuration du menu
   const menuConfigs = {
@@ -316,7 +320,6 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             className="flex flex-col items-center w-24 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
             onClick={() => {
               const newValue = !showFCValue;
-              setShowFCValue(newValue);
               if (onShowFCValueChange) {
                 onShowFCValueChange(newValue);
               }
@@ -344,7 +347,11 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           {/* SpO2 et Pouls - Conteneur global avec hover  */}
           <div 
             className="flex flex-row items-center gap-4  cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
-            onClick={() => setShowVitalSigns(!showVitalSigns)}
+            onClick={() => {
+              if (onShowVitalSignsChange) {
+                onShowVitalSignsChange(!showVitalSigns);
+              }
+            }}
           >
             {/* SpO2 */}
             <div className="flex flex-col items-center w-28">

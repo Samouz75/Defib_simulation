@@ -17,7 +17,10 @@ interface ManuelDisplayProps {
   isScenario4?: boolean; 
   onDelayedShock?: () => void; // callback pour le choc retardé
   isScenario1Completed?: boolean;
+  showFCValue?: boolean;
+  showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
+  onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
 }
 
 export interface ManuelDisplayRef {
@@ -39,14 +42,15 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   isScenario4 = false,
   onDelayedShock,
   isScenario1Completed = false,
-  onShowFCValueChange
+  showFCValue = false,
+  showVitalSigns = false,
+  onShowFCValueChange,
+  onShowVitalSignsChange
 }, ref) => {
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
   const [showCPRMessage, setShowCPRMessage] = useState(false);
   const [fibBlink, setFibBlink] = useState(false);
-  const [showFCValue, setShowFCValue] = useState(false);
-  const [showVitalSigns, setShowVitalSigns] = useState(false);
   const timer1Ref = useRef<NodeJS.Timeout | null>(null);
   const timer2Ref = useRef<NodeJS.Timeout | null>(null);
   const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -154,7 +158,6 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             className="flex flex-col cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
             onClick={() => {
               const newValue = !showFCValue;
-              setShowFCValue(newValue);
               if (onShowFCValueChange) {
                 onShowFCValueChange(newValue);
               }
@@ -192,7 +195,11 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
           {/* SpO2 et Pouls - Conteneur global avec hover */}
           <div 
             className="flex flex-row items-center gap-4 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
-            onClick={() => setShowVitalSigns(!showVitalSigns)}
+            onClick={() => {
+              if (onShowVitalSignsChange) {
+                onShowVitalSignsChange(!showVitalSigns);
+              }
+            }}
           >
             {/* SpO2 */}
             <div className="flex flex-col">

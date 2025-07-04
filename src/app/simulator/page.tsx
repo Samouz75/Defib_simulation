@@ -83,13 +83,26 @@ const DefibInterface: React.FC = () => {
   
   const [showRhythmInMonitor, setShowRhythmInMonitor] = useState(false);
   const [showRhythmInManual, setShowRhythmInManual] = useState(false);
+  
+  const [showMonitorFCValue, setShowMonitorFCValue] = useState(false);
+  const [showMonitorVitalSigns, setShowMonitorVitalSigns] = useState(false);
 
   const handleMonitorFCValueChange = (showFCValue: boolean) => {
     setShowRhythmInMonitor(showFCValue);
+    setShowMonitorFCValue(showFCValue);
+  };
+
+  const handleMonitorVitalSignsChange = (showVitalSigns: boolean) => {
+    setShowMonitorVitalSigns(showVitalSigns);
   };
 
   const handleManualFCValueChange = (showFCValue: boolean) => {
     setShowRhythmInManual(showFCValue);
+    setShowMonitorFCValue(showFCValue);
+  };
+
+  const handleManualVitalSignsChange = (showVitalSigns: boolean) => {
+    setShowMonitorVitalSigns(showVitalSigns);
   };
 
   // Références pour les timers de boot
@@ -684,7 +697,10 @@ const DefibInterface: React.FC = () => {
               heartRate={scenario.heartRate}
               isScenario4={scenario.currentScenario === 'scenario_4'}
               isScenario1Completed={scenario.isScenario1Completed}
+              showFCValue={showMonitorFCValue}
+              showVitalSigns={showMonitorVitalSigns}
               onShowFCValueChange={handleMonitorFCValueChange}
+              onShowVitalSignsChange={handleMonitorVitalSignsChange}
             />
             {showRhythmInMonitor && (
               <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
@@ -740,7 +756,10 @@ const DefibInterface: React.FC = () => {
               isScenario4={scenario.currentScenario === 'scenario_4'}
               onDelayedShock={handleDelayedShock}
               isScenario1Completed={scenario.isScenario1Completed}
+              showFCValue={showMonitorFCValue}
+              showVitalSigns={showMonitorVitalSigns}
               onShowFCValueChange={handleManualFCValueChange}
+              onShowVitalSignsChange={handleManualVitalSignsChange}
             />
             {showRhythmInManual && (
               <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
@@ -775,7 +794,10 @@ const DefibInterface: React.FC = () => {
             rhythmType={effectiveRhythm}
             heartRate={scenario.heartRate}
             isScenario4={scenario.currentScenario === 'scenario_4'}
+            showFCValue={showMonitorFCValue}
+            showVitalSigns={showMonitorVitalSigns}
             onShowFCValueChange={handleMonitorFCValueChange}
+            onShowVitalSignsChange={handleMonitorVitalSignsChange}
           />
         );
     }
