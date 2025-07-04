@@ -15,6 +15,7 @@ interface MonitorDisplayProps {
   frequency?: string;
   chargeProgress?: number;
   shockCount?: number;
+  onShowFCValueChange?: (showFCValue: boolean) => void;
 }
 
 export interface MonitorDisplayRef {
@@ -35,7 +36,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   isScenario1Completed = false,
   frequency = '50',
   chargeProgress = 0,
-  shockCount = 0
+  shockCount = 0,
+  onShowFCValueChange
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   const plethAnimation = usePlethAnimation();
@@ -312,7 +314,13 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           {/* FC (Fréquence Cardiaque) */}
           <div 
             className="flex flex-col items-center w-24 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
-            onClick={() => setShowFCValue(!showFCValue)}
+            onClick={() => {
+              const newValue = !showFCValue;
+              setShowFCValue(newValue);
+              if (onShowFCValueChange) {
+                onShowFCValueChange(newValue);
+              }
+            }}
           >
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-gray-400 text-xs">FC</div>
@@ -461,6 +469,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             shockCount={shockCount}
             isDottedAsystole={!showFCValue}
             showDefibrillatorInfo={false}
+            showRhythmText={false}
           />
         </div>
 

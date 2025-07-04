@@ -80,6 +80,17 @@ const DefibInterface: React.FC = () => {
   const [showValidationPopup, setShowValidationPopup] = useState(false);
   
   const [isShockButtonBlinking, setIsShockButtonBlinking] = useState(false);
+  
+  const [showRhythmInMonitor, setShowRhythmInMonitor] = useState(false);
+  const [showRhythmInManual, setShowRhythmInManual] = useState(false);
+
+  const handleMonitorFCValueChange = (showFCValue: boolean) => {
+    setShowRhythmInMonitor(showFCValue);
+  };
+
+  const handleManualFCValueChange = (showFCValue: boolean) => {
+    setShowRhythmInManual(showFCValue);
+  };
 
   // Références pour les timers de boot
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -578,6 +589,8 @@ const DefibInterface: React.FC = () => {
   useEffect(() => {
     defibrillator.stopCharging();
     setIsShockButtonBlinking(false); // Arrêter le clignotement si on change de mode
+    setShowRhythmInMonitor(false);
+    setShowRhythmInManual(false);
   }, [defibrillator.displayMode]);
 
   // Reset de la validation des électrodes au début de chaque scénario
@@ -586,6 +599,8 @@ const DefibInterface: React.FC = () => {
       electrodeValidation.resetElectrodeValidation();
     } else {
       setIsShockButtonBlinking(false); // Arrêter le clignotement si le scénario s'arrête
+      setShowRhythmInMonitor(false);
+      setShowRhythmInManual(false);
     }
   }, [scenario.currentScenario]);
 
@@ -623,7 +638,7 @@ const DefibInterface: React.FC = () => {
       );
     }
 
-    if (defibrillator.displayMode !== "ARRET" && defibrillator.displayMode !== "DAE" && !electrodeValidation.isElectrodeValidated) {
+    if (defibrillator.displayMode === "DAE" && !electrodeValidation.isElectrodeValidated) {
       return (
         <ElectrodeValidationOverlay
           onValidate={electrodeValidation.validateElectrodes}
@@ -669,29 +684,32 @@ const DefibInterface: React.FC = () => {
               heartRate={scenario.heartRate}
               isScenario4={scenario.currentScenario === 'scenario_4'}
               isScenario1Completed={scenario.isScenario1Completed}
+              onShowFCValueChange={handleMonitorFCValueChange}
             />
-            <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
-              <span>
-                {effectiveRhythm === "fibrillationVentriculaire" &&
-                scenario.currentScenario === "scenario_4"
-                  ? "ACFA - 160/min"
-                  : effectiveRhythm === "fibrillationVentriculaire"
-                    ? "Fibrillation ventriculaire"
-                    : effectiveRhythm === "asystole"
-                      ? "Asystolie"
-                      : effectiveRhythm === "tachycardieVentriculaire"
-                        ? "Tachycardie"
-                        : effectiveRhythm === "fibrillationAtriale"
-                          ? "Fibrillation atriale"
-                              : effectiveRhythm === "sinus"
-                                ? "Rythme sinusal"
-                                : effectiveRhythm === "bav1"
-                                  ? "BAV 1"
-                                  : effectiveRhythm === "bav3"
-                                    ? "BAV 3"
-                                    : "--"}
-              </span>
-            </div>
+            {showRhythmInMonitor && (
+              <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
+                <span>
+                  {effectiveRhythm === "fibrillationVentriculaire" &&
+                  scenario.currentScenario === "scenario_4"
+                    ? "ACFA - 160/min"
+                    : effectiveRhythm === "fibrillationVentriculaire"
+                      ? "Fibrillation ventriculaire"
+                      : effectiveRhythm === "asystole"
+                        ? "Asystolie"
+                        : effectiveRhythm === "tachycardieVentriculaire"
+                          ? "Tachycardie"
+                          : effectiveRhythm === "fibrillationAtriale"
+                            ? "Fibrillation atriale"
+                                : effectiveRhythm === "sinus"
+                                  ? "Rythme sinusal"
+                                  : effectiveRhythm === "bav1"
+                                    ? "BAV 1"
+                                    : effectiveRhythm === "bav3"
+                                      ? "BAV 3"
+                                      : "--"}
+                </span>
+              </div>
+            )}
           </div>
         );
       case "Stimulateur":
@@ -706,22 +724,49 @@ const DefibInterface: React.FC = () => {
         );
       case "Manuel":
         return (
-          <ManuelDisplay
-            ref={manuelDisplayRef}
-            frequency={defibrillator.manualFrequency}
-            chargeProgress={defibrillator.chargeProgress}
-            shockCount={defibrillator.shockCount}
-            isCharging={defibrillator.isCharging}
-            rhythmType={effectiveRhythm}
-            showSynchroArrows={defibrillator.isSynchroMode}
-            heartRate={scenario.heartRate}
-            isCharged={defibrillator.isCharged}
-            onCancelCharge={defibrillator.cancelCharge}
-            displayMode={defibrillator.displayMode}
-            isScenario4={scenario.currentScenario === 'scenario_4'}
-            onDelayedShock={handleDelayedShock}
-            isScenario1Completed={scenario.isScenario1Completed}
-          />
+          <div className="relative w-full h-full">
+            <ManuelDisplay
+              ref={manuelDisplayRef}
+              frequency={defibrillator.manualFrequency}
+              chargeProgress={defibrillator.chargeProgress}
+              shockCount={defibrillator.shockCount}
+              isCharging={defibrillator.isCharging}
+              rhythmType={effectiveRhythm}
+              showSynchroArrows={defibrillator.isSynchroMode}
+              heartRate={scenario.heartRate}
+              isCharged={defibrillator.isCharged}
+              onCancelCharge={defibrillator.cancelCharge}
+              displayMode={defibrillator.displayMode}
+              isScenario4={scenario.currentScenario === 'scenario_4'}
+              onDelayedShock={handleDelayedShock}
+              isScenario1Completed={scenario.isScenario1Completed}
+              onShowFCValueChange={handleManualFCValueChange}
+            />
+            {showRhythmInManual && (
+              <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
+                <span>
+                  {effectiveRhythm === "fibrillationVentriculaire" &&
+                  scenario.currentScenario === "scenario_4"
+                    ? "ACFA - 160/min"
+                    : effectiveRhythm === "fibrillationVentriculaire"
+                      ? "Fibrillation ventriculaire"
+                      : effectiveRhythm === "asystole"
+                        ? "Asystolie"
+                        : effectiveRhythm === "tachycardieVentriculaire"
+                          ? "Tachycardie"
+                          : effectiveRhythm === "fibrillationAtriale"
+                            ? "Fibrillation atriale"
+                                : effectiveRhythm === "sinus"
+                                  ? "Rythme sinusal"
+                                  : effectiveRhythm === "bav1"
+                                    ? "BAV 1"
+                                    : effectiveRhythm === "bav3"
+                                      ? "BAV 3"
+                                      : "--"}
+                </span>
+              </div>
+            )}
+          </div>
         );
       default:
         return (
@@ -730,6 +775,7 @@ const DefibInterface: React.FC = () => {
             rhythmType={effectiveRhythm}
             heartRate={scenario.heartRate}
             isScenario4={scenario.currentScenario === 'scenario_4'}
+            onShowFCValueChange={handleMonitorFCValueChange}
           />
         );
     }

@@ -14,6 +14,7 @@ interface TwoLeadECGDisplayProps {
   frequency: string;
   isDottedAsystole?: boolean;
   showDefibrillatorInfo?: boolean;
+  showRhythmText?: boolean;
 }
 
 const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
@@ -28,6 +29,7 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   frequency,
   isDottedAsystole = false,
   showDefibrillatorInfo = true,
+  showRhythmText = true,
 }) => {
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -274,7 +276,7 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
         <canvas ref={topCanvasRef} width={width} height={heightPerTrace} className="w-full" style={{ imageRendering: "pixelated", height: `${heightPerTrace}px` }} />
       </div>
       <div className="w-full px-4 py-2">
-        {showDefibrillatorInfo && (
+        {showDefibrillatorInfo && showRhythmText && (
           <div className="w-full text-xs font-bold text-green-400 text-right">
             <span>
               {rhythmType === 'fibrillationVentriculaire' ? 'Fibrillation ventriculaire' : 

@@ -17,6 +17,7 @@ interface ManuelDisplayProps {
   isScenario4?: boolean; 
   onDelayedShock?: () => void; // callback pour le choc retardé
   isScenario1Completed?: boolean;
+  onShowFCValueChange?: (showFCValue: boolean) => void;
 }
 
 export interface ManuelDisplayRef {
@@ -37,7 +38,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   displayMode,
   isScenario4 = false,
   onDelayedShock,
-  isScenario1Completed = false
+  isScenario1Completed = false,
+  onShowFCValueChange
 }, ref) => {
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
@@ -150,7 +152,13 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
           {/* FC */}
           <div 
             className="flex flex-col cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
-            onClick={() => setShowFCValue(!showFCValue)}
+            onClick={() => {
+              const newValue = !showFCValue;
+              setShowFCValue(newValue);
+              if (onShowFCValueChange) {
+                onShowFCValueChange(newValue);
+              }
+            }}
           >
             {(rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale') ? (
 
@@ -242,6 +250,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             shockCount={shockCount}
             frequency={frequency}
             isDottedAsystole={!showFCValue}
+            showDefibrillatorInfo={true}
+            showRhythmText={false}
           />
         </div>
 
