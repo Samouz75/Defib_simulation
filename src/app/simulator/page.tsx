@@ -670,7 +670,7 @@ const DefibInterface: React.FC = () => {
               isScenario4={scenario.currentScenario === 'scenario_4'}
               isScenario1Completed={scenario.isScenario1Completed}
             />
-            <div className="absolute top-[52.5%] right-4 text-xs font-bold text-green-400 mt-3">
+            <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
               <span>
                 {effectiveRhythm === "fibrillationVentriculaire" &&
                 scenario.currentScenario === "scenario_4"

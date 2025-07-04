@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
-import ECGDisplay from '../graphsdata/ECGDisplay';
+import TwoLeadECGDisplay from '../graphsdata/TwoLeadECGDisplay';
 import PlethDisplay from '../graphsdata/PlethDisplay';
 import TimerDisplay from '../TimerDisplay';
 import type { RhythmType } from '../graphsdata/ECGRhythms';
@@ -12,6 +12,9 @@ interface MonitorDisplayProps {
   heartRate?: number; 
   isScenario4?: boolean;
   isScenario1Completed?: boolean;
+  frequency?: string;
+  chargeProgress?: number;
+  shockCount?: number;
 }
 
 export interface MonitorDisplayRef {
@@ -29,7 +32,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   showSynchroArrows = false,
   heartRate = 70,
   isScenario4 = false,
-  isScenario1Completed = false
+  isScenario1Completed = false,
+  frequency = '50',
+  chargeProgress = 0,
+  shockCount = 0
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   const plethAnimation = usePlethAnimation();
@@ -443,25 +449,22 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
           </div>
         </div>
 
-        {/* Row 3 - ECG Display avec rythme dynamique et flèches synchro */}
-        <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">
-          <ECGDisplay 
-            width={800} 
-            height={65} 
-            rhythmType={showFCValue ? rhythmType : 'asystole'} 
+        <div className="flex-grow border-b border-gray-600 flex flex-col bg-black">
+          <TwoLeadECGDisplay 
+            width={800}
+            heightPerTrace={45}
+            rhythmType={showFCValue ? rhythmType : 'asystole'}
             showSynchroArrows={showSynchroArrows}
             heartRate={heartRate}
-            durationSeconds={7}
+            frequency={frequency}
+            chargeProgress={chargeProgress}
+            shockCount={shockCount}
             isDottedAsystole={!showFCValue}
+            showDefibrillatorInfo={false}
           />
         </div>
 
-        {/* Row  4*/}
-        <div className="h-1/6 border-b border-gray-600 flex items-center justify-between px-4 text-blue-400 text-sm bg-black">
-          <div className="h-1/6 border-b border-gray-600 flex items-center justify-center text-green-400 text-sm bg-gray-900">
-            <div className="flex items-center gap-2"></div>
-          </div>
-        </div>
+
 
         {/* Row 5 */}
         <div className="h-1/5 border-b border-gray-600 flex flex-col items-center justify-start text-green-400 text-sm bg-black ">

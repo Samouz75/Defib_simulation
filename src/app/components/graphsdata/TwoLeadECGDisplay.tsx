@@ -13,6 +13,7 @@ interface TwoLeadECGDisplayProps {
   shockCount: number;
   frequency: string;
   isDottedAsystole?: boolean;
+  showDefibrillatorInfo?: boolean;
 }
 
 const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
@@ -26,6 +27,7 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   shockCount,
   frequency,
   isDottedAsystole = false,
+  showDefibrillatorInfo = true,
 }) => {
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -271,32 +273,36 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
       <div className="w-full">
         <canvas ref={topCanvasRef} width={width} height={heightPerTrace} className="w-full" style={{ imageRendering: "pixelated", height: `${heightPerTrace}px` }} />
       </div>
-      <div className="w-full px-4 py-1">
-        <div className="w-full text-xs font-bold text-green-400 text-right">
-          <span>
-            {rhythmType === 'fibrillationVentriculaire' ? 'Fibrillation ventriculaire' : 
-             rhythmType === 'asystole' ? 'Asystolie' : 'Rythme sinusal'}
-          </span>
-        </div>
-        <div className="w-full flex justify-start items-center gap-4 text-xs font-bold text-white">
-          <div className="text-left">
-            <span>RCP :</span>
+      <div className="w-full px-4 py-2">
+        {showDefibrillatorInfo && (
+          <div className="w-full text-xs font-bold text-green-400 text-right">
+            <span>
+              {rhythmType === 'fibrillationVentriculaire' ? 'Fibrillation ventriculaire' : 
+               rhythmType === 'asystole' ? 'Asystolie' : 'Rythme sinusal'}
+            </span>
           </div>
-          <div className="w-24 h-3 bg-gray-600 rounded">
-            <div
-              className={`h-full bg-red-500 rounded transition-all duration-100 ${
-                chargeProgress === 100 ? "animate-pulse" : ""
-              }`}
-              style={{ width: `${chargeProgress}%` }}
-            />
+        )}
+        {showDefibrillatorInfo && (
+          <div className="w-full flex justify-start items-center gap-4 text-xs font-bold text-white">
+            <div className="text-left">
+              <span>RCP :</span>
+            </div>
+            <div className="w-24 h-3 bg-gray-600 rounded">
+              <div
+                className={`h-full bg-red-500 rounded transition-all duration-100 ${
+                  chargeProgress === 100 ? "animate-pulse" : ""
+                }`}
+                style={{ width: `${chargeProgress}%` }}
+              />
+            </div>
+            <div className="text-center ml-auto">
+              <span>Chocs : {shockCount}</span>
+            </div>
+            <div className="text-right ml-auto">
+              <span>Energie sélectionnée : {frequency} joules</span>
+            </div>
           </div>
-          <div className="text-center ml-auto">
-            <span>Chocs : {shockCount}</span>
-          </div>
-          <div className="text-right ml-auto">
-            <span>Energie sélectionnée : {frequency} joules</span>
-          </div>
-        </div>
+        )}
       </div>
       <div className="w-full">
         <canvas ref={bottomCanvasRef} width={width} height={heightPerTrace} className="w-full" style={{ imageRendering: "pixelated", height: `${heightPerTrace}px` }} />
