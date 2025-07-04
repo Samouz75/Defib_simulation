@@ -363,10 +363,10 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
               {/* SpO2 Value */}
               <div className="flex flex-row items-center gap-x-2">
                 <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center -mt-2">
-                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' 
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'tachycardieVentriculaire' || rhythmType === 'asystole'
                     ? '--' 
                     : showVitalSigns 
-                      ? '92' 
+                      ? (rhythmType === 'fibrillationAtriale' ? '95' : '92')
                       : '--'}
                 </div>
                 <div className="flex flex-col items-center w-8">
@@ -381,10 +381,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
               <div className="flex flex-col items-center">
                 <div className="text-blue-400 text-xs">Pouls</div>
                 <div className="text-blue-400 text-4xl font-bold min-w-[60px] text-center">
-                  {rhythmType === 'fibrillationVentriculaire' || (rhythmType === 'fibrillationAtriale' && !isScenario4) 
-                    ? '-?-' 
-                    : rhythmType === 'asystole' 
-                      ? '0' 
+                  {rhythmType === 'fibrillationVentriculaire' || rhythmType === 'tachycardieVentriculaire' || rhythmType === 'asystole' || (rhythmType === 'fibrillationAtriale' && !isScenario4) 
+                    ? '--' 
                       : showVitalSigns
                         ? (isScenario1Completed 
                             ? Math.max(0, heartRate + (heartRate >= 75 ? -3 : +2)) // FC ± 5
@@ -489,7 +487,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             height={45} 
             animationState={plethAnimation} 
             isDotted={!showVitalSigns}
-            isFlatLine={rhythmType === 'fibrillationVentriculaire' && showVitalSigns || rhythmType === 'fibrillationAtriale' && showVitalSigns}
+            isFlatLine={rhythmType === 'fibrillationVentriculaire' && showVitalSigns  || rhythmType === 'tachycardieVentriculaire' && showVitalSigns || rhythmType === 'asystole' && showVitalSigns}
           />
         </div>
 
