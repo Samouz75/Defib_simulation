@@ -617,6 +617,14 @@ const DefibInterface: React.FC = () => {
     }
   }, [scenario.currentScenario]);
 
+  useEffect(() => {
+    if (defibrillator.isCharged) {
+      setIsShockButtonBlinking(true);
+    } else {
+      setIsShockButtonBlinking(false);
+    }
+  }, [defibrillator.isCharged]);
+
   // Gérer la validation depuis le popup
   const handleValidateFromPopup = () => {
     scenario.handleManualValidation();
@@ -1408,9 +1416,11 @@ const DefibInterface: React.FC = () => {
                   className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${
                     defibrillator.isShockButtonPressed
                       ? "scale-95 bg-orange-300 border-orange-200"
-                      : defibrillator.selectedChannel === 3
-                        ? "bg-orange-400 border-orange-300 shadow-lg"
-                        : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                      : isShockButtonBlinking
+                        ? "bg-orange-500 border-orange-400 shadow-lg animate-pulse"
+                        : defibrillator.selectedChannel === 3
+                          ? "bg-orange-400 border-orange-300 shadow-lg"
+                          : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
                   }`}
                   onClick={handleShockButtonClick}
                 >
@@ -1418,13 +1428,15 @@ const DefibInterface: React.FC = () => {
                     className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${
                       defibrillator.isShockButtonPressed
                         ? "from-orange-300 to-orange-400"
-                        : defibrillator.displayMode === "DAE" &&
-                            daePhase === "attente_choc"
-                              ? "from-orange-400 to-orange-500"
-                              : defibrillator.displayMode === "DAE" &&
-                                  daePhase !== "attente_choc"
-                                ? "from-gray-400 to-gray-500"
-                                : "from-orange-400 to-orange-500"
+                        : isShockButtonBlinking
+                          ? "from-orange-400 to-orange-500"
+                          : defibrillator.displayMode === "DAE" &&
+                              daePhase === "attente_choc"
+                                ? "from-orange-400 to-orange-500"
+                                : defibrillator.displayMode === "DAE" &&
+                                    daePhase !== "attente_choc"
+                                  ? "from-gray-400 to-gray-500"
+                                  : "from-orange-400 to-orange-500"
                     }`}
                   >
                     <div className="absolute left-2">
