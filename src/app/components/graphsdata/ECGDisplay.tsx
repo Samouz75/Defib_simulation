@@ -9,6 +9,8 @@ interface ECGDisplayProps {
   heartRate?: number;
   durationSeconds?: number;
   isDottedAsystole?: boolean;
+  scanPosition?: number;
+  onScanPositionChange?: (position: number) => void;
 }
 
 const ECGDisplay: React.FC<ECGDisplayProps> = ({
@@ -19,6 +21,8 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
   heartRate = 70, 
   durationSeconds = 7,
   isDottedAsystole = false,
+  scanPosition,
+  onScanPositionChange,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -103,8 +107,8 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     
-    // Reset animation state only when this effect re-runs (e.g., on resize)
-    scanAccumulatorRef.current = 0;
+    // Utiliser la position initiale du scan si fournie, sinon commencer à zéro
+    scanAccumulatorRef.current = scanPosition || 0;
     lastFrameTimeRef.current = 0;
     lastArrowDrawTimeRef.current = 0;
     lastYRef.current = null;
@@ -168,6 +172,53 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
     ctx.fillRect(0, 0, width, height);
     for (let x = 0; x < width; x++) {
         drawGridColumn(x);
+    }
+
+    // Pré-remplir le canvas avec le tracé correspondant à la position actuelle du scan
+    const data = dataRef.current;
+    if (data.length > 0 && scanAccumulatorRef.current > 0) {
+      const { isDottedAsystole } = propsRef.current;
+      const samplingRate = 250;
+      const pixelsPerSecond = width / durationSeconds;
+      const samplesOnScreen = durationSeconds * samplingRate;
+      const samplesPerPixel = samplesOnScreen / width;
+      const currentScanPosition = scanAccumulatorRef.current;
+      
+      let lastY = null;
+      
+      for (let x = 0; x < width; x++) {
+        const currentX = currentScanPosition - width + x;
+        
+        const windowOffset = Math.floor(currentX - (currentX % width)); 
+        const startSampleOfWindow = Math.floor(windowOffset * samplesPerPixel);
+        const sampleInWindow = Math.floor((currentX % width) * samplesPerPixel);
+        const sampleIndex = (startSampleOfWindow + sampleInWindow) % data.length;
+        
+        if (sampleIndex >= 0) {
+          if (isDottedAsystole) {
+            const centerY = height / 2;
+            if (x % 4 === 0) {
+              ctx.fillStyle = "#00ff00";
+              ctx.fillRect(x, centerY - 1, 2, 2);
+            }
+          } else {
+            const value = data[sampleIndex];
+            const currentY = getNormalizedY(value);
+            
+            // Dessiner la ligne continue
+            if (lastY !== null) {
+              ctx.strokeStyle = "#00ff00";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(x - 1, lastY);
+              ctx.lineTo(x, currentY);
+              ctx.stroke();
+            }
+            
+            lastY = currentY;
+          }
+        }
+      }
     }
 
     const drawFrame = (currentTime: number) => {
@@ -261,8 +312,25 @@ const ECGDisplay: React.FC<ECGDisplayProps> = ({
 
     animationRef.current = requestAnimationFrame(drawFrame);
 
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [width, height]);
+    return () => {
+      // Sauvegarder la position actuelle du scan avant de démonter
+      if (onScanPositionChange) {
+        onScanPositionChange(scanAccumulatorRef.current);
+      }
+      cancelAnimationFrame(animationRef.current);
+    };
+  }, [width, height, onScanPositionChange]);
+
+  // Effet pour sauvegarder la position périodiquement
+  useEffect(() => {
+    if (!onScanPositionChange) return;
+    
+    const interval = setInterval(() => {
+      onScanPositionChange(scanAccumulatorRef.current);
+    }, 100); // Sauvegarder toutes les 100ms
+    
+    return () => clearInterval(interval);
+  }, [onScanPositionChange]);
 
   return (
     <div className="flex flex-col bg-black rounded w-full">

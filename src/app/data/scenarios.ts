@@ -11,11 +11,10 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_1',
     title: 'Scénario 1 - Fibrillation ventriculaire',
-    description: 'Vous êtes aux urgences. Un homme de 62 ans, aux antécédents de diabète, hypertension artérielle, est installé dans un box pour douleur thoracique typique depuis 2h. Durant l\'examen le patient est inconscient et ne respire pas. L\'alerte est donnée et le chariot d\'urgence est amené au lit du malade qui présente un arrêt cardio-respiratoire. Le massage cardiaque externe est débuté. Vous devez utiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.',
+    description: 'Vous êtes aux urgences. Un homme de 62 ans, aux antécédents de diabète, hypertension artérielle, est installé dans un box pour douleur thoracique typique depuis 2h. Lorsque vous l\'examinez, le patient est inconscient et ne respire pas. L\'alerte est donnée et le chariot d\'urgence est amené au lit du malade qui présente un arrêt cardio-respiratoire. Le massage cardiaque externe est débuté et vous posez les electrodes sur le torse du patient. Vous demandez l\'arrêt du massage cardiaque externe le temps de l\'analyse du rythme et vous devez utiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.',
     objectives: [
-      'Connecter les électrodes et vérifier le bon positionnement sur le torse',
       'Allumer le défibrillateur en position moniteur',
-      'Lire le rythme et arrêter le massage pour analyser le rythme (FV)',
+      'Lire le rythme et arrêter le massage l\'analyser (FV)',
       'Positionner la molette verte sur 150 joules',
       'Appuyer sur le bouton jaune pour charger',
       'Délivrer le choc en appuyant sur le bouton orange'

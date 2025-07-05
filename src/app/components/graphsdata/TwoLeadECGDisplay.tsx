@@ -15,6 +15,8 @@ interface TwoLeadECGDisplayProps {
   isDottedAsystole?: boolean;
   showDefibrillatorInfo?: boolean;
   showRhythmText?: boolean;
+  scanPosition?: number; // Position initiale du scan
+  onScanPositionChange?: (position: number) => void; // Callback pour sauvegarder la position
 }
 
 const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
@@ -30,6 +32,8 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
   isDottedAsystole = false,
   showDefibrillatorInfo = true,
   showRhythmText = true,
+  scanPosition,
+  onScanPositionChange,
 }) => {
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottomCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -113,7 +117,8 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
     const bottomCtx = bottomCanvas.getContext('2d');
     if (!topCtx || !bottomCtx) return;
     
-    scanAccumulatorRef.current = 0;
+    // Utiliser la position initiale du scan si fournie, sinon commencer à zéro
+    scanAccumulatorRef.current = scanPosition || 0;
     lastFrameTimeRef.current = 0;
     lastArrowDrawTimeRef.current = 0;
     lastYRefs.current = { top: null, bottom: null };
@@ -179,6 +184,58 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
     for (let x = 0; x < width; x++) {
         drawGridColumn(topCtx, x);
         drawGridColumn(bottomCtx, x);
+    }
+
+    // Pré-remplir les canvas avec le tracé correspondant à la position actuelle du scan
+    const data = dataRef.current;
+    if (data.length > 0 && scanAccumulatorRef.current > 0) {
+      const { durationSeconds, isDottedAsystole } = propsRef.current;
+      const samplingRate = 250;
+      const pixelsPerSecond = width / durationSeconds;
+      const totalTraceLength = width * 2;
+      
+      const currentScanPosition = scanAccumulatorRef.current;
+      
+      // Dessiner le tracé pour chaque canvas séparément
+      for (let canvasIndex = 0; canvasIndex < 2; canvasIndex++) {
+        const activeCtx = canvasIndex === 0 ? topCtx : bottomCtx;
+        const canvasOffset = canvasIndex * width;
+        
+        let lastY = null;
+        
+        for (let x = 0; x < width; x++) {
+          const pixelInTotalTape = (currentScanPosition - totalTraceLength + canvasOffset + x) % totalTraceLength;
+          const adjustedPixel = pixelInTotalTape >= 0 ? pixelInTotalTape : totalTraceLength + pixelInTotalTape;
+          
+          const timeAtPixel = adjustedPixel / pixelsPerSecond;
+          const sampleIndex = Math.floor(timeAtPixel * samplingRate) % data.length;
+          
+          if (sampleIndex >= 0) {
+            if (isDottedAsystole) {
+              const centerY = heightPerTrace / 2;
+              if (x % 4 === 0) {
+                activeCtx.fillStyle = "#00ff00";
+                activeCtx.fillRect(x, centerY - 1, 2, 2);
+              }
+            } else {
+              const value = data[sampleIndex];
+              const currentY = getNormalizedY(value);
+              
+              // Dessiner la ligne continue
+              if (lastY !== null) {
+                activeCtx.strokeStyle = "#00ff00";
+                activeCtx.lineWidth = 2;
+                activeCtx.beginPath();
+                activeCtx.moveTo(x - 1, lastY);
+                activeCtx.lineTo(x, currentY);
+                activeCtx.stroke();
+              }
+              
+              lastY = currentY;
+            }
+          }
+        }
+      }
     }
 
     const drawFrame = (currentTime: number) => {
@@ -267,8 +324,25 @@ const TwoLeadECGDisplay: React.FC<TwoLeadECGDisplayProps> = ({
 
     animationRef.current = requestAnimationFrame(drawFrame);
 
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [width, heightPerTrace]);
+    return () => {
+      // Sauvegarder la position actuelle du scan avant de démonter
+      if (onScanPositionChange) {
+        onScanPositionChange(scanAccumulatorRef.current);
+      }
+      cancelAnimationFrame(animationRef.current);
+    };
+  }, [width, heightPerTrace, onScanPositionChange]);
+
+  // Effet pour sauvegarder la position périodiquement
+  useEffect(() => {
+    if (!onScanPositionChange) return;
+    
+    const interval = setInterval(() => {
+      onScanPositionChange(scanAccumulatorRef.current);
+    }, 100); // Sauvegarder toutes les 100ms
+    
+    return () => clearInterval(interval);
+  }, [onScanPositionChange]);
 
   return (
     <div className="flex-grow flex flex-col bg-black">
