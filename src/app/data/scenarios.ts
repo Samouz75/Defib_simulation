@@ -26,14 +26,12 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_2',
     title: 'Scénario 2 - Défibrillation automatisée externe (DAE)',
-    description: 'Vous êtes dans le service de médecine interne. Monsieur A. âgé de 58 ans, aux antécédents d\'hypertension artérielle, dyslipidémie est hospitalisé en chambre 202 pour une embolie pulmonaire. Son voisin alerte l\'infirmière car le patient ne répond pas. L\'infirmière découvre M. A. en arrêt cardio respiratoire et amène le chariot d\'urgence après avoir alerté ses collègues. Vous devez utiliser le défibrillateur en mode DAE pour délivrer un choc de 150 Joules.',
+    description: 'Vous êtes dans le service des urgences portes UHCD. Monsieur A. âgé de 58 ans, aux antécédents d\'hypertension artérielle, dyslipidémie est hospitalisé en chambre 202 pour une embolie pulmonaire. Son voisin alerte l\'infirmière car le patient ne répond pas. L\'infirmière découvre M. A. en arrêt cardio respiratoire et amène le chariot d\'urgence après avoir alerté ses collègues. Vous devez utiliser le défibrillateur en mode DAE pour mener à bien la réanimation cardio pulmonaire.',
     objectives: [
       'Allumer le défibrillateur en mode DAE',
-      'Écouter les instructions',
-      'Connecter les électrodes et vérifier le bon positionnement sur le torse',
-      'Lire le rythme - « Analyse du rythme en cours »',
-      '« Choc recommandé » - Charge automatique par le DAE',
-      'Délivrer le choc en appuyant sur le bouton orange'
+      'Connecter le connecteur et brancher les électrodes sur la poitrine du patient',
+      'Délivrer le choc en appuyant sur le bouton orange',
+
     ],
     color: 'orange',
     icon: '💓'
@@ -41,14 +39,13 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_3',
     title: 'Scénario 3 - Électro-entraînement',
-    description: 'Vous êtes médecin au déchocage aux urgences. Madame G. âgée de 60 ans, aux antécédents de diabète est prise en charge pour une syncope il y a 1h associée à une asthénie. L\'ECG montre un BAV 3 à 30/min. La patiente présente de nouveau un malaise. Vous devez utiliser le défibrillateur pour électro-entraîner la patiente.',
+    description: 'Vous êtes médecin au déchocage aux urgences. Madame G. âgée de 60 ans, aux antécédents de diabète est prise en charge pour une syncope il y a 1h. L\'ECG montre un BAV 3 à 30/min. La patiente présente de nouveau un malaise et présente une hypotension avec des marbrures. Vous placez les électrodes du défibrillateur sur la poitrine de la patiente et vous devez utiliser le défibrillateur pour électro-entraîner le cœur de la patiente.',
     objectives: [
-      'Connecter les électrodes et vérifier le bon positionnement sur le torse',
-      'Allumer le défibrillateur en position moniteur',
-      'Lire le rythme',
       'Positionner la molette verte sur stimulation',
-      'Régler les paramètres de l\'électro-entraînement (intensité et fréquence)',
-      'Lancer la séquence de stimulation'
+      'Régler la fréquence de l\'électro-entraînement à 60/min',
+      'Positionner la molette verte sur stimulation',
+      'Régler l\'intensité de l\'électro-entraînement de manière a obtenir une capture du signal ECG',
+      'Lancer la séquence de stimulation en mode fixe'
     ],
     color: 'purple',
     icon: '💔'
@@ -56,14 +53,13 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_4',
     title: 'Scénario 4 - Cardioversion',
-    description: 'Vous êtes médecin de déchocage aux urgences. Monsieur L. âgé de 80 ans, aux antécédents d\'hypertension et d\'embolie pulmonaire anticoagulée au long cours, est pris en charge pour des palpitations depuis 6h. L\'ECG montre une ACFA à 160/min, le traitement médicamenteux est un échec et le patient présente une syncope associée à une hypertension. Vous utilisez le défibrillateur pour réaliser une cardioversion.',
+    description: 'Vous êtes médecin de déchocage aux urgences. Monsieur L. âgé de 80 ans, aux antécédents d\'hypertension et d\'embolie pulmonaire anticoagulée au long cours, est pris en charge pour des palpitations depuis 6h. L\'ECG montre une ACFA à 160/min, le traitement médicamenteux est un échec et le patient présente une syncope associée à une hypotension artérielle. Vous placez les électrodes sur la poitrine du patient et vous utilisez le défibrillateur pour réaliser une cardioversion électrique.',
     objectives: [
-      'Connecter les électrodes et vérifier le bon positionnement sur le torse',
-      'Allumer le défibrillateur en position moniteur',
-      'Lire le rythme',
+      'Allumer le défibrillateur',
+      'Positionnez la molette sur 150 Joules',
       'Appuyer sur le bouton synchro',
-      'Tourner la molette sur le nombre de Joules',
-      'Charger puis choquer'
+      'Appuyer sur le bouton jaune pour charger',
+      'Délivrer le choc en appuyant sur le bouton orange'
     ],
     color: 'green',
     icon: '💚'
