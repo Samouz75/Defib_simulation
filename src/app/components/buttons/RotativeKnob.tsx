@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import AudioService from '../../services/AudioService';
 
 interface RotativeKnobProps {
   onValueChange?: (value: number) => void;
@@ -15,7 +16,9 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [lastMouseAngle, setLastMouseAngle] = useState<number | null>(null);
   const [accumulatedRotation, setAccumulatedRotation] = useState(0);
+  const [hasRotated, setHasRotated] = useState(false); // Track if rotation occurred during this drag
   const rotaryRef = useRef<HTMLDivElement>(null);
+  const audioService = useRef(new AudioService());
 
   type PredefinedAngle = {
     value: string;
@@ -81,14 +84,14 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
     setIsDragging(true);
     setAccumulatedRotation(0);
     setLastMouseAngle(null);
-    e.preventDefault();
+    setHasRotated(false); // Reset rotation flag at start of interaction
   };
 
   const handleRotaryTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     setAccumulatedRotation(0);
     setLastMouseAngle(null);
-    e.preventDefault();
+    setHasRotated(false); // Reset rotation flag at start of interaction
   };
 
   const handleRotaryMove = (e: MouseEvent | TouchEvent) => {
@@ -133,6 +136,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
           setRotaryValue(newAngle);
           onValueChange?.(newAngle);
           setAccumulatedRotation(0); // Réinitialiser l'accumulation
+          setHasRotated(true); 
         } else {
           setAccumulatedRotation(newAccumulated); // Garder l'accumulation si on ne peut pas bouger
         }
@@ -145,9 +149,14 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
   };
 
   const handleRotaryEnd = () => {
+    if (hasRotated) {
+      audioService.current.playClickSound();
+    }
+    
     setIsDragging(false);
     setLastMouseAngle(null);
     setAccumulatedRotation(0);
+    setHasRotated(false); // Reset for next interaction
   };
 
   const [isInitialized, setIsInitialized] = useState(false);

@@ -236,6 +236,36 @@ class AudioService {
   isSpeaking(): boolean {
     return this.synthesis ? this.synthesis.speaking : false || this.currentUtterance !== null;
   }
+
+  //  son de clic bouton rotatif)
+  playClickSound(): void {
+    if (!this.settings.enabled) {
+      return;
+    }
+
+    //  Web Audio API
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'triangle'; 
+      oscillator.frequency.setValueAtTime(200, audioContext.currentTime); 
+      oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.08); 
+      
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.15 * this.settings.volume, audioContext.currentTime + 0.01); 
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08); 
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.08); 
+    } catch (error) {
+      console.error('Error playing click sound:', error);
+    }
+  }
 }
 
 export default AudioService;
