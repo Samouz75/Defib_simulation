@@ -86,8 +86,6 @@ const DefibInterface: React.FC = () => {
   
   const [showMonitorFCValue, setShowMonitorFCValue] = useState(false);
   const [showMonitorVitalSigns, setShowMonitorVitalSigns] = useState(false);
-  
-  const [ecgScanPosition, setEcgScanPosition] = useState(0);
 
   const handleMonitorFCValueChange = (showFCValue: boolean) => {
     setShowRhythmInMonitor(showFCValue);
@@ -711,8 +709,6 @@ const DefibInterface: React.FC = () => {
               showVitalSigns={showMonitorVitalSigns}
               onShowFCValueChange={handleMonitorFCValueChange}
               onShowVitalSignsChange={handleMonitorVitalSignsChange}
-              scanPosition={ecgScanPosition}
-              onScanPositionChange={setEcgScanPosition}
             />
             {showRhythmInMonitor && (
               <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
@@ -748,8 +744,6 @@ const DefibInterface: React.FC = () => {
             showSynchroArrows={defibrillator.isSynchroMode}
             heartRate={scenario.heartRate}
             isScenario1Completed={scenario.isScenario1Completed}
-            scanPosition={ecgScanPosition}
-            onScanPositionChange={setEcgScanPosition}
           />
         );
       case "Manuel":
@@ -774,8 +768,6 @@ const DefibInterface: React.FC = () => {
               showVitalSigns={showMonitorVitalSigns}
               onShowFCValueChange={handleManualFCValueChange}
               onShowVitalSignsChange={handleManualVitalSignsChange}
-              scanPosition={ecgScanPosition}
-              onScanPositionChange={setEcgScanPosition}
             />
             {showRhythmInManual && (
               <div className="absolute top-[48%] right-4 text-xs font-bold text-green-400 mt-5">
@@ -814,8 +806,6 @@ const DefibInterface: React.FC = () => {
             showVitalSigns={showMonitorVitalSigns}
             onShowFCValueChange={handleMonitorFCValueChange}
             onShowVitalSignsChange={handleMonitorVitalSignsChange}
-            scanPosition={ecgScanPosition}
-            onScanPositionChange={setEcgScanPosition}
           />
         );
     }

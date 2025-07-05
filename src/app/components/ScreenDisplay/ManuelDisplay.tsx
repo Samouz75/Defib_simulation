@@ -21,8 +21,6 @@ interface ManuelDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
-  scanPosition?: number;
-  onScanPositionChange?: (position: number) => void;
 }
 
 export interface ManuelDisplayRef {
@@ -30,7 +28,7 @@ export interface ManuelDisplayRef {
   triggerDelayedShock: () => void;
 }
 
-const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({ 
+const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   frequency,
   chargeProgress,
   shockCount,
@@ -47,9 +45,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   showFCValue = false,
   showVitalSigns = false,
   onShowFCValueChange,
-  onShowVitalSignsChange,
-  scanPosition,
-  onScanPositionChange
+  onShowVitalSignsChange
 }, ref) => {
 
   const [showShockDelivered, setShowShockDelivered] = useState(false);
@@ -263,8 +259,6 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             isDottedAsystole={!showFCValue}
             showDefibrillatorInfo={true}
             showRhythmText={false}
-            scanPosition={scanPosition}
-            onScanPositionChange={onScanPositionChange}
           />
         </div>
 

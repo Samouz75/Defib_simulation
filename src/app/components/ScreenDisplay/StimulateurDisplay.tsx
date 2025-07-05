@@ -8,8 +8,6 @@ interface StimulateurDisplayProps {
   showSynchroArrows?: boolean;
   heartRate?: number;
   isScenario1Completed?: boolean;
-  scanPosition?: number;
-  onScanPositionChange?: (position: number) => void;
 }
 
 export interface StimulateurDisplayRef {
@@ -29,9 +27,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   rhythmType = 'sinus',
   showSynchroArrows = false,
   heartRate = 70,
-  isScenario1Completed = false,
-  scanPosition,
-  onScanPositionChange
+  isScenario1Completed = false
 }, ref) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
@@ -293,8 +289,6 @@ return (
             rhythmType={isPacing ? "electroEntrainement" : rhythmType} 
             showSynchroArrows={showSynchroArrows} 
             heartRate={isPacing ? frequenceValue : heartRate}
-            scanPosition={scanPosition}
-            onScanPositionChange={onScanPositionChange}
           />
           <div className="w-full text-xs font-bold text-green-400 text-right ">
             <span>

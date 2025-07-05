@@ -19,8 +19,6 @@ interface MonitorDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
-  scanPosition?: number;
-  onScanPositionChange?: (position: number) => void;
 }
 
 export interface MonitorDisplayRef {
@@ -45,9 +43,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   showFCValue = false,
   showVitalSigns = false,
   onShowFCValueChange,
-  onShowVitalSignsChange,
-  scanPosition,
-  onScanPositionChange
+  onShowVitalSignsChange
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   const plethAnimation = usePlethAnimation();
@@ -479,8 +475,6 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             isDottedAsystole={!showFCValue}
             showDefibrillatorInfo={false}
             showRhythmText={false}
-            scanPosition={scanPosition}
-            onScanPositionChange={onScanPositionChange}
           />
         </div>
 
