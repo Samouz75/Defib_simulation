@@ -19,6 +19,7 @@ class AudioService {
   private audioContext: AudioContext | null = null;
   private fcBeepTimer: NodeJS.Timeout | null = null;
   private fcBeepOscillator: OscillatorNode | null = null;
+  private fvAlarmTimer: NodeJS.Timeout | null = null;
 
   constructor() {
     if (typeof window === 'undefined') {
@@ -225,6 +226,7 @@ class AudioService {
     }
     this.stopAlarm();
     this.stopFCBeepSequence();
+    this.stopFVAlarmSequence();
   }
 
   // Arrêter uniquement les répétitions
@@ -307,6 +309,67 @@ class AudioService {
     if (this.fcBeepOscillator) {
       this.fcBeepOscillator.stop();
       this.fcBeepOscillator = null;
+    }
+  }
+
+  // Bip d'alarme pour fibrillation ventriculaire 
+  playFVAlarmBeep(): void {
+    if (!this.settings.enabled) {
+      return;
+    }
+
+    try {
+      if (!this.audioContext || this.audioContext.state === 'closed') {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this.playFVAlarmSound();
+        }).catch(error => {
+          console.error('Error resuming audio context for FV alarm:', error);
+        });
+      } else {
+        this.playFVAlarmSound();
+      }
+    } catch (error) {
+      console.error('Error playing FV alarm beep:', error);
+    }
+  }
+
+  private playFVAlarmSound(): void {
+    if (!this.audioContext) return;
+    
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    
+    oscillator.type = 'sawtooth'; 
+    oscillator.frequency.setValueAtTime(1600, this.audioContext.currentTime); 
+    
+    gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(1.5 * this.settings.volume, this.audioContext.currentTime + 0.005); 
+    gainNode.gain.exponentialRampToValueAtTime(0.1, this.audioContext.currentTime + 0.3); // Maintient le son plus longtemps
+    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.5); // Decay plus long = bip long
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 0.5); // Bip 500ms 
+  }
+
+  startFVAlarmSequence(): void {
+    this.stopFVAlarmSequence();
+    
+    this.fvAlarmTimer = setInterval(() => {
+      this.playFVAlarmBeep();
+    }, 1000);
+  }
+
+  stopFVAlarmSequence(): void {
+    if (this.fvAlarmTimer) {
+      clearInterval(this.fvAlarmTimer);
+      this.fvAlarmTimer = null;
     }
   }
 

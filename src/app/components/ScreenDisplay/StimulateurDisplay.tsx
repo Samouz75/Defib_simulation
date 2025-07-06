@@ -1,7 +1,8 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
 import TimerDisplay from "../TimerDisplay";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
+import AudioService from "../../services/AudioService";
 
 interface StimulateurDisplayProps {
   rhythmType?: RhythmType; 
@@ -29,6 +30,9 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   heartRate = 70,
   isScenario1Completed = false
 }, ref) => {
+  // AudioService reference for FV alarm
+  const audioServiceRef = useRef<AudioService | null>(null);
+  
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
   const [selectedStimulationMode, setSelectedStimulationMode] = useState("Fixe");
@@ -43,6 +47,29 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
 
   // États pour la navigation au joystick
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+
+  // Initialize AudioService
+  useEffect(() => {
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (audioServiceRef.current) {
+      if (rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' || rhythmType === 'tachycardieVentriculaire' || rhythmType === 'asystole') {
+        audioServiceRef.current.startFVAlarmSequence();
+      } else {
+        audioServiceRef.current.stopFVAlarmSequence();
+      }
+    }
+
+    return () => {
+      if (audioServiceRef.current) {
+        audioServiceRef.current.stopFVAlarmSequence();
+      }
+    };
+  }, [rhythmType]);
 
   //  vérifie si un menu ouvert
   const isAnyMenuOpen = () => {

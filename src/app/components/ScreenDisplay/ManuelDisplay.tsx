@@ -123,21 +123,27 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   useEffect(() => {
     if (audioServiceRef.current) {
       if (!showFCValue) {
-        // Start beeping if FC is not shown
+        audioServiceRef.current.stopFVAlarmSequence();
         audioServiceRef.current.startFCBeepSequence();
-      } else {
-        // Stop beeping if FC is shown
+      } else if (rhythmType === 'fibrillationVentriculaire' || rhythmType === 'fibrillationAtriale' || rhythmType === 'tachycardieVentriculaire' || rhythmType === 'asystole') {
+        // FV alarm only if FC is shown
         audioServiceRef.current.stopFCBeepSequence();
+        audioServiceRef.current.startFVAlarmSequence();
+      } else {
+        // Stop all beeps if FC is shown and no FV
+        audioServiceRef.current.stopFCBeepSequence();
+        audioServiceRef.current.stopFVAlarmSequence();
       }
     }
 
-    // Cleanup function to stop beeping when component unmounts
+    // Cleanup function to stop all beeping when component unmounts
     return () => {
       if (audioServiceRef.current) {
         audioServiceRef.current.stopFCBeepSequence();
+        audioServiceRef.current.stopFVAlarmSequence();
       }
     };
-  }, [showFCValue]);
+  }, [showFCValue, rhythmType]);
 
   useImperativeHandle(ref, () => ({
     triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false,
@@ -188,9 +194,10 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             onClick={() => {
               const newValue = !showFCValue;
               
-              // Stop FC beep sequence when FC is clicked
+              // Stop all beep sequences when FC is clicked
               if (newValue && audioServiceRef.current) {
                 audioServiceRef.current.stopFCBeepSequence();
+                audioServiceRef.current.stopFVAlarmSequence();
               }
               
               if (onShowFCValueChange) {
