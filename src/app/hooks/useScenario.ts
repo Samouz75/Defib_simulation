@@ -35,6 +35,7 @@ export const useScenario = () => {
 
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rhythmTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heartRateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Étapes du scénario 1
   const scenario1Steps: ScenarioStep[] = [
@@ -323,9 +324,15 @@ export const useScenario = () => {
         currentStep: 0,
         showScenarioComplete: false,
         currentRhythm: 'fibrillationAtriale', // ACFA 160/min
-        heartRate: 160, // Fréquence cardiaque de 160 BPM pour l'ACFA
+        heartRate: Math.floor(155 + Math.random() * 11), 
         isScenario1Completed: false, 
       });
+      if (heartRateIntervalRef.current) {
+        clearInterval(heartRateIntervalRef.current);
+      }
+      heartRateIntervalRef.current = setInterval(() => {
+        setState(prev => ({ ...prev, heartRate: Math.floor(155 + Math.random() * 11) }));
+      }, 2000); 
     }
   };
 
@@ -366,6 +373,10 @@ export const useScenario = () => {
     if (rhythmTransitionTimeoutRef.current) {
       clearTimeout(rhythmTransitionTimeoutRef.current);
       rhythmTransitionTimeoutRef.current = null;
+    }
+    if (heartRateIntervalRef.current) {
+      clearInterval(heartRateIntervalRef.current);
+      heartRateIntervalRef.current = null;
     }
   };
 
