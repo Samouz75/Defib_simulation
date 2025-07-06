@@ -2,6 +2,7 @@ import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef } f
 import TwoLeadECGDisplay from "../graphsdata/TwoLeadECGDisplay"; // Import the new, self-contained component
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
+import AudioService from '../../services/AudioService';
 
 interface ManuelDisplayProps {
   frequency: string;
@@ -47,7 +48,9 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
   onShowFCValueChange,
   onShowVitalSignsChange
 }, ref) => {
-
+  // AudioService reference for FC beep
+  const audioServiceRef = useRef<AudioService | null>(null);
+  
   const [showShockDelivered, setShowShockDelivered] = useState(false);
   const [showCPRMessage, setShowCPRMessage] = useState(false);
   const [fibBlink, setFibBlink] = useState(false);
@@ -110,6 +113,32 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
     }, 5000);
   };
 
+  // Initialize AudioService
+  useEffect(() => {
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (audioServiceRef.current) {
+      if (!showFCValue) {
+        // Start beeping if FC is not shown
+        audioServiceRef.current.startFCBeepSequence();
+      } else {
+        // Stop beeping if FC is shown
+        audioServiceRef.current.stopFCBeepSequence();
+      }
+    }
+
+    // Cleanup function to stop beeping when component unmounts
+    return () => {
+      if (audioServiceRef.current) {
+        audioServiceRef.current.stopFCBeepSequence();
+      }
+    };
+  }, [showFCValue]);
+
   useImperativeHandle(ref, () => ({
     triggerCancelCharge: () => onCancelCharge ? onCancelCharge() : false,
     triggerDelayedShock: handleDelayedShock
@@ -158,6 +187,12 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(({
             className="flex flex-col cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
             onClick={() => {
               const newValue = !showFCValue;
+              
+              // Stop FC beep sequence when FC is clicked
+              if (newValue && audioServiceRef.current) {
+                audioServiceRef.current.stopFCBeepSequence();
+              }
+              
               if (onShowFCValueChange) {
                 onShowFCValueChange(newValue);
               }

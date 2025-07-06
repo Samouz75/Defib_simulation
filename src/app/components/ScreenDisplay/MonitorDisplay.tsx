@@ -1,10 +1,11 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import TwoLeadECGDisplay from '../graphsdata/TwoLeadECGDisplay';
 import PlethDisplay from '../graphsdata/PlethDisplay';
 import TimerDisplay from '../TimerDisplay';
 import type { RhythmType } from '../graphsdata/ECGRhythms';
 import { useFVVitalSigns } from '../../hooks/useFVVitalSigns';
 import { usePlethAnimation } from '../../hooks/usePlethAnimation';
+import AudioService from '../../services/AudioService';
 
 interface MonitorDisplayProps {
   rhythmType?: RhythmType;
@@ -47,6 +48,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
 }, ref) => {
   const fvVitalSigns = useFVVitalSigns(rhythmType);
   const plethAnimation = usePlethAnimation();
+  const audioServiceRef = useRef<AudioService | null>(null);
   
   // États pour le menu
   const [showMenu, setShowMenu] = useState(false);
@@ -62,6 +64,32 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
   const [selectedFrequencePNI, setSelectedFrequencePNI] = useState('Manuel');
   const [frequencePNIStartIndex, setFrequencePNIStartIndex] = useState(0);
   const [showPNIValues, setShowPNIValues] = useState(false);
+
+  // Initialize AudioService
+  useEffect(() => {
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (audioServiceRef.current) {
+      if (!showFCValue) {
+        // Start beeping if FC is not shown
+        audioServiceRef.current.startFCBeepSequence();
+      } else {
+        // Stop beeping if FC is shown
+        audioServiceRef.current.stopFCBeepSequence();
+      }
+    }
+
+    // Cleanup function to stop beeping when component unmounts
+    return () => {
+      if (audioServiceRef.current) {
+        audioServiceRef.current.stopFCBeepSequence();
+      }
+    };
+  }, [showFCValue]);
 
   // Configuration du menu
   const menuConfigs = {
@@ -320,6 +348,12 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(({
             className="flex flex-col items-center w-24 cursor-pointer hover:bg-gray-800 p-2 rounded transition-colors"
             onClick={() => {
               const newValue = !showFCValue;
+              
+              // Stop FC beep sequence when FC is clicked
+              if (newValue && audioServiceRef.current) {
+                audioServiceRef.current.stopFCBeepSequence();
+              }
+              
               if (onShowFCValueChange) {
                 onShowFCValueChange(newValue);
               }

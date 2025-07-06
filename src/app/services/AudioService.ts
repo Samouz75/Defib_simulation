@@ -17,6 +17,8 @@ class AudioService {
   private alarmSound: HTMLAudioElement | null = null;
   private alarmOscillator: OscillatorNode | null = null;
   private audioContext: AudioContext | null = null;
+  private fcBeepTimer: NodeJS.Timeout | null = null;
+  private fcBeepOscillator: OscillatorNode | null = null;
 
   constructor() {
     if (typeof window === 'undefined') {
@@ -222,6 +224,7 @@ class AudioService {
       this.chargingSound.currentTime = 0;
     }
     this.stopAlarm();
+    this.stopFCBeepSequence();
   }
 
   // Arrêter uniquement les répétitions
@@ -235,6 +238,58 @@ class AudioService {
   // Vérifier si un message est en cours
   isSpeaking(): boolean {
     return this.synthesis ? this.synthesis.speaking : false || this.currentUtterance !== null;
+  }
+
+  // bip quand FC pas cliquée 
+  playFCBeep(): void {
+    if (!this.settings.enabled) {
+      return;
+    }
+
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); 
+      
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.8 * this.settings.volume, audioContext.currentTime + 0.005); 
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08); 
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.1); 
+    } catch (error) {
+      console.error('Error playing FC beep:', error);
+    }
+  }
+
+  // Démare les bips répétitifs pour la FC
+  startFCBeepSequence(): void {
+    // Arrêter toute séquence existante
+    this.stopFCBeepSequence();
+    
+    // bips toutes les 2 secondes
+    this.fcBeepTimer = setInterval(() => {
+      this.playFCBeep();
+    }, 2000);
+  }
+
+  // Arrête bips répétitifs pour la FC
+  stopFCBeepSequence(): void {
+    if (this.fcBeepTimer) {
+      clearInterval(this.fcBeepTimer);
+      this.fcBeepTimer = null;
+    }
+    
+    if (this.fcBeepOscillator) {
+      this.fcBeepOscillator.stop();
+      this.fcBeepOscillator = null;
+    }
   }
 
   //  son de clic bouton rotatif)
