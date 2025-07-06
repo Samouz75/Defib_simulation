@@ -10,6 +10,7 @@ interface HeaderProps {
   isScenarioActive: boolean;
   heartRate: number;
   onHeartRateChange: (rate: number) => void;
+  showVitalSignsHint: boolean;
 }
 
 export default function Header({
@@ -19,12 +20,14 @@ export default function Header({
   isScenarioActive,
   heartRate,
   onHeartRateChange,
+  showVitalSignsHint,
 }: HeaderProps) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
 
   if (!isClient) {
     return null;
@@ -47,6 +50,11 @@ export default function Header({
         zIndex: 1000,
       }}
     >
+      {showVitalSignsHint && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-100 bg-blue-500 text-white text-xs px-3 py-2 rounded-lg shadow-lg animate-pulse">
+          Cliquez sur les constantes (FC, SpO2, PNI) pour les afficher
+        </div>
+      )}
       <div className="absolute left-6 z-50">
         <ECGRhythmDropdown
           currentRhythm={currentRhythm}

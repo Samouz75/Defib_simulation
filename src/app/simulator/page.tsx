@@ -625,6 +625,10 @@ const DefibInterface: React.FC = () => {
     }
   }, [defibrillator.isCharged]);
 
+  const showVitalSignsHint = (
+    defibrillator.displayMode === "Moniteur" || defibrillator.displayMode === "Manuel"
+  ) && !showMonitorFCValue && !showMonitorVitalSigns;
+
   // Gérer la validation depuis le popup
   const handleValidateFromPopup = () => {
     scenario.handleManualValidation();
@@ -1199,6 +1203,7 @@ const DefibInterface: React.FC = () => {
         isScenarioActive={scenario.isScenarioActive()}
         heartRate={scenario.heartRate}
         onHeartRateChange={scenario.setHeartRate}
+        showVitalSignsHint={showVitalSignsHint}
       />
 
       {/* Popup de scénario */}
