@@ -247,25 +247,43 @@ class AudioService {
     }
 
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      if (!this.audioContext || this.audioContext.state === 'closed') {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
       
-      oscillator.type = 'square';
-      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); 
-      
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.8 * this.settings.volume, audioContext.currentTime + 0.005); 
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08); 
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.1); 
+      // Réactive l'AudioContext si suspendu (iOS)
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this.playFCBeepSound();
+        }).catch(error => {
+          console.error('Error resuming audio context:', error);
+        });
+      } else {
+        this.playFCBeepSound();
+      }
     } catch (error) {
       console.error('Error playing FC beep:', error);
     }
+  }
+
+  private playFCBeepSound(): void {
+    if (!this.audioContext) return;
+    
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(1000, this.audioContext.currentTime); 
+    
+    gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.8 * this.settings.volume, this.audioContext.currentTime + 0.005); 
+    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.08); 
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + 0.1); 
   }
 
   // Démare les bips répétitifs pour la FC
