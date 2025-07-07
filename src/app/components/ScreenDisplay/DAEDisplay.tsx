@@ -3,6 +3,7 @@ import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import AudioService from "../../services/AudioService";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
+import { useFVVitalSigns } from "../../hooks/useFVVitalSigns";
 
 interface DAEDisplayProps {
   frequency: string;
@@ -57,6 +58,8 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   const [phase, setPhase] = useState<Phase>("placement");
   const [progressBarPercent, setProgressBarPercent] = useState(0);
   const [chargePercent, setChargePercent] = useState(0);
+  const fvVitalSigns = useFVVitalSigns(rhythmType);
+
 
   // Gestion du cycle automatique
   useEffect(() => {
@@ -340,7 +343,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                 <div className="flex flex-row items-center gap-x-2">
                   <div className="text-green-400 text-4xl font-bold">
                     {rhythmType === "fibrillationVentriculaire"
-                      ? "--"
+                      ? fvVitalSigns.heartRate
                       : rhythmType === "asystole"
                         ? "0"
                         : heartRate}
