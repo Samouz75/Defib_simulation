@@ -1,18 +1,18 @@
 import vitalSignsData from "../../data/vitalSignsData.json";
 
 export type RhythmType =
-  | 'sinus'
-  | 'tachycardieVentriculaire'
-  | 'fibrillationVentriculaire'
-  | 'asystole'
-  | 'fibrillationAtriale'
-  | 'bav1'
-  | 'bav3'
-  | 'electroEntrainement'
-  | 'choc'
-  | 'pacingMotif1'
-  | 'BAVMotif1'
-  | 'BAV3Motif1';
+  | "sinus"
+  | "tachycardieVentriculaire"
+  | "fibrillationVentriculaire"
+  | "asystole"
+  | "fibrillationAtriale"
+  | "bav1"
+  | "bav3"
+  | "electroEntrainement"
+  | "choc"
+  | "pacingMotif1"
+  | "BAVMotif1"
+  | "BAV3Motif1";
 
 export interface ECGRhythm {
   name: string;
@@ -35,10 +35,17 @@ const BAV3_MOTIFS = [BAV3Motif1];
 const chocMotif1 = vitalSignsData.motifs.chocMotifs;
 const CHOC_MOTIFS = [chocMotif1];
 // ramped noise generator to create padding between motifs
-const generateRampedNoise = (length: number, amplitude: number, startValue: number, endValue: number): number[] => {
+const generateRampedNoise = (
+  length: number,
+  amplitude: number,
+  startValue: number,
+  endValue: number,
+): number[] => {
   const baseline = [];
-  if (length <= 1) { // Handle edge cases to avoid division by zero
-    if (length === 1) baseline.push(startValue + (Math.random() - 0.5) * amplitude);
+  if (length <= 1) {
+    // Handle edge cases to avoid division by zero
+    if (length === 1)
+      baseline.push(startValue + (Math.random() - 0.5) * amplitude);
     return baseline;
   }
   for (let i = 0; i < length; i++) {
@@ -50,10 +57,13 @@ const generateRampedNoise = (length: number, amplitude: number, startValue: numb
   return baseline;
 };
 
-
 // utility function that receives a buffer containing ECG data and blends the tail to create a seamless loop
-const createSeamlessLoop = (buffer: number[], blendDurationMs: number, samplingRate: number): number[] => {
-  const blendSamples = Math.floor(blendDurationMs / 1000 * samplingRate);
+const createSeamlessLoop = (
+  buffer: number[],
+  blendDurationMs: number,
+  samplingRate: number,
+): number[] => {
+  const blendSamples = Math.floor((blendDurationMs / 1000) * samplingRate);
   if (buffer.length <= blendSamples) {
     return buffer; // Not enough data to blend
   }
@@ -77,20 +87,20 @@ const generateDynamicECG = (
   heartRate: number,
   durationSeconds: number,
   samplingRate: number,
-  rhythmType: RhythmType
+  rhythmType: RhythmType,
 ): number[] => {
   const totalSamples = durationSeconds * samplingRate;
   const buffer = new Array(totalSamples).fill(0);
   let currentIndex = 0;
-  let MOTIFS = []
+  let MOTIFS = [];
   switch (rhythmType) {
-    case 'sinus':
+    case "sinus":
       MOTIFS = SINUS_MOTIFS;
       break;
-    case 'bav1':
+    case "bav1":
       MOTIFS = BAV1_MOTIFS;
       break;
-    case 'bav3':
+    case "bav3":
       MOTIFS = BAV3_MOTIFS;
       break;
     case "electroEntrainement":
@@ -98,7 +108,7 @@ const generateDynamicECG = (
       break;
     case "choc":
       MOTIFS = CHOC_MOTIFS;
-        break;
+      break;
     default:
       MOTIFS = SINUS_MOTIFS;
       break;
@@ -111,8 +121,10 @@ const generateDynamicECG = (
   // The main loop now generates a [PADDING][MOTIF] block on each iteration.
   while (currentIndex < totalSamples) {
     const rrIntervalSeconds = 60 / heartRate;
-    const variation = (Math.random() - 0.5) * 0.10;
-    const rrSamples = Math.round((rrIntervalSeconds * (1 + variation)) * samplingRate);
+    const variation = (Math.random() - 0.5) * 0.1;
+    const rrSamples = Math.round(
+      rrIntervalSeconds * (1 + variation) * samplingRate,
+    );
 
     const motif = MOTIFS[Math.floor(Math.random() * MOTIFS.length)];
     const nextMotifStartValue = motif[0];
@@ -121,7 +133,12 @@ const generateDynamicECG = (
 
     // 1. Generate and place PADDING first.
     if (paddingLength > 0) {
-      const padding = generateRampedNoise(paddingLength, 0.03, lastMotifEndValue, nextMotifStartValue);
+      const padding = generateRampedNoise(
+        paddingLength,
+        0.03,
+        lastMotifEndValue,
+        nextMotifStartValue,
+      );
       for (let i = 0; i < paddingLength; i++) {
         const bufferIndex = currentIndex + i;
         if (bufferIndex < totalSamples) {
@@ -147,44 +164,106 @@ const generateDynamicECG = (
 };
 
 //The Main getRhythmData Function --- returns the data to the Display function
-export const getRhythmData = (rhythmType: RhythmType, heartRate: number): number[] => {
+export const getRhythmData = (
+  rhythmType: RhythmType,
+  heartRate: number,
+): number[] => {
   const durationSeconds = 10;
   const samplingRate = 250;
 
   switch (rhythmType) {
-    case 'sinus':
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, rhythmType),100, samplingRate);
-    case 'tachycardieVentriculaire': 
-      return createSeamlessLoop(ECG_RHYTHMS_STATIC.tachycardieVentriculaire.data,200, samplingRate);
+    case "sinus":
+      return createSeamlessLoop(
+        generateDynamicECG(
+          heartRate,
+          durationSeconds,
+          samplingRate,
+          rhythmType,
+        ),
+        100,
+        samplingRate,
+      );
+    case "tachycardieVentriculaire":
+      return createSeamlessLoop(
+        ECG_RHYTHMS_STATIC.tachycardieVentriculaire.data,
+        200,
+        samplingRate,
+      );
 
-    case 'fibrillationVentriculaire':
-      return createSeamlessLoop(ECG_RHYTHMS_STATIC.fibrillationVentriculaire.data,200, samplingRate);
-    case 'asystole':
-      return createSeamlessLoop(ECG_RHYTHMS_STATIC.asystole.data,200, samplingRate);
-    case 'fibrillationAtriale':
-      return createSeamlessLoop(ECG_RHYTHMS_STATIC.fibrillationAtriale.data,200, samplingRate);
-    case 'bav1':
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, "bav1"),200, samplingRate);
-    case 'bav3':
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, "bav3"),200, samplingRate);
+    case "fibrillationVentriculaire":
+      return createSeamlessLoop(
+        ECG_RHYTHMS_STATIC.fibrillationVentriculaire.data,
+        200,
+        samplingRate,
+      );
+    case "asystole":
+      return createSeamlessLoop(
+        ECG_RHYTHMS_STATIC.asystole.data,
+        200,
+        samplingRate,
+      );
+    case "fibrillationAtriale":
+      return createSeamlessLoop(
+        ECG_RHYTHMS_STATIC.fibrillationAtriale.data,
+        200,
+        samplingRate,
+      );
+    case "bav1":
+      return createSeamlessLoop(
+        generateDynamicECG(heartRate, durationSeconds, samplingRate, "bav1"),
+        200,
+        samplingRate,
+      );
+    case "bav3":
+      return createSeamlessLoop(
+        generateDynamicECG(heartRate, durationSeconds, samplingRate, "bav3"),
+        200,
+        samplingRate,
+      );
     case "electroEntrainement":
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, rhythmType), 100, samplingRate)
+      return createSeamlessLoop(
+        generateDynamicECG(
+          heartRate,
+          durationSeconds,
+          samplingRate,
+          rhythmType,
+        ),
+        100,
+        samplingRate,
+      );
     case "choc":
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, rhythmType), 100, samplingRate)
+      return createSeamlessLoop(
+        generateDynamicECG(
+          heartRate,
+          durationSeconds,
+          samplingRate,
+          rhythmType,
+        ),
+        100,
+        samplingRate,
+      );
     default:
-      return createSeamlessLoop(generateDynamicECG(heartRate, durationSeconds, samplingRate, "sinus"), 100, samplingRate); //by default return a sinus rhythm
+      return createSeamlessLoop(
+        generateDynamicECG(heartRate, durationSeconds, samplingRate, "sinus"),
+        100,
+        samplingRate,
+      ); //by default return a sinus rhythm
   }
 };
-
 
 // Main Data Store for real static ECG data
 const ECG_RHYTHMS_STATIC = {
   sinusRhythm: { data: vitalSignsData.staticRhythms.sinusRhythm.data },
-  fibrillationVentriculaire: { data: vitalSignsData.staticRhythms.fibrillationVentriculaire.data },
-  tachycardieVentriculaire: { data: vitalSignsData.staticRhythms.tachycardieVentriculaire.data },
+  fibrillationVentriculaire: {
+    data: vitalSignsData.staticRhythms.fibrillationVentriculaire.data,
+  },
+  tachycardieVentriculaire: {
+    data: vitalSignsData.staticRhythms.tachycardieVentriculaire.data,
+  },
   asystole: { data: vitalSignsData.staticRhythms.asystole.data },
-  fibrillationAtriale: { data: vitalSignsData.staticRhythms.fibrillationAtriale.data },
+  fibrillationAtriale: {
+    data: vitalSignsData.staticRhythms.fibrillationAtriale.data,
+  },
   bav1: { data: vitalSignsData.staticRhythms.bav1.data },
   bav3: { data: vitalSignsData.staticRhythms.bav3.data },
 };
-

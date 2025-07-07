@@ -1,5 +1,5 @@
-import React from 'react';
-import { Zap, X } from 'lucide-react';
+import React from "react";
+import { Zap, X } from "lucide-react";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -14,8 +14,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
       <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-600 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Zap className="w-5 h-5 text-blue-400" />
-            À propos
+            <Zap className="w-5 h-5 text-blue-400" />À propos
           </h2>
           <button
             onClick={onClose}
@@ -24,21 +23,24 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="space-y-4 text-gray-300">
           <div>
-            <h3 className="font-semibold text-white mb-2">Simulateur de Défibrillateur</h3>
+            <h3 className="font-semibold text-white mb-2">
+              Simulateur de Défibrillateur
+            </h3>
             <p className="text-sm">Version 1.0</p>
           </div>
-          
+
           <div>
             <h4 className="font-medium text-white mb-1">Description</h4>
             <p className="text-sm">
-              Application de simulation pour la formation médicale aux techniques de défibrillation.
-              Conçue pour l'apprentissage et la pratique en environnement sécurisé.
+              Application de simulation pour la formation médicale aux
+              techniques de défibrillation. Conçue pour l'apprentissage et la
+              pratique en environnement sécurisé.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-medium text-white mb-1">Fonctionnalités</h4>
             <ul className="text-sm space-y-1">
@@ -49,7 +51,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
@@ -63,4 +65,4 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default AboutModal; 
+export default AboutModal;

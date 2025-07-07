@@ -11,7 +11,6 @@ import type { RhythmType } from "../graphsdata/ECGRhythms";
 import AudioService from "../../services/AudioService";
 import { useFVVitalSigns } from "../../hooks/useFVVitalSigns";
 
-
 interface ManuelDisplayProps {
   frequency: string;
   chargeProgress: number;
@@ -70,7 +69,6 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
     const fvVitalSigns = useFVVitalSigns(rhythmType);
-
 
     const clearAllTimers = () => {
       if (timer1Ref.current) clearTimeout(timer1Ref.current);

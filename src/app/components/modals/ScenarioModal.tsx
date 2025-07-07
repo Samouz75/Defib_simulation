@@ -1,6 +1,6 @@
-import React from 'react';
-import { FileText, X } from 'lucide-react';
-import { SCENARIOS } from '../../data/scenarios';
+import React from "react";
+import { FileText, X } from "lucide-react";
+import { SCENARIOS } from "../../data/scenarios";
 
 interface ScenarioModalProps {
   isOpen: boolean;
@@ -9,10 +9,15 @@ interface ScenarioModalProps {
   onStartScenario: (scenarioId: string) => void;
 }
 
-const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenarioId, onStartScenario }) => {
+const ScenarioModal: React.FC<ScenarioModalProps> = ({
+  isOpen,
+  onClose,
+  scenarioId,
+  onStartScenario,
+}) => {
   if (!isOpen || !scenarioId) return null;
 
-  const scenario = SCENARIOS.find(s => s.id === scenarioId);
+  const scenario = SCENARIOS.find((s) => s.id === scenarioId);
   if (!scenario) return null;
 
   return (
@@ -30,20 +35,20 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="space-y-4 text-gray-300 overflow-y-auto flex-1 pr-2">
           <div>
             <p className="text-sm mb-3 text-justify">{scenario.description}</p>
-            
+
             <div className="grid gap-4 mb-4">
-          
-              <div className="bg-gray-700 rounded-lg p-1 w-full">
-              </div>
+              <div className="bg-gray-700 rounded-lg p-1 w-full"></div>
             </div>
           </div>
-          
+
           <div>
-            <h4 className="font-medium text-white mb-2">Objectifs pédagogiques</h4>
+            <h4 className="font-medium text-white mb-2">
+              Objectifs pédagogiques
+            </h4>
             <ul className="text-sm space-y-1">
               {scenario.objectives.map((objective, index) => (
                 <li key={index}>• {objective}</li>
@@ -51,7 +56,7 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -76,4 +81,4 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose, scenario
   );
 };
 
-export default ScenarioModal; 
+export default ScenarioModal;

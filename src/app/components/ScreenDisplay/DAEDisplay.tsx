@@ -60,7 +60,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   const [chargePercent, setChargePercent] = useState(0);
   const fvVitalSigns = useFVVitalSigns(rhythmType);
 
-
   // Gestion du cycle automatique
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -130,12 +129,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         }
       }, 50);
     } else if (phase === "pas_de_choc") {
-    // attendre 8 secondes puis relancer l'analyse
+      // attendre 8 secondes puis relancer l'analyse
       const startTime = Date.now();
-      const duration = 8 * 1000; 
+      const duration = 8 * 1000;
       interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
-        
+
         if (elapsed >= duration) {
           setPhase("analyse");
           setProgressBarPercent(0);

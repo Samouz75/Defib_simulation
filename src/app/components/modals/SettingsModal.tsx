@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Settings, X } from 'lucide-react';
-import AudioService from '../../services/AudioService';
+import React, { useEffect, useRef, useState } from "react";
+import { Settings, X } from "lucide-react";
+import AudioService from "../../services/AudioService";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -10,15 +10,15 @@ interface SettingsModalProps {
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [volume, setVolume] = useState(50);
-  const [language, setLanguage] = useState('fr');
+  const [language, setLanguage] = useState("fr");
 
   const audioServiceRef = useRef<AudioService | null>(null);
 
   useEffect(() => {
-  if (typeof window !== 'undefined' && !audioServiceRef.current) {
-    audioServiceRef.current = new AudioService();
-  }
-}, []);
+    if (typeof window !== "undefined" && !audioServiceRef.current) {
+      audioServiceRef.current = new AudioService();
+    }
+  }, []);
 
   // Gestion des changements de paramètres audio
   const handleSoundToggle = (enabled: boolean) => {
@@ -48,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="space-y-6 text-gray-300">
           {/* Audio Settings */}
           <div>
@@ -59,17 +59,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 <button
                   onClick={() => handleSoundToggle(!soundEnabled)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    soundEnabled ? 'bg-blue-600' : 'bg-gray-600'
+                    soundEnabled ? "bg-blue-600" : "bg-gray-600"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      soundEnabled ? 'translate-x-6' : 'translate-x-1'
+                      soundEnabled ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>
               </div>
-              
+
               <div>
                 <label className="text-sm block mb-1">Volume: {volume}%</label>
                 <input
@@ -103,7 +103,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -123,4 +123,4 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default SettingsModal; 
+export default SettingsModal;

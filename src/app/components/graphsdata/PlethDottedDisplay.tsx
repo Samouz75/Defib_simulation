@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 
 interface PlethDottedDisplayProps {
   width?: number;
@@ -13,10 +13,10 @@ interface PlethDottedDisplayProps {
   };
 }
 
-const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({ 
-  width = 800, 
+const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({
+  width = 800,
   height = 45,
-  animationState
+  animationState,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -24,23 +24,23 @@ const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({
   const localAnimationState = useRef({
     SCROLL_SPEED: 60, // px/s
     dotPattern: 2, // pixels between dots
-    dotSize: 3
+    dotSize: 3,
   });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const state = localAnimationState.current;
-    
+
     // Calculate the center Y position for the dotted line
     const centerY = height / 2;
 
     const drawGridColumn = (ctx: CanvasRenderingContext2D, x: number) => {
-      ctx.strokeStyle = "#001122"; 
+      ctx.strokeStyle = "#001122";
       ctx.lineWidth = 0.3;
 
       // Vertical grid lines
@@ -65,17 +65,22 @@ const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({
     const drawFrame = () => {
       const currentScanX = animationState?.getScanX() || 0;
 
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = "black";
       ctx.fillRect(currentScanX, 0, 2, height);
 
       // Draw grid at this position
       drawGridColumn(ctx, currentScanX);
 
       ctx.strokeStyle = "#00bfff";
-      ctx.lineWidth = 1; 
+      ctx.lineWidth = 1;
       if (currentScanX % state.dotPattern === 0) {
         ctx.fillStyle = "#00bfff";
-        ctx.fillRect(currentScanX, centerY - state.dotSize/2, state.dotSize, state.dotSize);
+        ctx.fillRect(
+          currentScanX,
+          centerY - state.dotSize / 2,
+          state.dotSize,
+          state.dotSize,
+        );
       }
 
       animationState?.setScanX((currentScanX + 1) % width);
@@ -100,9 +105,9 @@ const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({
           width={width}
           height={height}
           className="w-full"
-          style={{ 
-            imageRendering: 'auto',
-            height: height 
+          style={{
+            imageRendering: "auto",
+            height: height,
           }}
         />
       </div>
@@ -113,4 +118,4 @@ const PlethDottedDisplay: React.FC<PlethDottedDisplayProps> = ({
   );
 };
 
-export default PlethDottedDisplay; 
+export default PlethDottedDisplay;
