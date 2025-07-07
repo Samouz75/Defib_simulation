@@ -9,6 +9,8 @@ import TwoLeadECGDisplay from "../graphsdata/TwoLeadECGDisplay"; // Import the n
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 import AudioService from "../../services/AudioService";
+import { useFVVitalSigns } from "../../hooks/useFVVitalSigns";
+
 
 interface ManuelDisplayProps {
   frequency: string;
@@ -67,6 +69,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
     const timer1Ref = useRef<NodeJS.Timeout | null>(null);
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const fvVitalSigns = useFVVitalSigns(rhythmType);
+
 
     const clearAllTimers = () => {
       if (timer1Ref.current) clearTimeout(timer1Ref.current);
@@ -264,7 +268,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
                 <div className="text-green-400 text-4xl font-bold">
                   {showFCValue
                     ? rhythmType === "fibrillationVentriculaire"
-                      ? "--"
+                      ? fvVitalSigns.heartRate
                       : rhythmType === "asystole"
                         ? "0"
                         : rhythmType === "fibrillationAtriale"

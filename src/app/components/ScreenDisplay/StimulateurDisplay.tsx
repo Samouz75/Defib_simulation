@@ -3,6 +3,8 @@ import TimerDisplay from "../TimerDisplay";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 import AudioService from "../../services/AudioService";
+import { useFVVitalSigns } from "../../hooks/useFVVitalSigns";
+
 
 interface StimulateurDisplayProps {
   rhythmType?: RhythmType; 
@@ -44,6 +46,8 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   const [showIntensiteMenu, setShowIntensiteMenu] = useState(false);
   const [frequenceValue, setFrequenceValue] = useState(70);
   const [intensiteValue, setIntensiteValue] = useState(30);
+  const fvVitalSigns = useFVVitalSigns(rhythmType);
+
 
   // États pour la navigation au joystick
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
@@ -258,7 +262,7 @@ return (
             </div>
             <div className="flex flex-row items-center gap-x-2">
               <div className="text-green-400 text-4xl font-bold">
-                {rhythmType === 'fibrillationVentriculaire' ? '--' : rhythmType === 'asystole' ? '30' : isPacing ? frequenceValue :heartRate}
+                {rhythmType === 'fibrillationVentriculaire' ? fvVitalSigns.heartRate : rhythmType === 'asystole' ? '30' : isPacing ? frequenceValue :heartRate}
               </div>
               <div className="text-green-400 text-xs">120</div>
             </div>
