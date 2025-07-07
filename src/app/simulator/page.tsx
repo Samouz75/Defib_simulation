@@ -36,7 +36,7 @@ const DefibInterface: React.FC = () => {
   const scale = useResponsiveScale();
   const scenario = useScenario();
   const getEffectiveHeartRate = () => {
-    const currentRhythm = scenario.getEffectiveRhythm();
+  const currentRhythm = scenario.getEffectiveRhythm();
     
     // Si on est dans le scénario 4 avec fibrillation atriale, utiliser la valeur du scénario
     if (scenario.currentScenario === 'scenario_4') {
@@ -569,6 +569,7 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleExitScenario = () => {
+    defibrillator.resetDefibrillatorStates(); 
     scenario.stopScenario();
     setShowValidationPopup(false);
   };
@@ -588,6 +589,7 @@ const DefibInterface: React.FC = () => {
         (scenario.currentStep === 0 || scenario.currentStep === 2))
     );
   };
+
 
   // Effet pour afficher le popup de validation quand nécessaire
   useEffect(() => {
@@ -1197,7 +1199,10 @@ const DefibInterface: React.FC = () => {
     <div className="min-h-screen bg-#0B1222 flex flex-col items-center justify-center -mt-25 relative">
       {/* Header fixe */}
       <Header
-        onStartScenario={scenario.handleStartScenarioFromModal}
+        onStartScenario={(scenarioId: string) => {
+          defibrillator.resetDefibrillatorStates();
+          scenario.handleStartScenarioFromModal(scenarioId);
+        }}
         currentRhythm={scenario.manualRhythm}
         onRhythmChange={scenario.setManualRhythm}
         isScenarioActive={scenario.isScenarioActive()}

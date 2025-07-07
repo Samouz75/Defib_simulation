@@ -36,7 +36,7 @@ export const useDefibrillator = (isInScenario?: () => boolean, currentHeartRate?
     isChargeButtonPressed: false,
     isShockButtonPressed: false,
     selectedChannel: 1,
-    isSynchroMode: false, // NOUVEAU : état du mode synchro
+    isSynchroMode: false,
   });
 
   // AudioService reference
@@ -53,6 +53,33 @@ export const useDefibrillator = (isInScenario?: () => boolean, currentHeartRate?
 
   const updateState = (updates: Partial<DefibrillatorState>) => {
     setState(prev => ({ ...prev, ...updates }));
+  };
+
+  const resetDefibrillatorStates = () => {
+    if (audioServiceRef.current) {
+      audioServiceRef.current.stopAll();
+      audioServiceRef.current.clearRepetition();
+      audioServiceRef.current.stopFCBeepSequence();
+      audioServiceRef.current.stopFVAlarmSequence();
+    }
+
+    if (chargeIntervalRef.current) {
+      clearInterval(chargeIntervalRef.current);
+      chargeIntervalRef.current = null;
+    }
+
+    setState({
+      displayMode: "ARRET", 
+      manualFrequency: "1-10",
+      isCharging: false,
+      chargeProgress: 0,
+      shockCount: 0,
+      isCharged: false,
+      isChargeButtonPressed: false,
+      isShockButtonPressed: false,
+      selectedChannel: 1,
+      isSynchroMode: false,
+    });
   };
 
   // Actions
@@ -199,6 +226,7 @@ export const useDefibrillator = (isInScenario?: () => boolean, currentHeartRate?
     cancelCharge,
     stopCharging,
     setSelectedChannel,
-    toggleSynchroMode, 
+    toggleSynchroMode,
+    resetDefibrillatorStates, 
   };
 };

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import type { RhythmType } from '../components/graphsdata/ECGRhythms';
+import AudioService from '../services/AudioService';
 
 export interface ScenarioStep {
   title: string;
@@ -36,6 +37,11 @@ export const useScenario = () => {
   const scenarioTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rhythmTransitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartRateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioServiceRef = useRef<AudioService | null>(null);
+
+  if (typeof window !== 'undefined' && !audioServiceRef.current) {
+    audioServiceRef.current = new AudioService();
+  }
 
   // Étapes du scénario 1
   const scenario1Steps: ScenarioStep[] = [
@@ -149,6 +155,28 @@ export const useScenario = () => {
 
   const updateState = (updates: Partial<ScenarioState>) => {
     setState(prev => ({ ...prev, ...updates }));
+  };
+
+  const resetAllStates = () => {
+    if (audioServiceRef.current) {
+      audioServiceRef.current.stopAll();
+      audioServiceRef.current.clearRepetition();
+      audioServiceRef.current.stopFCBeepSequence();
+      audioServiceRef.current.stopFVAlarmSequence();
+    }
+
+    cleanup();
+
+    updateState({
+      currentScenario: null,
+      currentStep: 0,
+      showScenarioComplete: false,
+      showStepHelp: false,
+      currentRhythm: 'sinus',
+      manualRhythm: 'sinus',
+      heartRate: 70,
+      isScenario1Completed: false,
+    });
   };
 
   //fonction pour gérer le changement de fréquence cardiaque
@@ -294,6 +322,8 @@ export const useScenario = () => {
   };
 
   const startScenario = (scenarioId: string) => {
+    resetAllStates();
+    
     if (scenarioId === "scenario_1") {
       updateState({
         currentScenario: scenarioId,
@@ -425,5 +455,6 @@ export const useScenario = () => {
     setHeartRate,
     getEffectiveRhythm,
     isScenarioActive,
+    resetAllStates, // Fonction exportée pour reset complet
   };
 };
