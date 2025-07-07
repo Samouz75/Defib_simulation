@@ -40,16 +40,14 @@ const ScenarioModal: React.FC<ScenarioModalProps> = ({
           <div>
             <p className="text-sm mb-3 text-justify">{scenario.description}</p>
 
-            <div className="grid gap-4 mb-4">
-              <div className="bg-gray-700 rounded-lg p-1 w-full"></div>
-            </div>
+           
           </div>
 
           <div>
-            <h4 className="font-medium text-white mb-2">
+            <h4 className="font-medium text-white mb-2 hidden">
               Objectifs pédagogiques
             </h4>
-            <ul className="text-sm space-y-1">
+            <ul className="text-sm space-y-1 hidden">
               {scenario.objectives.map((objective, index) => (
                 <li key={index}>• {objective}</li>
               ))}
