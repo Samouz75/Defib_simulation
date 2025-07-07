@@ -283,6 +283,10 @@ export const useScenario = () => {
     if (rhythmTransitionTimeoutRef.current) {
       clearTimeout(rhythmTransitionTimeoutRef.current);
     }
+    if (heartRateIntervalRef.current) {
+      clearInterval(heartRateIntervalRef.current);
+      heartRateIntervalRef.current = null;
+    }
     
     updateState({ 
       currentRhythm: 'asystole',

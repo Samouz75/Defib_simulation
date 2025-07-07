@@ -270,7 +270,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
                       : rhythmType === "asystole"
                         ? "0"
                         : rhythmType === "fibrillationAtriale"
-                          ? "--"
+                          ? fvVitalSigns.heartRate
                           : heartRate
                     : "--"}
                 </div>
