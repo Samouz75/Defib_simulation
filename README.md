@@ -3,12 +3,12 @@
 
 ## 🏥 Project Context
 
-This defibrillator simulator was developed during an 2 months internship at **Saint-Louis Hospital (Paris)** in the **Emergency Department** under the medical supervision of **Dr. Sami Ellouze** (Emergency Physician). The project was technically supervised by **Marc Dinh** (Engineering School Professor) to create an accessible online training platform for defibrillation techniques.
+This app was developed during a 2-month internship at Saint-Louis Hospital (Paris) in the Emergency Department, under the medical supervision of Dr. Sami Ellouze (Emergency Physician). The project was technically overseen by Marc Dinh (Engineering School Professor), with the goal of creating an accessible online training platform for defibrillation techniques.
 
 ## 🎯 Project Overview
 
 ### Version 1 (Current) - Public Training Platform
-The current version provides **free access** to realistic defibrillator simulation scenarios for:
+The current version offers **free access** to realistic defibrillator simulation scenarios, designed for:
 - **Medical students**
 - **Healthcare professionals** 
 - **General public**
@@ -153,15 +153,8 @@ We welcome contributions from the medical and development communities:
 ## 🙏 Acknowledgments
 
 - **Dr. Sami Ellouze** - Emergency Physician and Internship Supervisor at Saint-Louis Hospital
-- **Marc Dinh** - Engineering School Professor and Project Supervisor
-- **Saint-Louis Hospital Emergency Department** - For providing real-world scenarios and medical expertise
-
-## 📞 Contact
-
-For questions, suggestions, or collaboration opportunities:
-- **Medical Supervision**: Dr. Sami Ellouze (Saint-Louis Hospital)
-- **Technical Supervision**: Marc Dinh
-- **Development**: Marius Gal
+- **Marc Dinh** - Engineering School Professor/ML, DeepLearning engineer and Technical Supervisor
+- **Saint-Louis Hospital Emergency Department**
 
 ---
 
