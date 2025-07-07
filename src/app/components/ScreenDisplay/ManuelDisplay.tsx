@@ -69,6 +69,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
     const timer2Ref = useRef<NodeJS.Timeout | null>(null);
     const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
     const fvVitalSigns = useFVVitalSigns(rhythmType);
+    const [isDelayedShockPending, setIsDelayedShockPending] = useState(false);
 
     const clearAllTimers = () => {
       if (timer1Ref.current) clearTimeout(timer1Ref.current);
@@ -119,9 +120,12 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
     }, [displayMode]);
 
     const handleDelayedShock = () => {
-      if (!isScenario4 || !isCharged) return;
+      if (!isScenario4 || !isCharged || isDelayedShockPending) return;
+
+      setIsDelayedShockPending(true);
 
       delayTimerRef.current = setTimeout(() => {
+        setIsDelayedShockPending(false);
         if (onDelayedShock) {
           onDelayedShock();
         }
