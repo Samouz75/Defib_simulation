@@ -10,11 +10,17 @@ import {
   HelpCircle,
   CheckCircle,
 } from "lucide-react";
-import MonitorDisplay, { type MonitorDisplayRef } from "../components/ScreenDisplay/MonitorDisplay";
+import MonitorDisplay, {
+  type MonitorDisplayRef,
+} from "../components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "../components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "../components/ScreenDisplay/ARRETDisplay";
-import StimulateurDisplay, { type StimulateurDisplayRef } from "../components/ScreenDisplay/StimulateurDisplay";
-import ManuelDisplay, { type ManuelDisplayRef } from "../components/ScreenDisplay/ManuelDisplay";
+import StimulateurDisplay, {
+  type StimulateurDisplayRef,
+} from "../components/ScreenDisplay/StimulateurDisplay";
+import ManuelDisplay, {
+  type ManuelDisplayRef,
+} from "../components/ScreenDisplay/ManuelDisplay";
 import Joystick from "../components/buttons/Joystick";
 import RotativeKnob from "../components/buttons/RotativeKnob";
 import Header from "../components/Header";
@@ -36,23 +42,29 @@ const DefibInterface: React.FC = () => {
   const scale = useResponsiveScale();
   const scenario = useScenario();
   const getEffectiveHeartRate = () => {
-  const currentRhythm = scenario.getEffectiveRhythm();
-    
+    const currentRhythm = scenario.getEffectiveRhythm();
+
     // Si on est dans le scénario 4 avec fibrillation atriale, utiliser la valeur du scénario
-    if (scenario.currentScenario === 'scenario_4') {
+    if (scenario.currentScenario === "scenario_4") {
       return scenario.heartRate;
     }
-    
-    if (currentRhythm === 'fibrillationVentriculaire' || currentRhythm === 'fibrillationAtriale') {
-      return Math.floor(160 + Math.random() * 30); // 160-190 BPM 
+
+    if (
+      currentRhythm === "fibrillationVentriculaire" ||
+      currentRhythm === "fibrillationAtriale"
+    ) {
+      return Math.floor(160 + Math.random() * 30); // 160-190 BPM
     }
-    if (currentRhythm === 'asystole') {
+    if (currentRhythm === "asystole") {
       return 0;
     }
     return scenario.heartRate;
   };
 
-  const defibrillator = useDefibrillator(scenario.isScenarioActive, getEffectiveHeartRate());
+  const defibrillator = useDefibrillator(
+    scenario.isScenarioActive,
+    getEffectiveHeartRate(),
+  );
   const electrodeValidation = useElectrodeValidation();
 
   // État pour la synchronisation avec le DAE
@@ -75,15 +87,15 @@ const DefibInterface: React.FC = () => {
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
-  
+
   // État pour le popup de validation
   const [showValidationPopup, setShowValidationPopup] = useState(false);
-  
+
   const [isShockButtonBlinking, setIsShockButtonBlinking] = useState(false);
-  
+
   const [showRhythmInMonitor, setShowRhythmInMonitor] = useState(false);
   const [showRhythmInManual, setShowRhythmInManual] = useState(false);
-  
+
   const [showMonitorFCValue, setShowMonitorFCValue] = useState(false);
   const [showMonitorVitalSigns, setShowMonitorVitalSigns] = useState(false);
 
@@ -140,9 +152,26 @@ const DefibInterface: React.FC = () => {
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
-      electrodeValidation.resetElectrodeValidation(); // Reset validation des électrodes
-      defibrillator.setDisplayMode(newMode);
+      electrodeValidation.resetElectrodeValidation();
+
+      defibrillator.setDisplayMode("ARRET");
       return;
+    }
+
+    if (isBooting || bootTimeoutRef.current || progressIntervalRef.current) {
+      if (bootTimeoutRef.current) {
+        clearTimeout(bootTimeoutRef.current);
+        bootTimeoutRef.current = null;
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+
+      // Reset les états de boot
+      setIsBooting(false);
+      setTargetMode(null);
+      setBootProgress(0);
     }
 
     if (defibrillator.displayMode === "ARRET") {
@@ -266,17 +295,21 @@ const DefibInterface: React.FC = () => {
     }
   };
 
- 
-
   // Gestionnaires pour les boutons physiques en mode stimulateur
   const handleStimulatorSettingsButton = () => {
-    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+    if (
+      defibrillator.displayMode === "Stimulateur" &&
+      stimulateurDisplayRef.current
+    ) {
       stimulateurDisplayRef.current.triggerReglagesStimulateur();
     }
   };
 
   const handleStimulatorMenuButton = () => {
-    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+    if (
+      defibrillator.displayMode === "Stimulateur" &&
+      stimulateurDisplayRef.current
+    ) {
       stimulateurDisplayRef.current.triggerMenu();
     }
   };
@@ -288,20 +321,23 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleStimulatorStartButton = () => {
-    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+    if (
+      defibrillator.displayMode === "Stimulateur" &&
+      stimulateurDisplayRef.current
+    ) {
       //do something about scenario 3
       stimulateurDisplayRef.current.triggerStimulation();
     }
-  }
+  };
   // État pour gérer la logique de rotation du joystick
   const [lastJoystickAngle, setLastJoystickAngle] = useState(0);
   const [joystickRotationThreshold] = useState(30);
 
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 }); 
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   const handleJoystickRotation = (angle: number) => {
     const angleDiff = angle - lastJoystickAngle;
-    
+
     // Gérer le passage de 360° à 0° et vice versa
     let normalizedDiff = angleDiff;
     if (angleDiff > 180) {
@@ -313,9 +349,13 @@ const DefibInterface: React.FC = () => {
     // Déclencher l'action si le seuil est dépassé
     if (Math.abs(normalizedDiff) > joystickRotationThreshold) {
       // Mode Stimulateur
-      if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
-        const isEditingValue = stimulateurDisplayRef.current.isInValueEditMode();
-        
+      if (
+        defibrillator.displayMode === "Stimulateur" &&
+        stimulateurDisplayRef.current
+      ) {
+        const isEditingValue =
+          stimulateurDisplayRef.current.isInValueEditMode();
+
         if (normalizedDiff > 0) {
           if (isEditingValue) {
             // Mode édition → Augmenter la valeur
@@ -336,9 +376,12 @@ const DefibInterface: React.FC = () => {
         setLastJoystickAngle(angle);
       }
       // Mode Moniteur
-      else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+      else if (
+        defibrillator.displayMode === "Moniteur" &&
+        monitorDisplayRef.current
+      ) {
         const isEditingValue = monitorDisplayRef.current.isInValueEditMode();
-        
+
         if (normalizedDiff > 0) {
           if (isEditingValue) {
             // Mode édition → Augmenter la valeur
@@ -363,9 +406,15 @@ const DefibInterface: React.FC = () => {
 
   // Gestionnaire pour les clics du joystick (sélectionne l'élément en surbrillance)
   const handleJoystickClick = () => {
-    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+    if (
+      defibrillator.displayMode === "Stimulateur" &&
+      stimulateurDisplayRef.current
+    ) {
       stimulateurDisplayRef.current.selectCurrentItem();
-    } else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+    } else if (
+      defibrillator.displayMode === "Moniteur" &&
+      monitorDisplayRef.current
+    ) {
       monitorDisplayRef.current.selectCurrentItem();
     }
   };
@@ -390,7 +439,9 @@ const DefibInterface: React.FC = () => {
       case "Manuel":
         // Pour le mode Manuel, convertir la fréquence en angle
         const mappingPoints = RotaryMappingService.getMappingPoints();
-        const found = mappingPoints.find(point => point.value === defibrillator.manualFrequency);
+        const found = mappingPoints.find(
+          (point) => point.value === defibrillator.manualFrequency,
+        );
         return found ? found.angle : 60; // Défaut à 1-10 si pas trouvé
       default:
         return 0;
@@ -460,8 +511,11 @@ const DefibInterface: React.FC = () => {
         }
       }
     } else if (defibrillator.displayMode === "Manuel") {
-      if (scenario.currentScenario === "scenario_4" && defibrillator.chargeProgress === 100) {
-        setIsShockButtonBlinking(true); 
+      if (
+        scenario.currentScenario === "scenario_4" &&
+        defibrillator.chargeProgress === 100
+      ) {
+        setIsShockButtonBlinking(true);
         if (manuelDisplayRef.current) {
           manuelDisplayRef.current.triggerDelayedShock();
         }
@@ -480,9 +534,9 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleDelayedShock = () => {
-    setIsShockButtonBlinking(false); 
+    setIsShockButtonBlinking(false);
     defibrillator.deliverShock();
-    
+
     // Validation scénario 4 - étape 6 : choquer (cardioversion)
     if (
       scenario.currentScenario === "scenario_4" &&
@@ -569,7 +623,7 @@ const DefibInterface: React.FC = () => {
   };
 
   const handleExitScenario = () => {
-    defibrillator.resetDefibrillatorStates(); 
+    defibrillator.resetDefibrillatorStates();
     scenario.stopScenario();
     setShowValidationPopup(false);
   };
@@ -590,7 +644,6 @@ const DefibInterface: React.FC = () => {
     );
   };
 
-
   // Effet pour afficher le popup de validation quand nécessaire
   useEffect(() => {
     if (scenario.currentScenario && needsManualValidation()) {
@@ -600,7 +653,7 @@ const DefibInterface: React.FC = () => {
     }
   }, [scenario.currentScenario, scenario.currentStep]);
 
-  // Arrête toute charge en cours quand le mode change 
+  // Arrête toute charge en cours quand le mode change
   useEffect(() => {
     defibrillator.stopCharging();
     setIsShockButtonBlinking(false); // Arrêter le clignotement si on change de mode
@@ -627,9 +680,11 @@ const DefibInterface: React.FC = () => {
     }
   }, [defibrillator.isCharged]);
 
-  const showVitalSignsHint = (
-    defibrillator.displayMode === "Moniteur" || defibrillator.displayMode === "Manuel"
-  ) && !showMonitorFCValue && !showMonitorVitalSigns;
+  const showVitalSignsHint =
+    (defibrillator.displayMode === "Moniteur" ||
+      defibrillator.displayMode === "Manuel") &&
+    !showMonitorFCValue &&
+    !showMonitorVitalSigns;
 
   // Gérer la validation depuis le popup
   const handleValidateFromPopup = () => {
@@ -665,7 +720,10 @@ const DefibInterface: React.FC = () => {
       );
     }
 
-    if (defibrillator.displayMode === "DAE" && !electrodeValidation.isElectrodeValidated) {
+    if (
+      defibrillator.displayMode === "DAE" &&
+      !electrodeValidation.isElectrodeValidated
+    ) {
       return (
         <ElectrodeValidationOverlay
           onValidate={electrodeValidation.validateElectrodes}
@@ -709,7 +767,7 @@ const DefibInterface: React.FC = () => {
               rhythmType={effectiveRhythm}
               showSynchroArrows={defibrillator.isSynchroMode}
               heartRate={scenario.heartRate}
-              isScenario4={scenario.currentScenario === 'scenario_4'}
+              isScenario4={scenario.currentScenario === "scenario_4"}
               isScenario1Completed={scenario.isScenario1Completed}
               showFCValue={showMonitorFCValue}
               showVitalSigns={showMonitorVitalSigns}
@@ -730,13 +788,13 @@ const DefibInterface: React.FC = () => {
                           ? "Tachycardie"
                           : effectiveRhythm === "fibrillationAtriale"
                             ? "Fibrillation atriale"
-                                : effectiveRhythm === "sinus"
-                                  ? "Rythme sinusal"
-                                  : effectiveRhythm === "bav1"
-                                    ? "BAV 1"
-                                    : effectiveRhythm === "bav3"
-                                      ? "BAV 3"
-                                      : "--"}
+                            : effectiveRhythm === "sinus"
+                              ? "Rythme sinusal"
+                              : effectiveRhythm === "bav1"
+                                ? "BAV 1"
+                                : effectiveRhythm === "bav3"
+                                  ? "BAV 3"
+                                  : "--"}
                 </span>
               </div>
             )}
@@ -767,7 +825,7 @@ const DefibInterface: React.FC = () => {
               isCharged={defibrillator.isCharged}
               onCancelCharge={defibrillator.cancelCharge}
               displayMode={defibrillator.displayMode}
-              isScenario4={scenario.currentScenario === 'scenario_4'}
+              isScenario4={scenario.currentScenario === "scenario_4"}
               onDelayedShock={handleDelayedShock}
               isScenario1Completed={scenario.isScenario1Completed}
               showFCValue={showMonitorFCValue}
@@ -789,13 +847,13 @@ const DefibInterface: React.FC = () => {
                           ? "Tachycardie"
                           : effectiveRhythm === "fibrillationAtriale"
                             ? "Fibrillation atriale"
-                                : effectiveRhythm === "sinus"
-                                  ? "Rythme sinusal"
-                                  : effectiveRhythm === "bav1"
-                                    ? "BAV 1"
-                                    : effectiveRhythm === "bav3"
-                                      ? "BAV 3"
-                                      : "--"}
+                            : effectiveRhythm === "sinus"
+                              ? "Rythme sinusal"
+                              : effectiveRhythm === "bav1"
+                                ? "BAV 1"
+                                : effectiveRhythm === "bav3"
+                                  ? "BAV 3"
+                                  : "--"}
                 </span>
               </div>
             )}
@@ -807,7 +865,7 @@ const DefibInterface: React.FC = () => {
             ref={monitorDisplayRef}
             rhythmType={effectiveRhythm}
             heartRate={scenario.heartRate}
-            isScenario4={scenario.currentScenario === 'scenario_4'}
+            isScenario4={scenario.currentScenario === "scenario_4"}
             showFCValue={showMonitorFCValue}
             showVitalSigns={showMonitorVitalSigns}
             onShowFCValueChange={handleMonitorFCValueChange}
@@ -834,21 +892,21 @@ const DefibInterface: React.FC = () => {
     // Initialiser les dimensions
     handleResize();
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [isFullscreenScenario]);
 
   // Scale responsive pour le mode plein écran - différencier portrait/paysage
   const getFullscreenScale = () => {
-    if (typeof window === 'undefined') return scale * 1.4;
-    
+    if (typeof window === "undefined") return scale * 1.4;
+
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isLandscape = width > height;
-    
+
     // Calcul du facteur de zoom basé sur la taille de l'écran
     let scaleFactor = 1.0;
-    
+
     if (width >= 1920 && height >= 1080) {
       scaleFactor = 1.6;
     } else if (width >= 1600 && height >= 900) {
@@ -864,14 +922,14 @@ const DefibInterface: React.FC = () => {
     } else {
       // Mobile - différencier portrait/paysage
       if (isLandscape) {
-        // Mode paysage 
+        // Mode paysage
         scaleFactor = 0.9;
       } else {
-        // Mode portrait 
+        // Mode portrait
         scaleFactor = 0.7;
       }
     }
-    
+
     return scale * scaleFactor;
   };
 
@@ -881,20 +939,20 @@ const DefibInterface: React.FC = () => {
         {/* Header */}
         <div className="h-[6vh] flex items-center px-1 md:px-2 border-b border-gray-600">
           <h1 className="text-xs sm:text-sm md:text-xs lg:text-lg font-bold text-white truncate flex-1 mr-1 min-w-0">
-            {scenario.showStepHelp 
+            {scenario.showStepHelp
               ? `Aide - Étape ${scenario.currentStep}/${scenario.getCurrentScenarioSteps().length}`
-              : getScenarioTitle()
-            }
+              : getScenarioTitle()}
           </h1>
 
           {/* Section droite*/}
           <div className="flex items-center gap-0.5 sm:gap-1 md:gap-0.5 lg:gap-1 flex-shrink-0">
             {!scenario.showStepHelp && (
               <span className="text-xs sm:text-sm md:text-xs lg:text-base text-white font-medium">
-                {scenario.currentStep}/{scenario.getCurrentScenarioSteps().length}
+                {scenario.currentStep}/
+                {scenario.getCurrentScenarioSteps().length}
               </span>
             )}
-            
+
             {/* Bouton aide*/}
             {!scenario.showStepHelp && (
               <button
@@ -904,21 +962,25 @@ const DefibInterface: React.FC = () => {
                 <HelpCircle className="w-3 h-3 sm:w-4 sm:h-4 md:w-3 md:h-3 lg:w-5 lg:h-5" />
               </button>
             )}
-            
+
             {/* Bouton quitter*/}
             <button
               onClick={handleExitScenario}
               className="flex items-center px-1 py-0.5 lg:px-2 lg:py-0.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-xs sm:text-sm"
             >
-              <span className="text-xs sm:text-sm md:text-xs lg:text-base">✕</span>
-              <span className="hidden lg:inline text-xs sm:text-sm ml-0.5">Quitter</span>
+              <span className="text-xs sm:text-sm md:text-xs lg:text-base">
+                ✕
+              </span>
+              <span className="hidden lg:inline text-xs sm:text-sm ml-0.5">
+                Quitter
+              </span>
             </button>
           </div>
         </div>
 
         {/* Interface du défibrillateur*/}
         <div className="h-[94vh] flex items-center justify-center p-2">
-          <div 
+          <div
             ref={containerRef}
             style={{
               transform: `scale(${getFullscreenScale()})`,
@@ -951,7 +1013,7 @@ const DefibInterface: React.FC = () => {
                               } else if (i === 3) {
                                 handleStimulatorMenuButton();
                               } else if (i === 1) {
-                                handleStimulatorStartButton()
+                                handleStimulatorStartButton();
                               }
                             }
                             // Bouton en mode Manuel (2ème en partant de la droite = index 2)
@@ -989,7 +1051,7 @@ const DefibInterface: React.FC = () => {
                   </div>
 
                   {/* Joystick */}
-                  <Joystick 
+                  <Joystick
                     onRotationChange={handleJoystickRotation}
                     onClick={handleJoystickClick}
                   />
@@ -1001,7 +1063,9 @@ const DefibInterface: React.FC = () => {
                 {/* Bouton rotatif */}
                 <div className="relative flex flex-col items-center">
                   <div className="flex items-center gap-4 -mt-0">
-                    <span className="text-white -mt-45 text-2xl font-bold">1</span>
+                    <span className="text-white -mt-45 text-2xl font-bold">
+                      1
+                    </span>
                     <RotativeKnob
                       initialValue={getCurrentRotaryAngle()}
                       onValueChange={handleRotaryValueChange}
@@ -1135,7 +1199,10 @@ const DefibInterface: React.FC = () => {
               <div className="bg-blue-50 rounded-lg p-3 mb-3">
                 <p className="text-gray-800 text-xs leading-relaxed">
                   <strong>Étape {scenario.currentStep}:</strong>{" "}
-                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                  {
+                    scenario.getCurrentScenarioSteps()[scenario.currentStep]
+                      ?.description
+                  }
                 </p>
               </div>
 
@@ -1163,13 +1230,17 @@ const DefibInterface: React.FC = () => {
                   Instructions détaillées
                 </h2>
                 <p className="text-blue-600 font-medium text-sm">
-                  Étape {scenario.currentStep} sur {scenario.getCurrentScenarioSteps().length}
+                  Étape {scenario.currentStep} sur{" "}
+                  {scenario.getCurrentScenarioSteps().length}
                 </p>
               </div>
 
               <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-4">
                 <p className="text-gray-800 text-xs md:text-sm leading-relaxed">
-                  {scenario.getCurrentScenarioSteps()[scenario.currentStep]?.description}
+                  {
+                    scenario.getCurrentScenarioSteps()[scenario.currentStep]
+                      ?.description
+                  }
                 </p>
               </div>
 
@@ -1362,7 +1433,7 @@ const DefibInterface: React.FC = () => {
               </div>
 
               {/* Joystick */}
-              <Joystick 
+              <Joystick
                 onRotationChange={handleJoystickRotation}
                 onClick={handleJoystickClick}
               />
@@ -1442,11 +1513,11 @@ const DefibInterface: React.FC = () => {
                           ? "from-orange-400 to-orange-500"
                           : defibrillator.displayMode === "DAE" &&
                               daePhase === "attente_choc"
-                                ? "from-orange-400 to-orange-500"
-                                : defibrillator.displayMode === "DAE" &&
-                                    daePhase !== "attente_choc"
-                                  ? "from-gray-400 to-gray-500"
-                                  : "from-orange-400 to-orange-500"
+                            ? "from-orange-400 to-orange-500"
+                            : defibrillator.displayMode === "DAE" &&
+                                daePhase !== "attente_choc"
+                              ? "from-gray-400 to-gray-500"
+                              : "from-orange-400 to-orange-500"
                     }`}
                   >
                     <div className="absolute left-2">
