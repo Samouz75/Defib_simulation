@@ -530,8 +530,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
               <div className="flex flex-row items-center gap-x-2">
                 <div className="text-green-400 text-4xl font-bold w-[65px] text-center">
                   {showFCValue
-                    ? rhythmType === "fibrillationVentriculaire" ||
-                      (rhythmType === "fibrillationAtriale" && !isScenario4)
+                    ? rhythmType === "fibrillationVentriculaire" 
                       ? fvVitalSigns.heartRate
                       : rhythmType === "asystole"
                         ? "0"
