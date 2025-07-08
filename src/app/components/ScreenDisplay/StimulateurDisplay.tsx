@@ -130,7 +130,7 @@ const StimulateurDisplay = forwardRef<
       items: string[],
       onClose: () => void,
     ) => (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+      <div className="absolute bottom-6 -right-1 transform translate-x-0 translate-y-0 z-50">
         <div className="bg-gray-300 border-2 border-black w-64 shadow-lg">
           <div className="bg-gray-400 px-4 py-2 border-b border-black">
             <h3 className="text-black font-bold text-sm">{title}</h3>
@@ -480,7 +480,7 @@ const StimulateurDisplay = forwardRef<
 
           {/* Menu Fréquence Stimulation */}
           {showReglagesStimulateurMenu && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="absolute bottom-6 -right-1 transform translate-x-0 translate-y-0 z-50">
               <div className="bg-gray-300 border-2 border-black w-48 shadow-lg">
                 <div className="bg-blue-600 px-4 py-2 border-b border-black">
                   <h3 className="text-white font-bold text-sm">
