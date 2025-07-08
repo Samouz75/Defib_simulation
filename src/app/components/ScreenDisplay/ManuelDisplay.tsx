@@ -386,14 +386,14 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
 
             <div className="flex items-center justify-between text-white text-xs px-2 mt-1">
               <div className="flex gap-2">
-                <div className="bg-gray-500 px-2 py-1  text-xs">
+                <div className="bg-gray-500 px-5 py-1 -ml-3 text-xs">
                   <span>Début PNI</span>
                 </div>
-                <div className="bg-gray-500 px-2 py-1  text-xs">
+                <div className="bg-gray-500 px-5 py-1 ml-4 text-xs">
                   <span>Début RCP</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-12 px-7 mr-3">
                 <div
                   className={`px-2 py-1  text-xs ${
                     isCharged
@@ -403,7 +403,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
                 >
                   <span>Annuler Charge</span>
                 </div>
-                <div className="bg-gray-500 px-2 py-1  text-xs">
+                <div className="bg-gray-500 px-7 py-1 -mr-10 text-xs">
                   <span>Menu</span>
                 </div>
               </div>

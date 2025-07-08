@@ -436,11 +436,11 @@ const StimulateurDisplay = forwardRef<
           <div className=" pt-5 pb-2 bg-black h-1/12 flex items-center justify-between  text-white text-xs ">
             <div className="flex">
               <div className="flex items-center gap-2">
-                <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
+                <div className="bg-gray-500 px-5 py-0.5 h-full flex flex-col justify-center text-xs ">
                   <span>Début PNI </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
+                  <div className="bg-gray-500 px-4 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
                     <span>
                       {isPacing ? "Pause Stimulateur" : "Début Stimulateur"}
                     </span>
@@ -449,11 +449,11 @@ const StimulateurDisplay = forwardRef<
               </div>
             </div>
             <div className="flex">
-              <div className="flex items-center gap-2">
-                <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1">
+              <div className="flex items-center gap-5">
+                <div className="bg-gray-500 px-4 py-0.5 h-full flex flex-col justify-center text-xs mr-5">
                   <span>Réglages stimulateur</span>
                 </div>
-                <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs">
+                <div className="bg-gray-500 px-6 py-0.5 h-full flex flex-col justify-center text-xs mr-1">
                   <span>Menu</span>
                 </div>
               </div>

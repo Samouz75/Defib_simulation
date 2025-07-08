@@ -67,7 +67,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     if (phase === "preparation") {
       // Préparation avant analyse
       const startTime = Date.now();
-      const duration = 14 * 1000;
+      const duration = 10 * 1000;
 
       interval = setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -465,19 +465,19 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               <div className="flex">
                 <div className="flex items-center gap-2"></div>
                 <div className="flex items-center gap-2">
-                  <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
+                  <div className="bg-gray-500 px-5 py-0.5 h-full flex flex-col justify-center text-xs ">
                     <span>Début RCP</span>
                   </div>
                 </div>
               </div>
               <div className="flex">
                 <div className="flex items-center gap-2">
-                  <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
+                  <div className="bg-gray-500 px-5 py-0.5 h-full mr-13 flex flex-col justify-center text-xs mr-1 ">
                     <span>Annuler Charge</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
+                  <div className="bg-gray-500 px-6 py-0.5 h-full flex flex-col justify-center text-xs ">
                     <span>Menu</span>
                   </div>
                 </div>

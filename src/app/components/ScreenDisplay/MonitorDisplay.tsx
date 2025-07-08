@@ -719,7 +719,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
           {/* Row 6 */}
           <div className=" bg-black h-1/12 flex items-center justify-between  text-white text-xs ">
             <div className="flex items-center gap-2">
-              <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs ">
+              <div className="bg-gray-500 px-5 py-0.5 h-full flex flex-col justify-center text-xs ">
                 <span>Début PNI</span>
               </div>
             </div>
@@ -727,7 +727,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
               <span> </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="bg-gray-500 px-2 py-0.5 h-full flex flex-col justify-center text-xs">
+              <div className="bg-gray-500 px-6 py-0.5 h-full flex flex-col justify-center text-xs">
                 <span>Menu</span>
               </div>
             </div>
