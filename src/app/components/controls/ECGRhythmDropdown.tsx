@@ -98,20 +98,20 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
       color: "bg-orange-500 hover:bg-orange-600",
       description: "Bloc de branche droite",
     },
-     {
-          type: 'electroEntrainement' as RhythmType,
-          label: 'électro entrainement',
-          icon: <Heart className="w-4 h-4" />,
-          color: 'bg-green-500 hover:bg-green-600',
-          description: 'mode stimulateur'
-        },
-      {
-            type: 'choc' as RhythmType,
-            label: 'choc',
-            icon: <Heart className="w-4 h-4" />,
-            color: 'bg-green-500 hover:bg-green-600',
-            description: 'choc défibrillation'
-          },
+    {
+      type: "electroEntrainement" as RhythmType,
+      label: "électro entrainement",
+      icon: <Heart className="w-4 h-4" />,
+      color: "bg-green-500 hover:bg-green-600",
+      description: "mode stimulateur",
+    },
+    {
+      type: "choc" as RhythmType,
+      label: "choc",
+      icon: <Heart className="w-4 h-4" />,
+      color: "bg-green-500 hover:bg-green-600",
+      description: "choc défibrillation",
+    },
   ];
 
   const handleRhythmSelect = (rhythm: RhythmType) => {
@@ -150,7 +150,7 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
               <Activity className="w-3 h-3 text-blue-400" />
               Contrôle du rythme ECG
             </h3>
-            
+
             <div className="space-y-1">
               {rhythmOptions.map((option) => (
                 <button
@@ -164,15 +164,13 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                 >
                   <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">
                     {/* Icône - colonne fixe */}
-                    <div className="flex justify-center w-6">
-                      {option.icon}
-                    </div>
-                    
+                    <div className="flex justify-center w-6">{option.icon}</div>
+
                     {/* Label principal - colonne flexible */}
                     <div className="text-left">
                       <span className="font-medium">{option.label}</span>
                     </div>
-                    
+
                     {/* Description - colonne fixe à droite */}
                     <div className="text-right min-w-[80px]">
                       <span className="text-xs opacity-75 bg-gray-900 bg-opacity-50 px-2 py-1 rounded-md">
@@ -184,7 +182,7 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
               ))}
             </div>
 
-            {(
+            {
               <div className="mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600 mx-3 mb-2">
                 <h4 className="text-white text-xs font-bold mb-3 flex items-center gap-2">
                   <Heart className="w-3 h-3 text-red-400" />
@@ -193,35 +191,36 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs text-gray-300">
-                    <span className="font-medium">30 bpm</span>
+                    <span className="font-medium">
+                      {currentRhythm === "bav3" ? "10 bpm" : "30 bpm"}
+                    </span>
                     <span className="font-bold text-white bg-gray-600 px-2 py-1 rounded">
                       {heartRate} bpm
                     </span>
-                    <span className="font-medium">170 bpm</span>
+                    <span className="font-medium">
+                      {currentRhythm === "bav3" ? "50 bpm" : "170 bpm"}
+                    </span>
                   </div>
 
                   <input
                     type="range"
-                    min="30"
-                    max="170"
+                    min={currentRhythm === "bav3" ? "10" : "30"}
+                    max={currentRhythm === "bav3" ? "50" : "170"}
                     value={heartRate}
                     onChange={(e) =>
                       onHeartRateChange(parseInt(e.target.value))
                     }
                     className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                     style={{
-                      background: `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 30) / 150) * 100}%, #374151 ${((heartRate - 30) / 150) * 100}%, #374151 100%)`,
+                      background:
+                        currentRhythm === "bav3"
+                          ? `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 10) / 40) * 100}%, #374151 ${((heartRate - 10) / 40) * 100}%, #374151 100%)`
+                          : `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 30) / 150) * 100}%, #374151 ${((heartRate - 30) / 150) * 100}%, #374151 100%)`,
                     }}
                   />
-
-                  <div className="grid grid-cols-3 text-xs text-gray-400">
-                    <span className="text-left font-medium">Bradycardie</span>
-                    <span className="text-center font-medium">Normal</span>
-                    <span className="text-right font-medium">Tachycardie</span>
-                  </div>
                 </div>
               </div>
-            )}
+            }
           </div>
         </div>
       )}
