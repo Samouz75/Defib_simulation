@@ -120,12 +120,9 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
   };
 
   const handleEnd = () => {
-    const duration = Date.now() - startTime;
-    
-    if (isPressed && !hasRotated && duration < 300) {
+    if (isPressed && !hasRotated) {
       onClick?.();
     }
-    
     setIsDragging(false);
     setIsPressed(false);
     setHasRotated(false);
@@ -152,18 +149,6 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
       };
     }
   }, [isDragging, angle, isPressed, hasRotated, startTime]);
-
-  useEffect(() => {
-    if (isPressed && !isDragging) {
-      const timer = setTimeout(() => {
-        if (isPressed && !hasRotated) {
-          handleEnd();
-        }
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isPressed, isDragging, hasRotated]);
 
   return (
     <div className="flex items-center justify-center">
