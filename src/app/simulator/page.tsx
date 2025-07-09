@@ -29,9 +29,9 @@ import { useResponsiveScale } from "../hooks/useResponsiveScale";
 import { RotaryMappingService } from "../services/RotaryMappingService";
 import { useScenario } from "../hooks/useScenario";
 import { useElectrodeValidation } from "../hooks/useElectrodeValidation";
+import { useDeviceOrientation } from "../hooks/useDeviceOrientation";
 import Synchro from "../components/buttons/Synchro";
 import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay";
-
 import type { DisplayMode } from "../hooks/useDefibrillator";
 
 const DefibInterface: React.FC = () => {
@@ -41,6 +41,7 @@ const DefibInterface: React.FC = () => {
   const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
   const scale = useResponsiveScale();
   const scenario = useScenario();
+  const { isMobile, orientation } = useDeviceOrientation();
   const getEffectiveHeartRate = () => {
     const currentRhythm = scenario.getEffectiveRhythm();
 
@@ -66,7 +67,6 @@ const DefibInterface: React.FC = () => {
     getEffectiveHeartRate(),
   );
   const electrodeValidation = useElectrodeValidation();
-
   // État pour la synchronisation avec le DAE
   const [daePhase, setDaePhase] = useState<
     | "placement"
@@ -406,15 +406,19 @@ const DefibInterface: React.FC = () => {
 
   // Gestionnaire pour les clics du joystick (sélectionne l'élément en surbrillance)
   const handleJoystickClick = () => {
-    if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
+    if (
+      defibrillator.displayMode === "Stimulateur" &&
+      stimulateurDisplayRef.current
+    ) {
       stimulateurDisplayRef.current.selectCurrentItem();
       handleStimulatorMenuButton();
-
-    
-    } else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
+    } else if (
+      defibrillator.displayMode === "Moniteur" &&
+      monitorDisplayRef.current
+    ) {
       monitorDisplayRef.current.selectCurrentItem();
       handleMonitorMenuButton();
-    } 
+    }
   };
 
   const handleCancelChargeButton = () => {
@@ -931,6 +935,37 @@ const DefibInterface: React.FC = () => {
     return scale * scaleFactor;
   };
 
+  if (isMobile && orientation === "portrait") {
+    return (
+      <div className=" text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-100 bg-blue-500 text-white text-[11px] px-2 py-1 rounded-lg shadow-lg animate-pulse">
+        <div className="flex flex-col items-center">
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 122.88 106.43"
+            className="w-12 h-12 mb-3 fill-white"
+          >
+            <path
+              d="M11.1,0h35.63c3.05,0,5.85,1.25,7.85,3.25c2.03,2.03,3.25,4.8,3.25,7.85v31.46h-3.19V12.18H3.15v75.26l0,0
+              h7.61v11.61c0,1.58,0.27,3.10,0.77,4.51H11.1c-3.05,0-5.85-1.25-7.85-3.25C1.22,98.27,0,95.51,0,92.45V11.1
+              c0-3.05,1.25-5.85,3.25-7.85C5.28,1.22,8.04,0,11.1,0L11.1,0L11.1,0z M94.95,33.45c-0.37-5.8-2.64-10.56-6.06-13.97
+              c-3.64-3.63-8.59-5.74-13.94-5.93l2.46,2.95c0.73,0.88,0.62,2.18-0.26,2.91c-0.88,0.73-2.18,0.62-2.91-0.26l-5.72-6.85l0,0
+              c-0.72-0.86-0.62-2.14,0.22-2.88l6.71-5.89c0.86-0.75,2.16-0.66,2.91,0.19c0.75,0.86,0.66,2.16-0.19,2.91l-3.16,2.78
+              c6.43,0.21,12.4,2.75,16.8,7.13c4.07,4.06,6.79,9.69,7.25,16.49l2.58-3.08c0.73-0.88,2.04-0.99,2.91-0.26
+              c0.88,0.73,0.99,2.04,0.26,2.91l-5.73,6.84c-0.72,0.86-1.99,0.99-2.87,0.29l-6.98-5.56c-0.89-0.71-1.04-2.01-0.33-2.91
+              c0.71-0.89,2.01-1.04,2.91-0.33L94.95,33.45L94.95,33.45z M122.88,59.7v35.63c0,3.05-1.25,5.85-3.25,7.85
+              c-2.03,2.03-4.8,3.25-7.85,3.25h-78.9c-3.05,0-5.85-1.25-7.85-3.25c-2.03-2.03-3.25-4.8-3.25-7.85V59.7c0-3.05,1.25-5.85,3.25-7.85
+              c2.03-2.03,4.79-3.25,7.85-3.25h78.9c3.05,0,5.85,1.25,7.85,3.25C121.66,53.88,122.88,56.64,122.88,59.7L122.88,59.7L122.88,59.7z
+              M35.41,77.49c0,2.51-2.03,4.57-4.57,4.57c-2.51,0-4.57-2.03-4.57-4.57c0-2.51,2.03-4.57,4.57-4.57
+              C33.36,72.92,35.41,74.95,35.41,77.49L35.41,77.49L35.41,77.49z M37.88,51.75v51.49h72.82V51.75H37.88L37.88,51.75z"
+            />
+          </svg>
+          <p className="text-lg">Veuillez tourner votre appareil.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isFullscreenScenario) {
     return (
       <div className="h-screen bg-[#0B1222] flex flex-col relative">
@@ -1000,32 +1035,34 @@ const DefibInterface: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex gap-4 mb-6 items-center justify-center">
                       {[...Array(4)].map((_, i) => (
-                                            <div key={i} className="flex flex-col items-center gap-2">
-                                            <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
-                      
-
-                                            <button
+                        <div
                           key={i}
-                          className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
-                          onClick={() => {
-                            // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
-                            if (defibrillator.displayMode === "Stimulateur") {
-                              if (i === 2) {
-                                handleStimulatorSettingsButton();
-                              } else if (i === 3) {
-                                handleStimulatorMenuButton();
-                              } else if (i === 1) {
-                                handleStimulatorStartButton();
+                          className="flex flex-col items-center gap-2"
+                        >
+                          <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
+
+                          <button
+                            key={i}
+                            className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
+                            onClick={() => {
+                              // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
+                              if (defibrillator.displayMode === "Stimulateur") {
+                                if (i === 2) {
+                                  handleStimulatorSettingsButton();
+                                } else if (i === 3) {
+                                  handleStimulatorMenuButton();
+                                } else if (i === 1) {
+                                  handleStimulatorStartButton();
+                                }
+                              } else if (
+                                defibrillator.displayMode === "Manuel"
+                              ) {
+                                if (i === 2) {
+                                  handleCancelChargeButton();
+                                }
                               }
-                            }
-                            else if (defibrillator.displayMode === "Manuel") {
-                              if (i === 2) {
-                                handleCancelChargeButton();
-                              }
-                            }
-                           
-                          }}
-                        ></button>
+                            }}
+                          ></button>
                         </div>
                       ))}
                     </div>
@@ -1392,7 +1429,6 @@ const DefibInterface: React.FC = () => {
                           if (defibrillator.displayMode === "Stimulateur") {
                             if (i === 3) {
                               handleStimulatorSettingsButton();
-
                             } else if (i === 1) {
                               handleStimulatorStartButton();
                             }
@@ -1403,7 +1439,6 @@ const DefibInterface: React.FC = () => {
                               handleCancelChargeButton();
                             }
                           }
-
                         }}
                       ></button>
                     </div>
@@ -1431,7 +1466,6 @@ const DefibInterface: React.FC = () => {
               <Joystick
                 onRotationChange={handleJoystickRotation}
                 onClick={handleJoystickClick}
-
               />
             </div>
           </div>
