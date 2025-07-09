@@ -133,6 +133,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
         "Mesures/Alarmes",
         "Infos patient",
         "Tendances",
+        "Fin",
       ],
       Mesures: ["FC/Arythmie", "PNI", "SpO2", "Pouls", "Fin"],
       FC: [
@@ -320,6 +321,8 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
             }, // Mesures/Alarmes
             () => console.log("Infos patient sélectionné"), // Infos patient
             () => console.log("Tendances sélectionné"), // Tendances
+            () => setShowMenu(false), // Fin
+
           ],
           Mesures: [
             () => {
