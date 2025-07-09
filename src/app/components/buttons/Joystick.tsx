@@ -16,10 +16,16 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
   const [angle, setAngle] = useState(initialAngle);
   const [isDragging, setIsDragging] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [startTime, setStartTime] = useState(0);
+  const [hasRotated, setHasRotated] = useState(false);
+  
   const buttonRef = useRef<HTMLDivElement>(null);
   const lastAngleRef = useRef<number>(0);
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasMovedRef = useRef<boolean>(false); 
+  
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   const getEventCoordinates = (e: MouseEvent | TouchEvent) => {
     if ("touches" in e) {
@@ -34,50 +40,51 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
     let angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    // Normaliser entre 0 et 360
     if (angle < 0) angle += 360;
     return angle;
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setIsPressed(true);
-    hasMovedRef.current = false; 
+  const isInCenterZone = (clientX: number, clientY: number) => {
+    if (!buttonRef.current) return false;
     
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      lastAngleRef.current = calculateAngle(centerX, centerY, e.clientX, e.clientY);
-    }
+    const rect = buttonRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const distance = Math.sqrt(
+      Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2)
+    );
+    
 
-    // Timer pour détecter si c'est un clic
-    clickTimeoutRef.current = setTimeout(() => {
-      clickTimeoutRef.current = null;
-    }, 200);
+    const centerZoneRadius = size * 0.08;
+    return distance <= centerZoneRadius;
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setIsPressed(true);
-    hasMovedRef.current = false; 
+  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const { clientX, clientY } = getEventCoordinates(e as any);
-      lastAngleRef.current = calculateAngle(centerX, centerY, clientX, clientY);
+    
+    const { clientX, clientY } = getEventCoordinates(e as any);
+    const isCenter = isInCenterZone(clientX, clientY);
+    
+    setStartTime(Date.now());
+    setHasRotated(false);
+    
+    if (isCenter) {
+      // Zone centrale - clic
+      setIsPressed(true);
+    } else {
+      // Zone externe - démarrage rotation
+      setIsDragging(true);
+      
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        lastAngleRef.current = calculateAngle(centerX, centerY, clientX, clientY);
+      }
     }
-
-    clickTimeoutRef.current = setTimeout(() => {
-      clickTimeoutRef.current = null;
-    }, 200);
   };
 
-  // rotation
   const handleMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging || !buttonRef.current) return;
 
@@ -90,58 +97,45 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
     
     let angleDiff = newAngle - lastAngleRef.current;
     
-    // Gérer le passage de 360° à 0° et vice versa
     if (angleDiff > 180) {
       angleDiff -= 360;
     } else if (angleDiff < -180) {
       angleDiff += 360;
     }
     
-    if (Math.abs(angleDiff) > 5) { // Augmente le seuil pour éviter les micro-mouvements
-      hasMovedRef.current = true;
+    const threshold = isTouchDevice ? 3 : 5;
+    if (Math.abs(angleDiff) > threshold) {
+      setHasRotated(true);
+      
+      const speedMultiplier = 0.5;
+      angleDiff *= speedMultiplier;
+      
+      const newTotalAngle = angle + angleDiff;
+      setAngle(newTotalAngle);
+      lastAngleRef.current = newAngle;
+      
+      const normalizedAngle = ((newTotalAngle % 360) + 360) % 360;
+      onRotationChange?.(normalizedAngle);
     }
-    
-    const speedMultiplier = 0.5;
-    angleDiff *= speedMultiplier;
-    
-    // Permettre rotation continue sans limite
-    const newTotalAngle = angle + angleDiff;
-    
-    setAngle(newTotalAngle);
-    lastAngleRef.current = newAngle;
-    
-    if (clickTimeoutRef.current) {
-      clearTimeout(clickTimeoutRef.current);
-      clickTimeoutRef.current = null;
-    }
-    
-    const normalizedAngle = ((newTotalAngle % 360) + 360) % 360;
-    onRotationChange?.(normalizedAngle);
   };
 
-  // Gestion de la fin de rotation/clic
   const handleEnd = () => {
-    const wasQuickClick = clickTimeoutRef.current !== null;
+    const duration = Date.now() - startTime;
+    
+    if (isPressed && !hasRotated && duration < 300) {
+      onClick?.();
+    }
     
     setIsDragging(false);
     setIsPressed(false);
-    
-    if (clickTimeoutRef.current) {
-      clearTimeout(clickTimeoutRef.current);
-      clickTimeoutRef.current = null;
-    }
-    
-    if (wasQuickClick && !hasMovedRef.current) {
-      onClick?.();
-    }
+    setHasRotated(false);
   };
 
-  // Event listeners globaux
   useEffect(() => {
     if (isDragging) {
       const handleMouseMove = (e: MouseEvent) => handleMove(e);
       const handleTouchMove = (e: TouchEvent) => {
-        e.preventDefault();
+        
         handleMove(e);
       };
 
@@ -157,38 +151,50 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
         document.removeEventListener('touchend', handleEnd);
       };
     }
-  }, [isDragging, angle]);
+  }, [isDragging, angle, isPressed, hasRotated, startTime]);
+
+  useEffect(() => {
+    if (isPressed && !isDragging) {
+      const timer = setTimeout(() => {
+        if (isPressed && !hasRotated) {
+          handleEnd();
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isPressed, isDragging, hasRotated]);
 
   return (
     <div className="flex items-center justify-center">
       <div
         ref={buttonRef}
-        className="rounded-full  shadow-lg cursor-pointer select-none bg-gray-900"
+        className="rounded-full shadow-lg cursor-pointer select-none bg-gray-900 relative"
         style={{
           width: `${size}px`,
           height: `${size}px`,
           touchAction: 'none'
         }}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
+        onMouseDown={handleStart}
+        onTouchStart={handleStart}
+        onMouseUp={handleEnd}
+        onTouchEnd={handleEnd}
       >
-        {/* Centre noir rotatif */}
         <div 
           className="w-full h-full rounded-full flex items-center justify-center transition-transform duration-100"
           style={{
             transform: `rotate(${angle}deg)`,
           }}
         >
-          {/* Cercle central noir */}
           <div 
-            className={`rounded-full bg-black transition-all duration-150 relative ${
-              isPressed ? 'shadow-inner transform scale-95 bg-gray-800' : ''}`}
+            className={`rounded-full relative transition-all duration-150 ${
+              isPressed ? 'shadow-inner transform scale-95 bg-gray-800' : 'bg-black'
+            }`}
             style={{
-              width: `${size * 0.4}px`,
-              height: `${size * 0.4}px`,
+              width: `${size * 0.3}px`,  
+              height: `${size * 0.3}px`, 
             }}
           >
-            {/* Petite marque pour indiquer l'orientation */}
             <div 
               className="absolute w-1 h-3 bg-gray-300 rounded-full"
               style={{
@@ -197,6 +203,12 @@ const RotaryButton: React.FC<RotaryButtonProps> = ({
                 transform: 'translateX(-50%)',
               }}
             />
+            
+            <div className="hidden">
+              <div className={`w-3 h-3 rounded-full transition-all ${
+                isPressed ? 'bg-gray-500' : 'bg-gray-600'
+              }`}></div>
+            </div>
           </div>
         </div>
       </div>

@@ -191,20 +191,20 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs text-gray-300">
                     <span className="font-medium">
-                      {currentRhythm === "bav3" ? "10 bpm" : currentRhythm === "tachycardieVentriculaire" ? "50 bpm" : currentRhythm === "fibrillationAtriale" ? "120 bpm" : "30 bpm" }
+                      {currentRhythm === "bav3" ? "10 bpm" : currentRhythm === "tachycardieVentriculaire" ? "50 bpm" : currentRhythm === "fibrillationAtriale" ? "120 bpm" : "20 bpm" }
                     </span>
                     <span className="font-bold text-white bg-gray-600 px-2 py-1 rounded">
                       {heartRate} bpm
                     </span>
                     <span className="font-medium">
-                      {currentRhythm === "bav3" ? "50 bpm" : currentRhythm === "tachycardieVentriculaire" ? "240 bpm" : currentRhythm === "fibrillationAtriale" ? "240 bpm" : "170 bpm"}
+                      {currentRhythm === "bav3" ? "50 bpm" : currentRhythm === "tachycardieVentriculaire" ? "240 bpm" : currentRhythm === "fibrillationAtriale" ? "240 bpm" : "200 bpm"}
                     </span>
                   </div>
 
                   <input
                     type="range"
-                    min={currentRhythm === "bav3" ? "10" : currentRhythm === "tachycardieVentriculaire" ? "50" : currentRhythm === "fibrillationAtriale" ? "120" : "30"}
-                    max={currentRhythm === "bav3" ? "50" : currentRhythm === "tachycardieVentriculaire" ? "240" : currentRhythm === "fibrillationAtriale" ? "240" : "170"}
+                    min={currentRhythm === "bav3" ? "10" : currentRhythm === "tachycardieVentriculaire" ? "50" : currentRhythm === "fibrillationAtriale" ? "120" : "20"}
+                    max={currentRhythm === "bav3" ? "50" : currentRhythm === "tachycardieVentriculaire" ? "240" : currentRhythm === "fibrillationAtriale" ? "240" : "200"}
                     value={heartRate}
                     onChange={(e) =>
                       onHeartRateChange(parseInt(e.target.value))
@@ -213,12 +213,12 @@ const ECGRhythmDropdown: React.FC<ECGRhythmDropdownProps> = ({
                     style={{
                       background:
                         currentRhythm === "bav3"
-                          ? `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 10) / 40) * 100}%, #374151 ${((heartRate - 10) / 40) * 100}%, #374151 100%)`
+                          ? `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 10) / 40) * 100}%, #374151 ${((heartRate - 10)  / 40) * 100}%, #374151 100%)`
                           : currentRhythm === "tachycardieVentriculaire"
                           ? `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 50) / 190) * 100}%, #374151 ${((heartRate - 50) / 190) * 100}%, #374151 100%)`
                           : currentRhythm === "fibrillationAtriale"
                           ? `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 120) / 120) * 100}%, #374151 ${((heartRate - 120) / 120) * 100}%, #374151 100%)`
-                          : `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 30) / 150) * 100}%, #374151 ${((heartRate - 30) / 150) * 100}%, #374151 100%)`,
+                          : `linear-gradient(to right, #ef4444 0%, #f59e0b ${((heartRate - 20) / 180) * 100}%, #374151 ${((heartRate - 20) / 180) * 100}%, #374151 100%)`,
                     }}
                   />
                 </div>
