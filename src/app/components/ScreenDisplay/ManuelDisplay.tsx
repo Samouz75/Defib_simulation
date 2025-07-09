@@ -361,7 +361,16 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
           </div>
 
           {/* Row 5 & 6 - Messages and Footer */}
-          <div className="bg-black flex flex-col -mt-2 mb-4">
+
+          <div
+            className={`bg-black flex flex-col -mt-2 ${
+              showFCValue &&
+              (rhythmType === "fibrillationVentriculaire" ||
+                rhythmType === "fibrillationAtriale")
+                ? "-mt-4"
+                : "mb-4"
+            }`}
+          >
             <div className="h-6 flex items-center justify-center relative mt-1">
               {isCharged && (
                 <div className="bg-white px-2 py-0.5 ">
