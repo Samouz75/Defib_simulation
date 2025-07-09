@@ -358,15 +358,10 @@ export const useScenario = () => {
         currentStep: 0,
         showScenarioComplete: false,
         currentRhythm: 'fibrillationAtriale', // ACFA 160/min
-        heartRate: Math.floor(155 + Math.random() * 11), 
+        heartRate: 160,
         isScenario1Completed: false, 
       });
-      if (heartRateIntervalRef.current) {
-        clearInterval(heartRateIntervalRef.current);
-      }
-      heartRateIntervalRef.current = setInterval(() => {
-        setState(prev => ({ ...prev, heartRate: Math.floor(155 + Math.random() * 11) }));
-      }, 2000); 
+      
     }
   };
 
