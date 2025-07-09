@@ -1004,26 +1004,26 @@ const DefibInterface: React.FC = () => {
                                             <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
                       
 
-                        <button
+                                            <button
                           key={i}
                           className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
                           onClick={() => {
                             // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
                             if (defibrillator.displayMode === "Stimulateur") {
-                              if (i === 3) {
+                              if (i === 2) {
                                 handleStimulatorSettingsButton();
-  
+                              } else if (i === 3) {
+                                handleStimulatorMenuButton();
                               } else if (i === 1) {
                                 handleStimulatorStartButton();
                               }
                             }
-                            // Bouton en mode Manuel (2ème en partant de la droite = index 2)
                             else if (defibrillator.displayMode === "Manuel") {
-                              if (i === 3) {
+                              if (i === 2) {
                                 handleCancelChargeButton();
                               }
                             }
-  
+                           
                           }}
                         ></button>
                         </div>
@@ -1430,13 +1430,8 @@ const DefibInterface: React.FC = () => {
               {/* Joystick */}
               <Joystick
                 onRotationChange={handleJoystickRotation}
-                onClick={() => {
-                  if (defibrillator.displayMode === "Stimulateur" && stimulateurDisplayRef.current) {
-                    stimulateurDisplayRef.current.selectCurrentItem();
-                  } else if (defibrillator.displayMode === "Moniteur" && monitorDisplayRef.current) {
-                    handleMonitorMenuButton();
-                  }
-                }}
+                onClick={handleJoystickClick}
+
               />
             </div>
           </div>
