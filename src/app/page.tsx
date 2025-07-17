@@ -4,11 +4,8 @@ import Link from "next/link";
 import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
 import Particles from "./components/Particles";
 import ChromaGrid from "./components/ChromaGrid";
-import SpotlightCard from './components/SpotlightCard';
+import SpotlightCard from "./components/SpotlightCard";
 import BlurText from "./components/BlurText";
-
-
-
 
 export default function LandingPage() {
   return (
@@ -53,13 +50,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6-mt-6">
         <div className="max-w-4xl mx-auto">
           <BlurText
             text="Plateforme de Formation aux techniques de défibrillation"
-            className="mb-8 block text-white text-center text-5xl md:text-7xl font-light mt-2 leading-tight font-bold"
+            className="mb-8 block text-white text-center text-5xl md:text-7xl mt-2 leading-tight mb-10"
             animateBy="words"
             direction="top"
+            style={{
+              fontFamily: "Amidone Grotesk, sans-serif",
+              fontWeight: 400,
+            }}
           />
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
             Formez-vous en sécurité, répondez avec confiance.
@@ -72,7 +73,6 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </button>
           </Link>
-
         </div>
       </div>
 
@@ -119,8 +119,11 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
-          <h3 className="text-xl font-semibold text-white mb-3 text-center">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
+              <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 ECG Réaliste
               </h3>
               <p className="text-gray-400 text-sm text-center">
@@ -129,8 +132,11 @@ export default function LandingPage() {
               </p>
             </SpotlightCard>
 
-            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
-            <h3 className="text-xl font-semibold text-white mb-3 text-center">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
+              <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 Modes Multiples
               </h3>
               <p className="text-gray-400 text-sm text-center">
@@ -138,8 +144,11 @@ export default function LandingPage() {
               </p>
             </SpotlightCard>
 
-            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
-            <h3 className="text-xl font-semibold text-white mb-3 text-center">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
+              <h3 className="text-xl font-semibold text-white mb-3 text-center">
                 Qualité Hospitalière
               </h3>
               <p className="text-gray-400 text-sm text-center">
@@ -167,8 +176,11 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
-          <div className="flex items-center justify-between mb-4">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
+              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Fibrillation Ventriculaire
                 </h3>
@@ -179,18 +191,25 @@ export default function LandingPage() {
               </p>
             </SpotlightCard>
 
-            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Utilisation DAE
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
-                Formation à l'utilisation du DAE pour intervenir en cas d'arrêt cardiaque.
+                Formation à l'utilisation du DAE pour intervenir en cas d'arrêt
+                cardiaque.
               </p>
             </SpotlightCard>
 
-            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Stimulation Cardiaque
@@ -202,7 +221,10 @@ export default function LandingPage() {
               </p>
             </SpotlightCard>
 
-            <SpotlightCard className="custom-spotlight-card" spotlightColor="rgba(0, 229, 255, 0.2)">
+            <SpotlightCard
+              className="custom-spotlight-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Cardioversion
@@ -234,8 +256,6 @@ export default function LandingPage() {
             accessible et de haute qualité pour préparer les professionnels de
             santé aux situations d'urgence réelles.
           </p>
-
-
         </div>
       </section>
 

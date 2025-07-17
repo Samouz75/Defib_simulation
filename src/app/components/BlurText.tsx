@@ -14,6 +14,7 @@ type BlurTextProps = {
   easing?: (t: number) => number;
   onAnimationComplete?: () => void;
   stepDuration?: number;
+  style?: React.CSSProperties;
 };
 
 const buildKeyframes = (
@@ -45,6 +46,7 @@ const BlurText: React.FC<BlurTextProps> = ({
   easing = (t) => t,
   onAnimationComplete,
   stepDuration = 0.35,
+  style,
 }) => {
   const elements = animateBy === "words" ? text.split(" ") : text.split("");
   const [inView, setInView] = useState(false);
@@ -95,7 +97,7 @@ const BlurText: React.FC<BlurTextProps> = ({
   );
 
   return (
-    <p ref={ref} className={`blur-text flex flex-wrap justify-center text-center ${className}`}>
+    <p ref={ref} className={`blur-text flex flex-wrap justify-center text-center ${className}`} style={style}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
