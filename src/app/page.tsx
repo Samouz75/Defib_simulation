@@ -5,6 +5,9 @@ import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
 import Particles from "./components/Particles";
 import ChromaGrid from "./components/ChromaGrid";
 import SpotlightCard from './components/SpotlightCard';
+import BlurText from "./components/BlurText";
+
+
 
 
 export default function LandingPage() {
@@ -52,9 +55,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6">
         <div className="max-w-4xl mx-auto">
-          <span className=" mb-8 block text-white text-5xl md:text-7xl font-light mt-2 leading-tight font-bold">
-            Plateforme de Formation aux techniques de défibrillation
-          </span>
+          <BlurText
+            text="Plateforme de Formation aux techniques de défibrillation"
+            className="mb-8 block text-white text-center text-5xl md:text-7xl font-light mt-2 leading-tight font-bold"
+            animateBy="words"
+            direction="top"
+          />
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
             Formez-vous en sécurité, répondez avec confiance.
           </p>
@@ -67,10 +73,6 @@ export default function LandingPage() {
             </button>
           </Link>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <ChevronDown className="w-6 h-6 text-gray-500" />
-          </div>
         </div>
       </div>
 
@@ -233,20 +235,7 @@ export default function LandingPage() {
             santé aux situations d'urgence réelles.
           </p>
 
-          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 text-sm text-gray-500">
-            <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4" />
-              <span>Professionnels de Santé</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4" />
-              <span>Scénarios Réels</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4" />
-              <span>Formation Sécurisée</span>
-            </div>
-          </div>
+
         </div>
       </section>
 
