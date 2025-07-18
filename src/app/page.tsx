@@ -330,7 +330,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-8 px-6 border-t border-gray-800">
+      <footer className="relative z-10 py-8 px-6 border-t border-gray-800 -mb-35">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center">
           <div className="text-gray-500 text-sm text-center md:text-right">
             © 2025 Plateforme de Formation d'Urgence Médicale
