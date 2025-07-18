@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Shield, Users, Activity, ChevronDown } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import Particles from "./components/Particles";
 import ChromaGrid from "./components/ChromaGrid";
 import SpotlightCard from "./components/SpotlightCard";
 import BlurText from "./components/BlurText";
 import Timeline from "./components/Timeline";
+import CardSwap, { Card } from "./components/CardSwap";
 
 export default function LandingPage() {
   return (
@@ -111,7 +113,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              Fonctionnalités Professionnelles
+              Fonctionnalités
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
               Technologie de simulation avancée conçue pour les professionnels
@@ -159,6 +161,87 @@ export default function LandingPage() {
             </SpotlightCard>
           </div>
         </div>
+      </section>
+      <section id="features" className="relative z-10 mt-10  px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Carrousel Photo
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              4 modes de défibrillation disponibles dans le simulateur.
+            </p>
+          </div>
+
+      <div style={{ height: "600px", position: "relative" }}>
+        <CardSwap
+          cardDistance={60}
+          verticalDistance={70}
+          delay={5000}
+          pauseOnHover={false}
+        >
+          <Card className="flex flex-col">
+            <h3 className="ml-4 py-2 text-white text-sm font-semibold">
+              Moniteur
+            </h3>
+            <div className="w-full h-0.5 bg-black" />
+            <div className="flex-1 relative">
+              <Image
+                src="/images/CardSwap1.png"
+                alt="Card 1"
+                fill
+                className="object-cover rounded-lg [image-rendering:auto] [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast]"
+                quality={95}
+                priority
+              />
+            </div>
+          </Card>
+          <Card className="flex flex-col">
+            <h3 className="ml-4 py-2 text-white text-sm font-semibold">
+              Manuel
+            </h3>
+            <div className="w-full h-0.5 bg-black" />
+            <div className="flex-1 relative">
+              <Image
+                src="/images/CardSwap2.png"
+                alt="Card 2"
+                fill
+                className="object-cover rounded-lg [image-rendering:auto] [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast]"
+                quality={95}
+              />
+            </div>
+          </Card>
+          <Card className="flex flex-col">
+            <h3 className="ml-4 py-2 text-white text-sm font-semibold">
+              Stimulateur
+            </h3>
+            <div className="w-full h-0.5 bg-black" />
+            <div className="flex-1 relative">
+              <Image
+                src="/images/CardSwap3.png"
+                alt="Card 3"
+                fill
+                className="object-cover rounded-lg [image-rendering:auto] [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast]"
+                quality={95}
+              />
+            </div>
+          </Card>
+          <Card className="flex flex-col">
+            <h3 className="ml-4 py-2 text-white text-sm font-semibold">DAE</h3>
+            <div className="w-full h-0.5 bg-black" />
+            <div className="flex-1 relative">
+              <Image
+                src="/images/CardSwap4.png"
+                alt="Card 3"
+                fill
+                className="object-cover rounded-lg [image-rendering:auto] [image-rendering:high-quality] [image-rendering:-webkit-optimize-contrast]"
+                quality={95}
+              />
+            </div>
+          </Card>
+        </CardSwap>
+      </div>
+      </div>
       </section>
 
       {/* Scenarios Section */}
@@ -305,14 +388,15 @@ export default function LandingPage() {
                 {
                   image: "/images/papasami.jpg",
                   title: "Ellouze",
-                  subtitle: "Professeur émérite, ENITunis / Centrale Lille – Traitement du signal",
+                  subtitle:
+                    "Professeur émérite, ENITunis / Centrale Lille – Traitement du signal",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                 },
                 {
                   image: "/images/benedict.jpg",
                   title: "Benedict O'donnell",
-                  subtitle:"Advisor",
+                  subtitle: "Advisor",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                   url: "https://www.linkedin.com/in/benedict-odonnell/",
@@ -343,5 +427,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-
