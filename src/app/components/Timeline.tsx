@@ -29,7 +29,7 @@ const Timeline: React.FC<TimelineProps> = ({
       id: 2,
       title: "Développement du simulateur interactif",
       description: "Implémentation des fonctionnalités clés du simulateur et des scénarios interactifs",
-      status: "current",
+      status: "completed",
     
     },
     {
