@@ -6,6 +6,7 @@ import Particles from "./components/Particles";
 import ChromaGrid from "./components/ChromaGrid";
 import SpotlightCard from "./components/SpotlightCard";
 import BlurText from "./components/BlurText";
+import Timeline from "./components/Timeline";
 
 export default function LandingPage() {
   return (
@@ -124,7 +125,7 @@ export default function LandingPage() {
               spotlightColor="rgba(0, 229, 255, 0.2)"
             >
               <h3 className="text-xl font-semibold text-white mb-3 text-center">
-                ECG Réaliste
+                Tracé ECG Authentique
               </h3>
               <p className="text-gray-400 text-sm text-center">
                 Rythmes cardiaques authentiques incluant rythme sinusal, FV, TV,
@@ -239,6 +240,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Timeline Section */}
+      <Timeline />
+
       {/* About Section */}
       <section id="about" className="relative z-10 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -308,7 +312,7 @@ export default function LandingPage() {
                 {
                   image: "/images/benedict.jpg",
                   title: "Benedict O'donnell",
-                  subtitle:"",
+                  subtitle:"Advisor",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                   url: "https://www.linkedin.com/in/benedict-odonnell/",
