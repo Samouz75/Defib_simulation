@@ -162,16 +162,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      <section id="features" className="relative z-10 mt-10  px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Carrousel Photo
-            </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
-              4 modes de défibrillation disponibles dans le simulateur.
-            </p>
-          </div>
+  
+         
 
       <div style={{ height: "600px", position: "relative" }}>
         <CardSwap
@@ -241,8 +233,7 @@ export default function LandingPage() {
           </Card>
         </CardSwap>
       </div>
-      </div>
-      </section>
+     
 
       {/* Scenarios Section */}
       <section
