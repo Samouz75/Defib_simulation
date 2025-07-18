@@ -298,6 +298,21 @@ export default function LandingPage() {
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                   url: "https://www.linkedin.com/in/sami-ellouze-23791330/",
                 },
+                {
+                  image: "/images/papasami.jpg",
+                  title: "Ellouze",
+                  subtitle: "Professeur émérite, ENITunis / Centrale Lille – Traitement du signal",
+                  borderColor: "#EF4444",
+                  gradient: "linear-gradient(145deg, #3B82F6, #000)",
+                },
+                {
+                  image: "/images/benedict.jpg",
+                  title: "Benedict O'donnell",
+                  subtitle:"",
+                  borderColor: "#EF4444",
+                  gradient: "linear-gradient(145deg, #3B82F6, #000)",
+                  url: "https://www.linkedin.com/in/benedict-odonnell/",
+                },
               ]}
               radius={300}
               imageSize="w-full h-full md:w-80 md:h-90"

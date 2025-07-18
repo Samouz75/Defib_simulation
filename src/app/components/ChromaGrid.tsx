@@ -141,7 +141,7 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
                 className={`${imageSize} object-cover ${imageBorderRadius} ${imageClassName}`}
               />
             </div>
-            <footer className="relative z-10 p-7 text-white font-sans">
+            <footer className="relative z-10 p-7 text-white font-sans h-[140px] flex flex-col">
               <div className="flex justify-between items-start mb-1">
                 <h3 className="m-0 text-[1.05rem] font-semibold">{c.title}</h3>
                 {c.handle && (
@@ -150,13 +150,15 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
                   </span>
                 )}
               </div>
-              <div className="flex justify-between items-end">
-                <p className="m-0 text-[0.85rem] text-gray-500">{c.subtitle}</p>
-                {c.location && (
-                  <span className="text-[0.85rem] opacity-85">
-                    {c.location}
-                  </span>
-                )}
+              <div className="flex-1 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <p className="m-0 text-[0.85rem] text-gray-500 leading-tight">{c.subtitle}</p>
+                  {c.location && (
+                    <span className="text-[0.85rem] opacity-85">
+                      {c.location}
+                    </span>
+                  )}
+                </div>
               </div>
             </footer>
           </article>
