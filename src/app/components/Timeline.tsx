@@ -20,22 +20,22 @@ const Timeline: React.FC<TimelineProps> = ({
   steps = [
     {
       id: 1,
-      title: "Project Planning",
-      description: "Define scope, requirements, and timeline for the project",
+      title: "Planification du projet",
+      description: "Scope, besoins médicaux et choix technos définis pour le simulateur",
       status: "completed",
      
     },
     {
       id: 2,
-      title: "Development Phase",
-      description: "Build and implement the core features and functionality",
+      title: "Développement du simulateur interactif",
+      description: "Implémentation des fonctionnalités clés du simulateur et des scénarios interactifs",
       status: "current",
     
     },
     {
       id: 3,
-      title: "Testing & Launch",
-      description: "Quality assurance testing and production deployment",
+      title: "Intégration en conditions réelles",
+      description: "Connexion à un mannequin physique avec monitoring en temps réel pour permettre au personnel hospitalier de faire des simulations ",
       status: "upcoming",
 
     }
@@ -142,7 +142,7 @@ const Timeline: React.FC<TimelineProps> = ({
               <Card className="flex-1 p-6">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg text-foreground">{step.title}</h3>
+                    <h3 className="font-semibold text-lg text-foreground mb-5">{step.title}</h3>
                     {getStatusBadge(step.status)}
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
