@@ -9,10 +9,13 @@ import SpotlightCard from "./components/SpotlightCard";
 import BlurText from "./components/BlurText";
 import Timeline from "./components/Timeline";
 import CardSwap, { Card } from "./components/CardSwap";
+import ScrollProgress from "./components/ScrollProgress";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-950 relative pb-40">
+      <ScrollProgress />
+      
       {/* Background Particles */}
       <div className="fixed inset-0 z-0">
         <Particles
@@ -169,7 +172,7 @@ export default function LandingPage() {
         <CardSwap
           cardDistance={60}
           verticalDistance={70}
-          delay={5000}
+          delay={3500}
           pauseOnHover={false}
         >
           <Card className="flex flex-col">
