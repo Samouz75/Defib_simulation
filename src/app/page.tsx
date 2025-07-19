@@ -144,14 +144,11 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="relative z-10 py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-25">
             <h2 className="text-4xl font-bold text-white mb-4">
               Fonctionnalités
             </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
-              Technologie de simulation avancée conçue pour les professionnels
-              de santé
-            </p>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -196,7 +193,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <div style={{ height: "600px", position: "relative" }}>
+      <div style={{ height: "600px", position: "relative", marginBottom: "60px" }}>
         <CardSwap
           cardDistance={60}
           verticalDistance={70}
