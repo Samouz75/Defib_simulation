@@ -101,6 +101,15 @@ export default function LandingPage() {
           >
             Scénarios
           </a>
+          <a
+            href="https://github.com/Mariussgal/Defib_simulation"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setIsMenuOpen(false)}
+            className="text-gray-400 hover:text-white transition-colors text-lg border-b border-gray-700 pb-3"
+          >
+            GitHub
+          </a>
 
           <div className="pt-6">
             <Link href="/simulator">
