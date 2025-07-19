@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Optimisations de performance
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'gsap'],
   },
   
