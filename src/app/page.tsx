@@ -11,10 +11,11 @@ import Timeline from "./components/Timeline";
 import CardSwap, { Card } from "./components/CardSwap";
 import ScrollProgress from "./components/ScrollProgress";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 
 export default function LandingPage() {
   const [showMore, setShowMore] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-950 relative pb-40">
@@ -36,8 +37,17 @@ export default function LandingPage() {
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 flex items-center align-center justify-center p-6 backdrop-blur-sm">
-        <div className=" md:flex space-x-8 text-sm">
+      <nav className="relative z-10 flex items-center justify-between p-6 backdrop-blur-sm">
+        <div className="flex items-center">
+          <Image
+            src="/images/badge.png"
+            alt="Logo"
+            width={80}
+            height={80}
+            className="object-contain"
+          />
+        </div>
+        <div className="hidden md:flex space-x-8 text-sm items-center">
           <a
             href="#features"
             className="text-gray-400 hover:text-white transition-colors"
@@ -50,14 +60,68 @@ export default function LandingPage() {
           >
             Scénarios
           </a>
-          <a
-            href="#about"
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            À propos
-          </a>
         </div>
+
+        {/* Bouton menu burger - visible seulement sur mobile */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden text-gray-400 hover:text-white transition-colors p-2"
+          aria-label="Menu"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </nav>
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-gray-900/95 backdrop-blur-md transform transition-transform duration-300 ease-in-out z-50 md:hidden ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+          <span className="text-white font-semibold">Menu</span>
+          <button
+            onClick={() => setIsMenuOpen(false)}
+            className="text-gray-400 hover:text-white transition-colors p-2"
+            aria-label="Fermer le menu"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <div className="flex flex-col p-6 space-y-6">
+          <a
+            href="#features"
+            onClick={() => setIsMenuOpen(false)}
+            className="text-gray-400 hover:text-white transition-colors text-lg border-b border-gray-700 pb-3"
+          >
+            Fonctionnalités
+          </a>
+          <a
+            href="#scenarios"
+            onClick={() => setIsMenuOpen(false)}
+            className="text-gray-400 hover:text-white transition-colors text-lg border-b border-gray-700 pb-3"
+          >
+            Scénarios
+          </a>
+
+          <div className="pt-6">
+            <Link href="/simulator">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300"
+              >
+                Commencer la Formation
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay pour fermer le menu en cliquant à côté */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
 
       {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6">
