@@ -10,12 +10,16 @@ import BlurText from "./components/BlurText";
 import Timeline from "./components/Timeline";
 import CardSwap, { Card } from "./components/CardSwap";
 import ScrollProgress from "./components/ScrollProgress";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function LandingPage() {
+  const [showMore, setShowMore] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-950 relative pb-40">
       <ScrollProgress />
-      
+
       {/* Background Particles */}
       <div className="fixed inset-0 z-0">
         <Particles
@@ -56,7 +60,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6-mt-6">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[85vh] text-center px-6">
         <div className="max-w-4xl mx-auto">
           <BlurText
             text="Plateforme de Formation aux techniques de défibrillation"
@@ -68,29 +72,49 @@ export default function LandingPage() {
               fontWeight: 400,
             }}
           />
-          <div className=" mt-20">
-          <p className="text-gray-400 text-lg leading-relaxed mb-8">
-            Ce simulateur a été créé lors d'un stage de développement web de 2
-            mois à
-            <span className="text-white font-semibold">
-              {" "}
-              l'Hôpital Saint-Louis
-            </span>
-            . Notre mission est de fournir un outil de formation médicale
-            accessible et de haute qualité pour préparer les professionnels de
-            santé aux situations d'urgence réelles.
+
+          {/* Tagline toujours visible */}
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Formez-vous en sécurité, répondez avec confiance.
           </p>
+
+          {/* Bouton En savoir plus - visible seulement sur mobile */}
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className=" mb-8 text-gray-400 hover:text-white transition-all duration-300 flex items-center justify-center mx-auto gap-2"
+          >
+            <span className="text-sm">En savoir plus</span>
+            <ChevronDown
+              className={`w-4 h-4 transition-transform duration-300 ${
+                showMore ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Paragraphe explicatif - toujours visible sur desktop, toggle sur mobile */}
+          <div
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
+              showMore ? "max-h-96 opacity-100 mb-12" : "max-h-0  opacity-0"
+            }`}
+          >
+            <p className="text-gray-400 text-base md:text-lg leading-relaxed">
+              Ce simulateur a été créé lors d'un stage de développement web de 2
+              mois à
+              <span className="text-white font-semibold">
+                {" "}
+                l'Hôpital Saint-Louis
+              </span>
+              . Notre mission est de fournir un outil de formation médicale
+              accessible et de haute qualité pour préparer les professionnels de
+              santé aux situations d'urgence réelles.
+            </p>
           </div>
         </div>
-
-
-        
       </div>
 
       {/* Stats Section */}
       <section className="relative z-10 py-16 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
-          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-white mb-2">4+</div>
@@ -171,8 +195,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-  
-         
 
       <div style={{ height: "600px", position: "relative" }}>
         <CardSwap
@@ -242,7 +264,6 @@ export default function LandingPage() {
           </Card>
         </CardSwap>
       </div>
-     
 
       {/* Scenarios Section */}
       <section
@@ -331,12 +352,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-
-      
-
       {/* Timeline Section */}
       <Timeline />
-
 
       {/* Contributors Section */}
       <section
