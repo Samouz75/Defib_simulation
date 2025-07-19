@@ -148,7 +148,6 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold text-white mb-4">
               Fonctionnalités
             </h2>
-
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -193,7 +192,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <div style={{ height: "600px", position: "relative", marginBottom: "60px" }}>
+      <div
+        style={{ height: "600px", position: "relative", marginBottom: "60px" }}
+      >
         <CardSwap
           cardDistance={60}
           verticalDistance={70}
@@ -345,12 +346,17 @@ export default function LandingPage() {
           Prêt à sauver des vies ?
         </h3>
         <p className="text-gray-500 max-w-2xl mx-auto text-center mb-10">
-        Rejoignez la formation utilisée par les professionnels de santé de l'Hôpital Saint-Louis.        
-        </p>  
-        <div className="flex justify-center items-center mt-20 mb-10">
+          Rejoignez la formation utilisée par les professionnels de santé de
+          l'Hôpital Saint-Louis.
+        </p>
+        <div className="flex justify-center items-center mt-12 mb-10">
           <Link href="/simulator">
-            <button className=" group inline-flex items-center justify-center px-8 py-4 bg-white text-gray-950 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
-              <span className="mr-2">Commencer la Formation</span>
+            <button className="group relative inline-flex items-center justify-center px-12 py-5 font-bold text-lg overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+              <span className="relative text-white mr-3">
+                Commencer la Formation
+              </span>
             </button>
           </Link>
         </div>
