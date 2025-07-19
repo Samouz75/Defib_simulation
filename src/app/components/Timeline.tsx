@@ -121,7 +121,7 @@ const Timeline: React.FC<TimelineProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto p-6 mt-25 mb-15">
       <div className="relative">
-        <h2 className="text-3xl font-bold text-white text-center mb-15">TIMELINE</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-15">What's Next ?</h2>
         {/* Vertical connection line */}
         <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-border">
           <div 

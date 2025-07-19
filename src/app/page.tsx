@@ -68,23 +68,29 @@ export default function LandingPage() {
               fontWeight: 400,
             }}
           />
-          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Formez-vous en sécurité, répondez avec confiance.
+          <div className=" mt-20">
+          <p className="text-gray-400 text-lg leading-relaxed mb-8">
+            Ce simulateur a été créé lors d'un stage de développement web de 2
+            mois à
+            <span className="text-white font-semibold">
+              {" "}
+              l'Hôpital Saint-Louis
+            </span>
+            . Notre mission est de fournir un outil de formation médicale
+            accessible et de haute qualité pour préparer les professionnels de
+            santé aux situations d'urgence réelles.
           </p>
-
-          {/* CTA Button */}
-          <Link href="/simulator">
-            <button className="group inline-flex items-center justify-center px-8 py-4 bg-white text-gray-950 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
-              <span className="mr-2">Commencer la Formation</span>
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </button>
-          </Link>
+          </div>
         </div>
+
+
+        
       </div>
 
       {/* Stats Section */}
       <section className="relative z-10 py-16 px-6 border-t border-gray-800">
         <div className="max-w-6xl mx-auto">
+          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-white mb-2">4+</div>
@@ -315,30 +321,22 @@ export default function LandingPage() {
             </SpotlightCard>
           </div>
         </div>
+        {/* CTA Button */}
+        <div className="flex justify-center items-center mt-30 mb-10">
+          <Link href="/simulator">
+            <button className=" group inline-flex items-center justify-center px-8 py-4 bg-white text-gray-950 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+              <span className="mr-2">Commencer la Formation</span>
+            </button>
+          </Link>
+        </div>
       </section>
+
+
+      
 
       {/* Timeline Section */}
       <Timeline />
 
-      {/* About Section */}
-      <section id="about" className="relative z-10 py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-8">
-            Développé pour l'Excellence Médicale
-          </h2>
-          <p className="text-gray-400 text-lg leading-relaxed mb-8">
-            Ce simulateur a été créé lors d'un stage de développement web de 2
-            mois à
-            <span className="text-white font-semibold">
-              {" "}
-              l'Hôpital Saint-Louis
-            </span>
-            . Notre mission est de fournir un outil de formation médicale
-            accessible et de haute qualité pour préparer les professionnels de
-            santé aux situations d'urgence réelles.
-          </p>
-        </div>
-      </section>
 
       {/* Contributors Section */}
       <section
