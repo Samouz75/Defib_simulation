@@ -340,7 +340,14 @@ export default function LandingPage() {
           </div>
         </div>
         {/* CTA Button */}
-        <div className="flex justify-center items-center mt-30 mb-10">
+
+        <h3 className="text-2xl md:text-3xl font-semibold text-white mb-5 animate-fade-in-delay text-center mt-30">
+          Prêt à sauver des vies ?
+        </h3>
+        <p className="text-gray-500 max-w-2xl mx-auto text-center mb-10">
+        Rejoignez la formation utilisée par les professionnels de santé de l'Hôpital Saint-Louis.        
+        </p>  
+        <div className="flex justify-center items-center mt-20 mb-10">
           <Link href="/simulator">
             <button className=" group inline-flex items-center justify-center px-8 py-4 bg-white text-gray-950 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
               <span className="mr-2">Commencer la Formation</span>
