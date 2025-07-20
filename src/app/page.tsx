@@ -171,8 +171,7 @@ export default function LandingPage() {
             }`}
           >
             <p className="text-gray-400 text-base md:text-lg leading-relaxed">
-              Ce simulateur a été créé lors d'un stage de développement web de 2
-              mois à
+              Ce simulateur a été créé en collaboration avec
               <span className="text-white font-semibold">
                 {" "}
                 l'Hôpital Saint-Louis
