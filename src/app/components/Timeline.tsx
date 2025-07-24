@@ -6,7 +6,7 @@ import Badge from './ui/Badge';
 interface TimelineStep {
   id: number;
   title: string;
-  description: string;
+  description: string | string[];
   status: 'completed' | 'current' | 'upcoming';
   date?: string;
 }
@@ -34,8 +34,12 @@ const Timeline: React.FC<TimelineProps> = ({
     },
     {
       id: 3,
-      title: "Intégration en conditions réelles",
-      description: "Connexion à un mannequin physique avec monitoring en temps réel pour permettre au personnel hospitalier de faire des simulations ",
+      title: "Intégration en conditions réelles de simulation",
+      description: [
+        "Connexion à un mannequin générant ou non le signal en temps réel",
+        "Scénario double défibrillation",
+        "Ouverture à une plateforme de simulation globale avec d'autres outils : lecteur glycémie, HemoCue, appareil ECG, respirateur..."
+      ],
       status: "upcoming",
 
     }
@@ -105,10 +109,17 @@ const Timeline: React.FC<TimelineProps> = ({
                     <h3 className="font-semibold text-sm text-foreground">{step.title}</h3>
                     {getStatusBadge(step.status)}
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {step.description}
-                  </p>
-           
+                  {step.id === 3 && Array.isArray(step.description) ? (
+                    <ul className="text-xs text-muted-foreground leading-relaxed list-disc list-inside">
+                      {step.description.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {step.description}
+                    </p>
+                  )}
                 </div>
               </Card>
             </div>
@@ -145,10 +156,26 @@ const Timeline: React.FC<TimelineProps> = ({
                     <h3 className="font-semibold text-lg text-foreground mb-5">{step.title}</h3>
                     {getStatusBadge(step.status)}
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {step.description}
-                  </p>
-      
+                  {step.id === 3 && Array.isArray(step.description) ? (
+                    <ul className="text-muted-foreground leading-relaxed list-disc pl-4 space-y-3">
+                      {step.description.map((item, idx) => {
+                        // Mise en gras des mots-clés principaux
+                        let formatted = item
+                          .replace(/^Connexion à un mannequin/, '<b>Connexion à un mannequin</b>')
+                          .replace(/^Scénario double défibrillation/, '<b>Scénario double défibrillation</b>')
+                          .replace(/^Ouverture à une plateforme/, '<b>Ouverture à une plateforme</b>');
+                        return (
+                          <li key={idx} className="pl-0" style={{marginLeft: 0}}>
+                            <span dangerouslySetInnerHTML={{ __html: formatted }} />
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground leading-relaxed">
+                      {step.description}
+                    </p>
+                  )}
                 </div>
               </Card>
             </div>

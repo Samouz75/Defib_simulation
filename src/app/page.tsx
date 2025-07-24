@@ -345,9 +345,6 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold text-white mb-4">
               Scénarios de Formation
             </h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
-              Situations d'urgence réelles pour une formation médicale complète
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -357,12 +354,11 @@ export default function LandingPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
-                  Fibrillation Ventriculaire
+                  ACR chocable
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
-                Défibrillation d'urgence avec défibrillateur manuel. Maîtrisez
-                la reconnaissance ECG et la délivrance de choc.
+                Défibrillation d'urgence avec défibrillateur manuel.
               </p>
             </SpotlightCard>
 
@@ -372,7 +368,7 @@ export default function LandingPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
-                  Utilisation DAE
+                  DAE
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
@@ -387,7 +383,7 @@ export default function LandingPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">
-                  Stimulation Cardiaque
+                  Entrainement electrosystolique externe
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
@@ -415,7 +411,7 @@ export default function LandingPage() {
         {/* CTA Button */}
 
         <h3 className="text-2xl md:text-3xl font-semibold text-white mb-5 animate-fade-in-delay text-center mt-30">
-          Prêt à sauver des vies ?
+          Prêt à t'entrainer ?
         </h3>
         <p className="text-gray-500 max-w-2xl mx-auto text-center mb-10">
           Rejoignez la formation utilisée par les professionnels de santé de
@@ -454,7 +450,7 @@ export default function LandingPage() {
               items={[
                 {
                   image: "/images/marcdinh.jpg",
-                  title: "Marc Dinh",
+                  title: "Marc DINH",
                   subtitle: "ML/Deep Learning Engineer",
                   borderColor: "#3B82F6",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
@@ -470,7 +466,7 @@ export default function LandingPage() {
                 },
                 {
                   image: "/images/samiellouze.jpg",
-                  title: "Dr. Sami Ellouze",
+                  title: "Sami ELLOUZE",
                   subtitle: "Médecin Urgentiste",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
@@ -478,15 +474,15 @@ export default function LandingPage() {
                 },
                 {
                   image: "/images/papasami.jpg",
-                  title: "Ellouze",
+                  title: "Noureddine ELLOUZE",
                   subtitle:
-                    "Professeur émérite, ENITunis / Centrale Lille – Traitement du signal",
+                    "Professeur émérite, ENIT / Centrale Lille – Traitement du signal",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
                 },
                 {
                   image: "/images/benedict.jpg",
-                  title: "Benedict O'donnell",
+                  title: "Benedict O'DONNELL",
                   subtitle: "Advisor",
                   borderColor: "#EF4444",
                   gradient: "linear-gradient(145deg, #3B82F6, #000)",
