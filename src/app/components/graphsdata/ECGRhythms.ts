@@ -216,7 +216,7 @@ export const getRhythmData = (
       );
     case "bav3":
       return createSeamlessLoop(
-        generateDynamicECG(heartRate, durationSeconds, samplingRate, "bav3"),
+        ECG_RHYTHMS_STATIC.bav3.data,
         200,
         samplingRate,
       );
