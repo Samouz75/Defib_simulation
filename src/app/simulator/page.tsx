@@ -228,7 +228,6 @@ const SimulatorPageContent: React.FC = () => {
 
   // --- DAE Callbacks ---
   const handleDaePhaseChange = useCallback((phase: string) => setDaePhase(phase), []);
-  const handleDaeShockReady = useCallback((shockFn: (() => void) | null) => setDaeShockFunction(() => shockFn), []);
 
   // --- Getters for effective state ---
   const getEffectiveRhythm = (): RhythmType => scenarioPlayer.isScenarioActive ? defibrillator.rhythmType : manualRhythm;
@@ -269,7 +268,7 @@ const SimulatorPageContent: React.FC = () => {
     const effectiveHeartRate = getEffectiveHeartRate();
     switch (defibrillator.displayMode) {
       case "ARRET": return <ARRETDisplay />;
-      case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: handleDaeShockReady, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
+      case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
       case "Moniteur": return <MonitorDisplay ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
       case "Manuel": return <ManuelDisplay ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
       case "Stimulateur": return (
