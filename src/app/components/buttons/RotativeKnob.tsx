@@ -109,6 +109,17 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
     const newAngle = initialKnobAngleRef.current + angleDelta;
     const closestSnapAngle = findClosestAngle(newAngle);
 
+    // Prevent wrap-around from the last to the first item and vice-versa.
+    const firstAngle = predefinedAngles[0].angle;
+    const lastAngle = predefinedAngles[predefinedAngles.length - 1].angle;
+    const isWrappingForward = rotaryValue === lastAngle && closestSnapAngle === firstAngle;
+    const isWrappingBackward = rotaryValue === firstAngle && closestSnapAngle === lastAngle;
+
+    if (isWrappingForward || isWrappingBackward) {
+      return; // Do not update if it's a wrap-around
+    }
+  
+
     if (closestSnapAngle !== rotaryValue) {
       if (canVibrate) navigator.vibrate(1);
       audioService.playClickSound("normal");
@@ -143,7 +154,7 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
         document.removeEventListener("touchend", handleInteractionEnd);
       };
     }
-  }, [isDragging, rotaryValue]);
+  }, [isDragging, rotaryValue]); // rotaryValue added to dependencies
 
   return (
     <div className="relative mt-6 -ml-5">
