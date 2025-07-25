@@ -15,6 +15,7 @@ import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay
 import { RhythmType } from "../components/graphsdata/ECGRhythms";
 import DefibrillatorUI from "../components/DefibrillatorUI";
 import { AudioProvider } from "../context/AudioContext";
+import { useResponsiveScale } from '../hooks/useResponsiveScale';
 
 const SimulatorPageContent: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,7 @@ const SimulatorPageContent: React.FC = () => {
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
   const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
 
+  const scale = useResponsiveScale(1024, 768);
 
   // --- State Management Hooks ---
   const [manualRhythm, setManualRhythm] = useState<RhythmType>('sinus');
@@ -331,7 +333,13 @@ const SimulatorPageContent: React.FC = () => {
       />
 
       <main className="h-[94vh] flex-grow flex items-center justify-center p-2">
-        <div className=" scale-[0.7] tablet:scale-[1.1] laptop-sm:scale-[1.2] laptop-lg:scale-[1.4] desktop-sm:scale-[1.5] desktop-md:scale-[1.6] landscape:scale-90">
+        <div className="relative"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'center',
+            transition: 'transform 0.2s ease-out'
+          }}
+          >
           <DefibrillatorUI {...defibrillatorUIProps} />
         </div>
       </main>

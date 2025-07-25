@@ -1,42 +1,37 @@
 import { useState, useEffect } from "react";
 
-interface ScaleConfig {
-  baseWidth: number;
-  baseHeight: number;
-  maxScale: number;
-  minScale: number;
-  padding: number;
-}
-
-const DEFAULT_CONFIG: ScaleConfig = {
-  baseWidth: 1600,
-  baseHeight: 1100,
-  maxScale: 1.2,
-  minScale: 0.4,
-  padding: 40,
-};
-
-export const useResponsiveScale = (config: Partial<ScaleConfig> = {}) => {
+export const useResponsiveScale = (referenceWidth: number, referenceHeight: number): number => {
   const [scale, setScale] = useState(1);
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
   useEffect(() => {
-    const calculateScale = () => {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
+    const handleResize = () => {
+      // Check if window is defined (to prevent errors during server-side rendering)
+      if (typeof window !== 'undefined') {
+        const { innerWidth: viewportWidth, innerHeight: viewportHeight } = window;
 
-      const scaleX = (windowWidth - finalConfig.padding) / finalConfig.baseWidth;
-      const scaleY = (windowHeight - finalConfig.padding) / finalConfig.baseHeight;
+        // Calculate the scale factor for both width and height
+        const scaleX = viewportWidth / referenceWidth;
+        const scaleY = viewportHeight / referenceHeight;
 
-      const newScale = Math.min(scaleX, scaleY, finalConfig.maxScale);
-      setScale(Math.max(newScale, finalConfig.minScale));
+        // Use the smaller of the two scale factors to ensure the component
+        // fits entirely within the viewport without distortion.
+        const newScale = Math.min(scaleX, scaleY);
+
+        setScale(newScale);
+      }
     };
 
-    calculateScale();
-    window.addEventListener("resize", calculateScale);
+    // Set the initial scale when the component mounts
+    handleResize();
 
-    return () => window.removeEventListener("resize", calculateScale);
-  }, [finalConfig]);
+    // Add event listener to handle window resizing
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [referenceWidth, referenceHeight]); // Rerun effect if reference dimensions change
 
   return scale;
-}; 
+};
