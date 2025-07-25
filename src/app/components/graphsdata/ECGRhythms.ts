@@ -129,7 +129,7 @@ const generateDynamicECG = (
     const motif = MOTIFS[Math.floor(Math.random() * MOTIFS.length)];
     const nextMotifStartValue = motif[0];
 
-    const paddingLength = rrSamples - motif.length;
+    const paddingLength = rhythmType === "choc" ? 0 : rrSamples - motif.length;
 
     // 1. Generate and place PADDING first.
     if (paddingLength > 0) {
@@ -234,7 +234,7 @@ export const getRhythmData = (
     case "choc":
       return createSeamlessLoop(
         generateDynamicECG(
-          heartRate,
+          200,
           durationSeconds,
           samplingRate,
           rhythmType,
