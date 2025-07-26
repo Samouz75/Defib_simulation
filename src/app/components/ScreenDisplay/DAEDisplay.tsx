@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import { useAudio } from '../../context/AudioContext';
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 import VitalsDisplay from "../VitalsDisplay";
+import { del } from "framer-motion/client";
 
 interface DAEDisplayProps {
   energy: string;
@@ -14,7 +15,9 @@ interface DAEDisplayProps {
   rhythmType?: RhythmType; // Type de rythme ECG
   showSynchroArrows?: boolean; // Afficher les flèches synchro
   heartRate?: number; // Fréquence cardiaque
+  deliverShock: () => void;
   onShockReady?: (handleShock: (() => void) | null) => void; // Callback pour exposer la fonction de choc
+  startCharging: () => void;
   onPhaseChange?: (
     phase:
       | "placement"
@@ -42,15 +45,21 @@ type Phase =
   | "attente_choc"
   | "choc"
   | "pas_de_choc";
+const shockableRhythms = ['fibrillationVentriculaire', 'tachycardieVentriculaire', 'fibrillationAtriale'];
+
 
 const DAEDisplay: React.FC<DAEDisplayProps> = ({
+  energy,
   shockCount,
+  chargeProgress,
   rhythmType = "sinus",
   showSynchroArrows = false,
   heartRate = 70,
   isCharged = false,
-  onShockReady,
+  deliverShock,
+  startCharging,
   onPhaseChange,
+  onShockReady,
   onElectrodePlacementValidated,
   showFCValue = true,
   showVitalSigns = true,
@@ -59,11 +68,37 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
 }) => {
   const audioService = useAudio();
 
-  
+
   // États du cycle DAE
   const [phase, setPhase] = useState<Phase>("placement");
   const [progressBarPercent, setProgressBarPercent] = useState(0);
   const [chargePercent, setChargePercent] = useState(0);
+
+  const handleShockClick = useCallback(() => {
+    if (phase === "attente_choc") {
+      deliverShock();
+      setPhase("choc");
+      audioService.stopAll();
+      audioService.playDAEChocDelivre();
+      setChargePercent(0);
+      setProgressBarPercent(0);
+
+      // Attendre 5 secondes avant de passer à la phase analyse
+      setTimeout(() => {
+        setPhase("analyse");
+      }, 5000);
+    }
+  }, [phase, deliverShock, audioService]);
+
+  useEffect(() => {
+    if (onShockReady) {
+      if (phase === 'attente_choc') {
+        onShockReady(() => handleShockClick);
+      } else {
+        onShockReady(null);
+      }
+    }
+  }, [phase, onShockReady, handleShockClick]);
 
   // Gestion du cycle automatique
   useEffect(() => {
@@ -93,12 +128,12 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         setProgressBarPercent(percent);
 
         if (percent >= 100) {
-          // Si asystolie, passer à "pas_de_choc"
-          if (rhythmType === "asystole") {
-            setPhase("pas_de_choc");
+          const isShockable = shockableRhythms.includes(rhythmType);
+          if (isShockable) {
+            setPhase("pre-charge");
           } else {
             // Sinon, passer à pre-charge (rythmes choquables)
-            setPhase("pre-charge");
+            setPhase("pas_de_choc");
           }
           setProgressBarPercent(0);
         }
@@ -151,7 +186,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [phase]);
+  }, [phase, rhythmType]);
 
   useEffect(() => {
     // Nettoyage des timers à chaque changement de phase
@@ -207,8 +242,8 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     }
 
     if (phase === "charge") {
-      
-      audioService.playChargingSequence();
+
+      startCharging();
 
     }
 
@@ -225,28 +260,13 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
       timers.forEach(clearTimeout);
       audioService.clearRepetition();
     };
-  }, [phase]);
+  }, [phase, startCharging, audioService]);
 
   useEffect(() => {
     if (onPhaseChange) {
       onPhaseChange(phase);
     }
   }, [phase, onPhaseChange]);
-
-  const handleShockClick = () => {
-    if (phase === "attente_choc") {
-      setPhase("choc");
-      audioService.stopAll();
-      audioService.playDAEChocDelivre();
-      setChargePercent(0);
-      setProgressBarPercent(0);
-
-      // Attendre 5 secondes avant de passer à la phase analyse
-      setTimeout(() => {
-        setPhase("analyse");
-      }, 5000);
-    }
-  };
 
   const handlePlacementValidate = () => {
     if (phase === "placement") {
@@ -259,15 +279,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (onShockReady) {
-      if (phase === "attente_choc") {
-        onShockReady(handleShockClick);
-      } else {
-        onShockReady(null);
-      }
-    }
-  }, [phase, onShockReady]);
 
   return (
     <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -313,7 +324,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               </div>
 
               <div className="flex items-center justify-center">
-                <TimerDisplay onTimeUpdate={(seconds) => {}} />
+                <TimerDisplay onTimeUpdate={(seconds) => { }} />
               </div>
 
               {/* Section droite - Date et icône */}
@@ -418,17 +429,16 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                   </div>
                   <div className="w-24 h-3 bg-gray-600 rounded">
                     <div
-                      className={`h-full bg-red-500 rounded transition-all duration-100 ${
-                        chargePercent === 100 ? "animate-pulse" : ""
-                      }`}
-                      style={{ width: `${chargePercent}%` }}
+                      className={`h-full bg-red-500 rounded transition-all duration-100 ${chargePercent === 100 ? "animate-pulse" : ""
+                        }`}
+                      style={{ width: `${chargeProgress}%` }}
                     />
                   </div>
                   <div className="text-center ml-30">
                     <span>Chocs : {shockCount}</span>
                   </div>
                   <div className="text-right ml-auto">
-                    <span>Energie sélectionnée : 150 joules</span>
+                    <span>Energie sélectionnée : {energy} joules</span>
                   </div>
                 </div>
               )}
@@ -470,8 +480,8 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               <div className="flex items-center gap-12 px-7 mr-3">
                 <div
                   className={`px-2 py-1  text-xs ${isCharged
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-500 text-gray-300"
+                    ? "bg-red-500 text-white"
+                    : "bg-gray-500 text-gray-300"
                     }`}
                 >
                   <span>Annuler Charge</span>

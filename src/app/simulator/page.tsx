@@ -15,6 +15,7 @@ import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay
 import { RhythmType } from "../components/graphsdata/ECGRhythms";
 import DefibrillatorUI from "../components/DefibrillatorUI";
 import { AudioProvider } from "../context/AudioContext";
+import { useResponsiveScale } from '../hooks/useResponsiveScale';
 
 const SimulatorPageContent: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,7 @@ const SimulatorPageContent: React.FC = () => {
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
   const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
 
+  const scale = useResponsiveScale(1024, 768);
 
   // --- State Management Hooks ---
   const [manualRhythm, setManualRhythm] = useState<RhythmType>('sinus');
@@ -226,7 +228,6 @@ const SimulatorPageContent: React.FC = () => {
 
   // --- DAE Callbacks ---
   const handleDaePhaseChange = useCallback((phase: string) => setDaePhase(phase), []);
-  const handleDaeShockReady = useCallback((shockFn: (() => void) | null) => setDaeShockFunction(() => shockFn), []);
 
   // --- Getters for effective state ---
   const getEffectiveRhythm = (): RhythmType => scenarioPlayer.isScenarioActive ? defibrillator.rhythmType : manualRhythm;
@@ -267,7 +268,7 @@ const SimulatorPageContent: React.FC = () => {
     const effectiveHeartRate = getEffectiveHeartRate();
     switch (defibrillator.displayMode) {
       case "ARRET": return <ARRETDisplay />;
-      case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: handleDaeShockReady, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
+      case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
       case "Moniteur": return <MonitorDisplay ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
       case "Manuel": return <ManuelDisplay ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
       case "Stimulateur": return (
@@ -331,7 +332,13 @@ const SimulatorPageContent: React.FC = () => {
       />
 
       <main className="h-[94vh] flex-grow flex items-center justify-center p-2">
-        <div className=" scale-[0.7] tablet:scale-[1.1] laptop-sm:scale-[1.2] laptop-lg:scale-[1.4] desktop-sm:scale-[1.5] desktop-md:scale-[1.6] landscape:scale-90">
+        <div className="relative"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: 'center',
+            transition: 'transform 0.2s ease-out'
+          }}
+          >
           <DefibrillatorUI {...defibrillatorUIProps} />
         </div>
       </main>

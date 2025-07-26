@@ -80,8 +80,16 @@
                 {
                     "action": "updateState",
                     "payload": {
+                        "rhythmType": "choc"
+                    },
+                    "delay": 200
+                },
+                {
+                    "action": "updateState",
+                    "payload": {
                         "rhythmType": "asystole"
-                    }
+                    },
+                    "delay": 300
                 },
                 {
                     "action": "updateState",
@@ -118,11 +126,18 @@
                 "value": 2
             },
             "onComplete": [
+                 {
+                    "action": "updateState",
+                    "payload": {
+                        "rhythmType": "choc"
+                    }
+                },
                 {
                     "action": "updateState",
                     "payload": {
                         "rhythmType": "asystole"
-                    }
+                    },
+                    "delay": 300
                 },
                 
                 {   
@@ -130,7 +145,7 @@
                     "payload": {
                         "rhythmType": "fibrillationVentriculaire"
                     },
-                    "delay": 2000
+                    "delay": 1000
                 }
             ]
         },
@@ -160,18 +175,26 @@
                 "value": 3
             },
             "onComplete": [
+
+                {
+                    "action": "updateState",
+                    "payload": {
+                        "rhythmType": "choc"
+                    }
+                },
                 {
                     "action": "updateState",
                     "payload": {
                         "rhythmType": "asystole"
-                    }
+                    },
+                    "delay": 400
                 },
                 {
                     "action": "updateState",
                     "payload": {
                         "rhythmType": "fibrillationVentriculaire"
                     },
-                    "delay": 2000
+                    "delay": 1000
                 }
             ]
         },
@@ -202,6 +225,13 @@
             },
             "onComplete": [
                
+                {
+                    "action": "updateState",
+                    "payload": {
+                        "rhythmType": "choc"
+                    }
+                },
+                
                 {
                     "action": "updateState",
                     "payload": {
