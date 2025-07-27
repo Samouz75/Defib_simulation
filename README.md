@@ -3,7 +3,7 @@
 
 ## 🏥 Project Context
 
-This app was developed during a 2-month internship in the Emergency Department at Saint-Louis Hospital (Paris). The project was technically overseen by Marc Dinh (Engineering School Professor) ans under the medical supervision of Dr. Sami Ellouze (Emergency Physician). The goal was creating an accessible online training platform for defibrillation techniques.
+This app was developed during a 2-month internship in the Emergency Department at Saint-Louis Hospital (Paris). The project was technically overseen by Marc Dinh (Engineering School Professor) and under the medical supervision of Dr. Sami Ellouze (Emergency Physician). The goal was creating an accessible online training platform for defibrillation techniques.
 
 ## 🎯 Project Overview
 
