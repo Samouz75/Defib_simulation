@@ -28,7 +28,7 @@
                     {
                         "type": "stateChange",
                         "property": "pacerMode",
-                        "value": "sentinelle"
+                        "value": "Sentinelle"
                     },
                     {
                         "type": "stateChange",
