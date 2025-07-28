@@ -19,6 +19,11 @@ const RotativeKnob: React.FC<RotativeKnobProps> = ({
   const initialKnobAngleRef = useRef(0);
   const initialMouseAngleRef = useRef(0);
 
+  useEffect(() => {
+    setRotaryValue(initialValue);
+  }, [initialValue]);
+
+  
   type PredefinedAngle = {
     value: string;
     angle: number;
