@@ -10,7 +10,7 @@ export interface Scenario {
 export const SCENARIOS: Scenario[] = [
   {
     id: "scenario_1",
-    title: "Scénario 1 - Fibrillation ventriculaire",
+    title: "Scénario 1 - ACR défibrillation en mode manuel ",
     description:
       "Vous êtes aux urgences. Un homme de 62 ans, aux antécédents de diabète, hypertension artérielle, est installé dans un box pour douleur thoracique typique depuis 2h. Durant l'examen le patient est inconscient et ne respire pas. L'alerte est donnée et le chariot d'urgence est amené au lit du malade qui présente un arrêt cardio-respiratoire. Le massage cardiaque externe est débuté et vous posez les électrodes de défibrillation sur le torse du patient. Vous devez utiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
     objectives: [
@@ -26,7 +26,7 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: "scenario_2",
-    title: "Scénario 2 - Défibrillation automatisée externe (DAE)",
+    title: "Scénario 2 - ACR défibrillation en mode DAE ",
     description:
       "Vous êtes dans le service des urgences portes UHCD. Monsieur A. âgé de 58 ans, aux antécédents d'hypertension artérielle, dyslipidémie est hospitalisé en chambre 202 pour une embolie pulmonaire. Son voisin alerte l'infirmière car le patient ne répond pas. L'infirmière découvre M. A. en arrêt cardio respiratoire et amène le chariot d'urgence après avoir alerté ses collègues. Vous devez utiliser le défibrillateur en mode DAE pour mener à bien la réanimation cardio pulmonaire.",
     objectives: [
@@ -39,14 +39,15 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: "scenario_3",
-    title: "Scénario 3 - Électro-entraînement",
+    title: "Scénario 3 - Entraînement électrosystolique",
     description:
       "Vous êtes médecin au déchocage aux urgences. Madame G. âgée de 60 ans, aux antécédents de diabète est prise en charge pour une syncope il y a 1h. L'ECG montre un BAV 3 à 30/min. La patiente présente de nouveau un malaise et présente une hypotension avec des marbrures. Vous placez les électrodes du défibrillateur sur la poitrine de la patiente et vous devez utiliser le défibrillateur pour électro-entraîner le cœur de la patiente.",
     objectives: [
       "Positionner la molette verte sur stimulation",
+      "Choisir le mode sentinelle",
       "Régler la fréquence de l'électro-entraînement à 60/min",
-      "Positionner la molette verte sur stimulation",
-      "Régler l'intensité de l'électro-entraînement de manière a obtenir une capture du signal ECG",
+      "Démarrer la stimulation",
+      "Régler l'intensité de l'électro-entraînement progressivement de manière a obtenir une capture du signal ECG (de 10mA en 10mA à partir de 10mA). La capture sera obtenue à partir de 90 mA",
       "Lancer la séquence de stimulation en mode fixe",
     ],
     color: "purple",
@@ -70,7 +71,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_5',
     title: 'Scénario 5 - Simulation in situ',
-    description: 'SMUR',
+    description: 'Ce scénario peut être réalisé avec votre équipe de simulation. Vous prenez en charge un patient retrouvé en arrêt cardio circulatoire. Vous devez utiliser le défibrillateur pour mener à bien la RCP.  \n\n N.B. : L’application n’étant pas connectée à votre mannequin, vous devez cliquer sur l’encart de la FC après avoir posé vos électrodes de défibrillation pour révéler le rythme, vous ne verrez pas l’activité électrique de votre massage cardiaque lors de la RCP.',
     objectives: [
       
     ],
