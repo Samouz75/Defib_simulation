@@ -160,14 +160,6 @@ export const useScenarioPlayer = (
         };
     }, [currentStepIndex, isActive, scenarioConfig, defibrillator]);
 
-    // Effect to handle scenario completion notification.
-    useEffect(() => {
-        if (isComplete) {
-            setTimeout(() => {
-                NotificationService.showSuccess("Félicitations! Scénario terminé avec succès.");
-            }, 500);
-        }
-    }, [isComplete]);
 
     const toggleStepNotifications = useCallback(() => {
         setShowStepNotifications(prev => !prev);

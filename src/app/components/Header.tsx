@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check } from "lucide-react";
 import DropdownMenu from "./DropdownMenu";
 import ECGRhythmDropdown from "./controls/ECGRhythmDropdown";
 import type { RhythmType } from "./graphsdata/ECGRhythms";
@@ -19,6 +19,7 @@ interface HeaderProps {
   totalSteps?: number;
   showStepNotifications: boolean;
   onToggleStepNotifications: () => void;
+  isComplete: boolean;
 }
 
 export default function Header({
@@ -27,6 +28,7 @@ export default function Header({
   currentRhythm,
   onRhythmChange,
   isScenarioActive,
+  isComplete,
   scenarioTitle,
   heartRate,
   onHeartRateChange,
@@ -39,6 +41,7 @@ export default function Header({
     <header className="h-[6vh] min-h-[50px] bg-gray-900/80 backdrop-blur-sm border-b border-gray-700 flex items-center justify-between px-4 sm:px-6 z-50">
       {/* Left side: Controls or Scenario Title */}
       <div className="flex-1 min-w-0">
+        <h1 className="text-lg font-bold text-white truncate">{scenarioTitle || "Simulateur DM100"}</h1>
         {/* {isScenarioActive ? (
           <h1 className="text-lg font-bold text-white truncate">{scenarioTitle || "Scenario"}</h1>
         ) : (
@@ -56,13 +59,29 @@ export default function Header({
       <div className="flex items-center gap-2 sm:gap-4">
         {isScenarioActive ? (
           <>
-            {showStepNotifications && (
+            {showStepNotifications && !isComplete && (
               <span className="text-base text-white font-medium hidden sm:inline">{currentStepNumber} / {totalSteps}</span>
             )}
             <button onClick={onToggleStepNotifications} className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors">
               {showStepNotifications ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
-            <button onClick={onExitScenario} className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm">Quitter</button>
+
+            {isComplete ? (
+              <button
+                onClick={onExitScenario}
+                className="px-3 py-1.5 flex items-center gap-2 bg-green-500 text-white rounded-lg transition-colors text-sm font-semibold animate-[glowing-green_2s_infinite]"
+              >
+                <Check className="w-4 h-4" />
+                Terminé
+              </button>
+            ) : (
+              <button
+                onClick={onExitScenario}
+                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm"
+              >
+                Quitter
+              </button>
+            )}
           </>
         ) : (
           <DropdownMenu onStartScenario={onStartScenario} />
