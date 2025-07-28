@@ -44,8 +44,8 @@ const SimulatorPageContent: React.FC = () => {
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
-  const [showFCValue, setShowFCValue] = useState(false);
-  const [showVitalSigns, setShowVitalSigns] = useState(false);
+  const [showFCValue, setShowFCValue] = useState(true);
+  const [showVitalSigns, setShowVitalSigns] = useState(true);
 
 
   // --- Timers ---
