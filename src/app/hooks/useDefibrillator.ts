@@ -60,26 +60,7 @@ const initialDefibrillatorState: DefibrillatorState = {
   lastEvent: null,
 };
 export const useDefibrillator = () => {
-  const [state, setState] = useState<DefibrillatorState>({
-    displayMode: "ARRET",
-    manualEnergy: "1-10",
-    rhythmType: 'sinus',
-    heartRate: 70,
-    pacerFrequency: 70,
-    pacerIntensity: 30,
-    pacerMode: "Fixe",
-    isPacing: false,
-    isCharging: false,
-    chargeProgress: 0,
-    shockCount: 0,
-    isCharged: false,
-    isChargeButtonPressed: false,
-    isShockButtonPressed: false,
-    isShockButtonBlinking: false,
-    selectedChannel: 1,
-    isSynchroMode: false,
-    lastEvent: null,
-  });
+  const [state, setState] = useState<DefibrillatorState>(initialDefibrillatorState);
 
   const audioService = useAudio();
   const chargeIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -129,13 +110,16 @@ export const useDefibrillator = () => {
   }, [updateState]);
 
   // --- Other Actions ---
-  const setDisplayMode = useCallback((mode: DisplayMode) => {
+  const setDisplayMode = useCallback((mode: DisplayMode, isScenarioActive: boolean = false) => {
     // If setting mode to ARRET, reset the entire state.
-    if (mode === 'ARRET') {
+    if (mode === 'ARRET' && !isScenarioActive) {
       resetState();
       return;
     }
-
+    if (mode === 'ARRET' && isScenarioActive) {
+      updateState({ displayMode: 'ARRET', lastEvent: 'displayModeSetTo_ARRET' });
+      return;
+    }
     const updates: Partial<DefibrillatorState> = {
       displayMode: mode,
       lastEvent: `displayModeSetTo_${mode}`,

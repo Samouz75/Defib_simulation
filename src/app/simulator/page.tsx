@@ -73,13 +73,14 @@ const SimulatorPageContent: React.FC = () => {
 
   const handleExitScenario = () => {
     scenarioPlayer.stopScenario();
-    setManualRhythm('sinus');
-    setManualHeartRate(70);
     defibrillator.resetState();
+    
   };
 
   // --- Event Handlers ---
   const handleModeChange = (newMode: DisplayMode) => {
+    const isScenarioRunning = scenarioPlayer.isScenarioActive;
+
     // Case 1: Turning the machine OFF.
     if (newMode === "ARRET") {
       // Always stop any ongoing boot sequence.
@@ -93,7 +94,7 @@ const SimulatorPageContent: React.FC = () => {
 
       // Reset other relevant states.
       electrodeValidation.resetElectrodeValidation();
-      defibrillator.setDisplayMode("ARRET");
+      defibrillator.setDisplayMode("ARRET", isScenarioRunning);
       return;
     }
 
@@ -119,7 +120,7 @@ const SimulatorPageContent: React.FC = () => {
       bootTimeoutRef.current = setTimeout(() => {
         // Use the ref here to get the latest value, avoiding the closure issue.
         if (targetModeRef.current) {
-          defibrillator.setDisplayMode(targetModeRef.current);
+          defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
         }
 
         // Clean up the boot state.
@@ -132,7 +133,7 @@ const SimulatorPageContent: React.FC = () => {
       }, 5000);
     } else {
       // Case 4: Switching between modes when the machine is already ON.
-      defibrillator.setDisplayMode(newMode);
+      defibrillator.setDisplayMode(newMode, isScenarioRunning);
     }
   };
 
