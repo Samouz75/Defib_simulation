@@ -254,16 +254,6 @@ const SimulatorPageContent: React.FC = () => {
         </div>
       </div></div>;
     }
-    if (
-      defibrillator.displayMode === "DAE" &&
-      !electrodeValidation.isElectrodeValidated
-    ) {
-      return (
-        <ElectrodeValidationOverlay
-          onValidate={electrodeValidation.validateElectrodes}
-        />
-      );
-    } else { electrodeValidation.validateElectrodes }
 
     const effectiveRhythm = getEffectiveRhythm();
     const effectiveHeartRate = getEffectiveHeartRate();
@@ -324,6 +314,7 @@ const SimulatorPageContent: React.FC = () => {
         heartRate={manualHeartRate}
         onHeartRateChange={setManualHeartRate}
         isScenarioActive={scenarioPlayer.isScenarioActive}
+        isComplete={scenarioPlayer.isComplete}
         onExitScenario={handleExitScenario}
         scenarioTitle={scenarioPlayer.scenarioConfig?.title}
         currentStepNumber={scenarioPlayer.currentStep ? scenarioPlayer.currentStep.step + 1 : 0}
@@ -351,6 +342,12 @@ const SimulatorPageContent: React.FC = () => {
             <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4">
               <h3 className="text-sm font-bold text-gray-800 mb-1">Étape {scenarioPlayer.currentStep.step + 1}</h3>
               <p className="text-gray-600 text-sm">{scenarioPlayer.currentStep.description}</p>
+            </div>
+          )}
+          {scenarioPlayer.isComplete && (
+            <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-green-100 rounded-lg shadow-2xl border-2 border-green-500 p-4">
+              <h3 className="text-lg font-bold text-green-800 mb-1">Félicitations !</h3>
+              <p className="text-green-700 text-sm">Scénario terminé avec succès.</p>
             </div>
           )}
           {scenarioPlayer.failureMessage && <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div className="bg-red-500 text-white p-8 rounded-lg text-center"><h2 className="text-2xl font-bold">Erreur Critique</h2><p>{scenarioPlayer.failureMessage}</p></div></div>}
