@@ -23,6 +23,11 @@ interface MonitorDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
+  timerProps: {
+    minutes: number;
+    seconds: number;
+    totalSeconds: number;
+  };
 }
 
 export interface MonitorDisplayRef {
@@ -49,6 +54,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
       showVitalSigns = false,
       onShowFCValueChange,
       onShowVitalSignsChange,
+      timerProps,
     },
     ref,
   ) => {
@@ -398,7 +404,7 @@ const MonitorDisplay = forwardRef<MonitorDisplayRef, MonitorDisplayProps>(
             </div>
 
             <div className="flex items-center justify-center">
-              <TimerDisplay onTimeUpdate={(seconds) => { }} />
+              <TimerDisplay {...timerProps} />
             </div>
 
             {/* Section droite - Date et icône */}

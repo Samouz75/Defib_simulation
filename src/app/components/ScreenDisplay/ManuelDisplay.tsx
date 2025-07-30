@@ -22,6 +22,11 @@ interface ManuelDisplayProps {
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
   showShockDelivered: boolean;
   showCPRMessage: boolean;
+  timerProps: {
+    minutes: number;
+    seconds: number;
+    totalSeconds: number;
+  };
 }
 
 export interface ManuelDisplayRef {
@@ -45,6 +50,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
       onShowVitalSignsChange,
       showShockDelivered,
       showCPRMessage,
+      timerProps
     },
     ref,
   ) => {
@@ -61,7 +67,8 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <TimerDisplay onTimeUpdate={() => { }} />
+              <TimerDisplay {...timerProps} />
+
             </div>
             <div className="flex items-end flex-col gap-2 px-3 justify-end">
               <div className="flex flex-row items-center gap-x-2">

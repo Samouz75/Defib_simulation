@@ -23,6 +23,11 @@ interface DAEDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
+  timerProps: {
+    minutes: number;
+    seconds: number;
+    totalSeconds: number;
+  };
 }
 
 type Phase =
@@ -54,6 +59,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
   showVitalSigns = true,
   onShowFCValueChange,
   onShowVitalSignsChange,
+  timerProps
 }) => {
   const audioService = useAudio();
   const [phase, setPhase] = useState<Phase>("placement");
@@ -220,7 +226,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <TimerDisplay onTimeUpdate={() => { }} />
+                <TimerDisplay {...timerProps}/>
               </div>
               <div className="flex items-center gap-2 px-3 justify-end">
                 <div className="text-white text-xs">

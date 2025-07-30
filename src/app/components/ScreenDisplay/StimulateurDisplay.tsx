@@ -22,6 +22,11 @@ interface StimulateurDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
+  timerProps: {
+    minutes: number;
+    seconds: number;
+    totalSeconds: number;
+  };
 }
 
 export interface StimulateurDisplayRef {
@@ -55,6 +60,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   showVitalSigns = false,
   onShowFCValueChange,
   onShowVitalSignsChange,
+  timerProps
 }, ref) => {
 
 
@@ -225,11 +231,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
             {/* Section centre - Timer */}
             <div className="flex items-center justify-center">
               <TimerDisplay
-                onTimeUpdate={(seconds) => {
-                  // Optionnel : log toutes les 5 minutes
-                  if (seconds % 300 === 0 && seconds > 0) {
-                  }
-                }}
+                {...timerProps}
               />
             </div>
 
@@ -323,7 +325,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
               <div className="flex items-center gap-2">
                 <div className="bg-gray-500 px-4 py-0.5 h-full flex flex-col justify-center text-xs mr-1 ">
                   <span>
-                    {isPacing ? "Pause Stimulateur" : "Début Stimulateur"}
+                    {isPacing ? "Pause Stimulation" : "Début Stimulation"}
                   </span>
                 </div>
               </div>

@@ -1,44 +1,23 @@
 import React from 'react';
-import { useStopwatch } from 'react-timer-hook';
 
 interface TimerDisplayProps {
   className?: string;
-  onTimeUpdate?: (seconds: number) => void;
+  minutes: number;
+  seconds: number;
+  totalSeconds: number;
 }
 
-const TimerDisplay: React.FC<TimerDisplayProps> = ({ 
+const TimerDisplay: React.FC<TimerDisplayProps> = ({
   className = "text-white text-3xl font-bold font-mono",
-  onTimeUpdate
+  minutes,
+  seconds,
+  totalSeconds
 }) => {
-  const {
-    totalSeconds,
-    seconds,
-    minutes,
-    hours,
-    isRunning,
-    reset,
-  } = useStopwatch({ 
-    autoStart: true // Démarre automatiquement
-  });
-
-  // Auto-reset à 30 minutes (1800 secondes)
-  React.useEffect(() => {
-    if (totalSeconds >= 1800) { // 30 minutes = 1800 secondes
-      reset();
-      console.log('Timer auto-reset après 30 minutes');
-    }
-  }, [totalSeconds, reset]);
-
-  // Callback pour les mises à jour de temps
-  React.useEffect(() => {
-    if (onTimeUpdate) {
-      onTimeUpdate(totalSeconds);
-    }
-  }, [totalSeconds, onTimeUpdate]);
-
-  // Format: MM:SS toujours (pas besoin d'heures car max 30min)
+  // Format: MM:SS always, with a fallback for undefined values
   const formatTime = () => {
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const m = typeof minutes === 'number' ? minutes : 0;
+    const s = typeof seconds === 'number' ? seconds : 0;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   // Couleur selon la durée
@@ -54,7 +33,7 @@ const TimerDisplay: React.FC<TimerDisplayProps> = ({
       <div className={`${className} ${getTimerColor()}`}>
         {formatTime()}
       </div>
-      
+
       {/* Indicateur visuel simple */}
       <div className="ml-2 w-2 h-2 rounded-full bg-green-400 animate-pulse" />
     </div>

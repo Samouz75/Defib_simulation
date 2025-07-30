@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect } from "react";
+import { useStopwatch } from 'react-timer-hook';
 import MonitorDisplay, { type MonitorDisplayRef } from "../components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "../components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "../components/ScreenDisplay/ARRETDisplay";
@@ -31,6 +32,8 @@ const SimulatorPageContent: React.FC = () => {
 
   const defibrillator = useDefibrillator();
   const electrodeValidation = useElectrodeValidation();
+  const timer = useStopwatch({ autoStart: true });
+
 
   const fullSimulationState = {
     ...defibrillator,
@@ -57,10 +60,18 @@ const SimulatorPageContent: React.FC = () => {
     targetModeRef.current = targetMode;
   }, [targetMode]);
 
+  // Auto-reset timer at 30 minutes
+  useEffect(() => {
+    if (timer.totalSeconds >= 1800) { // 30 minutes
+      timer.reset();
+    }
+  }, [timer.totalSeconds, timer.reset]);
+
   // --- Scenario Management ---
   const handleStartScenario = async (scenarioId: string) => {
     try {
       defibrillator.resetState();
+      timer.reset();
 
       const scenarioModule = await import(`../data/scenarios/${scenarioId}.json`);
       const scenarioConfig: ScenarioConfig = scenarioModule.default;
@@ -74,65 +85,52 @@ const SimulatorPageContent: React.FC = () => {
   const handleExitScenario = () => {
     scenarioPlayer.stopScenario();
     defibrillator.resetState();
-
+    timer.reset();
   };
 
   // --- Event Handlers ---
   const handleModeChange = (newMode: DisplayMode) => {
     const isScenarioRunning = scenarioPlayer.isScenarioActive;
 
-    // Case 1: Turning the machine OFF.
     if (newMode === "ARRET") {
-      // Always stop any ongoing boot sequence.
       if (bootTimeoutRef.current) clearTimeout(bootTimeoutRef.current);
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
 
-      // Reset all booting states.
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
 
-      // Reset other relevant states.
       electrodeValidation.resetElectrodeValidation();
       defibrillator.setDisplayMode("ARRET", isScenarioRunning);
+      timer.reset(); // Reset timer only when going to ARRET
       return;
     }
 
-    // Case 2: A boot sequence is already in progress.
     if (isBooting) {
-      // Just update the target mode and let the sequence finish.
       setTargetMode(newMode);
       return;
     }
 
-    // Case 3: Turning the machine ON from ARRET state.
     if (defibrillator.displayMode === "ARRET") {
       setIsBooting(true);
       setTargetMode(newMode);
       setBootProgress(0);
 
-      // Start the progress bar animation.
       progressIntervalRef.current = setInterval(() => {
         setBootProgress(prev => Math.min(prev + 2, 100));
       }, 100);
 
-      // After 5 seconds, complete the boot process.
       bootTimeoutRef.current = setTimeout(() => {
-        // Use the ref here to get the latest value, avoiding the closure issue.
         if (targetModeRef.current) {
           defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
         }
-
-        // Clean up the boot state.
         setIsBooting(false);
         setTargetMode(null);
         setBootProgress(0);
         if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
         bootTimeoutRef.current = null;
-
       }, 5000);
     } else {
-      // Case 4: Switching between modes when the machine is already ON.
       defibrillator.setDisplayMode(newMode, isScenarioRunning);
     }
   };
@@ -257,13 +255,21 @@ const SimulatorPageContent: React.FC = () => {
 
     const effectiveRhythm = getEffectiveRhythm();
     const effectiveHeartRate = getEffectiveHeartRate();
+
+    const timerProps = {
+      minutes: timer.minutes,
+      seconds: timer.seconds,
+      totalSeconds: timer.totalSeconds
+    };
+
     switch (defibrillator.displayMode) {
       case "ARRET": return <ARRETDisplay />;
-      case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
-      case "Moniteur": return <MonitorDisplay ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
-      case "Manuel": return <ManuelDisplay ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode, showShockDelivered: defibrillator.showShockDelivered, showCPRMessage: defibrillator.showCPRMessage }} />;
+      case "DAE": return <DAEDisplay timerProps={timerProps} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
+      case "Moniteur": return <MonitorDisplay timerProps={timerProps} ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
+      case "Manuel": return <ManuelDisplay timerProps={timerProps} ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode, showShockDelivered: defibrillator.showShockDelivered, showCPRMessage: defibrillator.showCPRMessage }} />;
       case "Stimulateur": return (
         <StimulateurDisplay
+          timerProps={timerProps}
           ref={stimulateurDisplayRef}
           rhythmType={effectiveRhythm}
           showSynchroArrows={defibrillator.isSynchroMode}
