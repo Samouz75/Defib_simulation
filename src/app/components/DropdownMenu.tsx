@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Settings, Info, Power, FileText, Github, Home } from 'lucide-react';
+import { ChevronDown, Settings, Info, Power, FileText, Github, Home, HelpCircle } from 'lucide-react';
 import { useModals } from '../hooks/useModals';
 import AboutModal from './modals/AboutModal';
 import SettingsModal from './modals/SettingsModal';
 import ScenariosListModal from './modals/ScenariosListModal';
 import ScenarioModal from './modals/ScenarioModal';
+import HelpModal from './modals/HelpModal'; // Import the new modal
 
 interface DropdownMenuProps {
   onMenuItemSelect?: (action: string) => void;
@@ -13,9 +14,9 @@ interface DropdownMenuProps {
   onStartScenario?: (scenarioId: string) => void;
 }
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ 
-  onMenuItemSelect, 
-  onScenarioSelect, 
+const DropdownMenu: React.FC<DropdownMenuProps> = ({
+  onMenuItemSelect,
+  onScenarioSelect,
   onStartScenario
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,6 +50,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         break;
       case 'about':
         modals.openAbout();
+        break;
+      case 'help':
+        modals.openHelp();
         break;
       case 'github':
         window.open('https://github.com/Mariussgal/Defib_simulation', '_blank');
@@ -90,6 +94,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       icon: <Settings className="w-4 h-4" />,
     },
     {
+      id: 'help',
+      label: 'Aide',
+      icon: <HelpCircle className="w-4 h-4" />,
+    },
+    {
       id: 'about',
       label: 'À propos',
       icon: <Info className="w-4 h-4" />,
@@ -117,10 +126,9 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
           className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg border border-gray-600 transition-colors duration-200 shadow-lg"
         >
           <span className="text-sm font-medium">Menu</span>
-          <ChevronDown 
-            className={`w-4 h-4 transition-transform duration-200 ${
-              isOpen ? 'rotate-180' : ''
-            }`} 
+          <ChevronDown
+            className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
+              }`}
           />
         </button>
 
@@ -131,8 +139,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
               {menuItems.map((item) => {
                 if (item.label === 'separator') {
                   return (
-                    <div 
-                      key={item.id} 
+                    <div
+                      key={item.id}
                       className="border-t border-gray-600 my-2"
                     />
                   );
@@ -142,11 +150,10 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
-                      item.danger
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${item.danger
                         ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
                         : 'text-white hover:bg-gray-700'
-                    }`}
+                      }`}
                   >
                     {item.icon}
                     <span>{item.label}</span>
@@ -157,29 +164,34 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
           </div>
         )}
       </div>
-      
+
       {/* Modals */}
-      <AboutModal 
-        isOpen={modals.showAboutModal} 
-        onClose={modals.closeAbout} 
+      <AboutModal
+        isOpen={modals.showAboutModal}
+        onClose={modals.closeAbout}
       />
-      
-      <SettingsModal 
-        isOpen={modals.showSettingsModal} 
-        onClose={modals.closeSettings} 
+
+      <SettingsModal
+        isOpen={modals.showSettingsModal}
+        onClose={modals.closeSettings}
       />
-      
-      <ScenariosListModal 
-        isOpen={modals.showScenariosListModal} 
+
+      <ScenariosListModal
+        isOpen={modals.showScenariosListModal}
         onClose={modals.closeScenarioslist}
         onScenarioSelect={handleScenarioSelect}
       />
-      
-      <ScenarioModal 
-        isOpen={modals.showScenarioModal} 
+
+      <ScenarioModal
+        isOpen={modals.showScenarioModal}
         onClose={modals.closeScenario}
         scenarioId={modals.selectedScenario}
-        onStartScenario={onStartScenario || (() => {})}
+        onStartScenario={onStartScenario || (() => { })}
+      />
+
+      <HelpModal
+        isOpen={modals.showHelpModal}
+        onClose={modals.closeHelp}
       />
     </>
   );
