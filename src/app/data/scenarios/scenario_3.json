@@ -40,7 +40,7 @@
         },
         {
             "step": 3,
-            "description": "Règlez la fréquence de stimulation à 70",
+            "description": "Règlez la fréquence de stimulation à 60",
             "validation": {
                 "all_of": [
                     {
@@ -52,6 +52,34 @@
                         "type": "stateChange",
                         "property": "displayMode",
                         "value": "Stimulateur"
+                    },
+                    {
+                        "type": "stateChange",
+                        "property": "pacerFrequency",
+                        "value": 60
+                    }
+                ]
+            }
+        },
+        {
+            "step": 3,
+            "description": "Règlez l'intensité de stimulation à 10 mA",
+            "validation": {
+                "all_of": [
+                    {
+                        "type": "stateChange",
+                        "property": "isSynchroMode",
+                        "value": true
+                    },
+                    {
+                        "type": "stateChange",
+                        "property": "displayMode",
+                        "value": "Stimulateur"
+                    },
+                    {
+                        "type": "stateChange",
+                        "property": "pacerIntensity",
+                        "value": 10
                     }
                 ]
             }

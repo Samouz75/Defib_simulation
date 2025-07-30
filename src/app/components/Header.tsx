@@ -41,7 +41,7 @@ export default function Header({
     <header className="h-[6vh] min-h-[50px] bg-gray-900/80 backdrop-blur-sm border-b border-gray-700 flex items-center justify-between px-4 sm:px-6 z-50">
       {/* Left side: Controls or Scenario Title */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-lg font-bold text-white truncate">{scenarioTitle || "Simulateur DM100"}</h1>
+        <h1 className="text-lg font-bold text-white truncate">{scenarioTitle || "Simulateur basé sur l’EFFICIA DFM100"}</h1>
         {/* {isScenarioActive ? (
           <h1 className="text-lg font-bold text-white truncate">{scenarioTitle || "Scenario"}</h1>
         ) : (
