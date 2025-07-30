@@ -37,6 +37,10 @@ export interface DefibrillatorState {
 
   // Event tracking for scenarios
   lastEvent: string | null;
+
+  //banner trigger
+  showShockDelivered: boolean;
+  showCPRMessage: boolean;
 }
 
 const initialDefibrillatorState: DefibrillatorState = {
@@ -58,14 +62,17 @@ const initialDefibrillatorState: DefibrillatorState = {
   selectedChannel: 1,
   isSynchroMode: false,
   lastEvent: null,
+  showShockDelivered: false,
+  showCPRMessage: false,
 };
 export const useDefibrillator = () => {
   const [state, setState] = useState<DefibrillatorState>(initialDefibrillatorState);
 
   const audioService = useAudio();
   const chargeIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-
+  const shockMessageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const cprMessageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const cardioversionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- Core State Updater ---
   const updateState = useCallback((updates: Partial<DefibrillatorState>) => {
@@ -77,6 +84,8 @@ export const useDefibrillator = () => {
       clearInterval(chargeIntervalRef.current);
       chargeIntervalRef.current = null;
     }
+    if (shockMessageTimerRef.current) clearTimeout(shockMessageTimerRef.current);
+    if (cprMessageTimerRef.current) clearTimeout(cprMessageTimerRef.current);
     audioService?.stopAll();
     setState(initialDefibrillatorState);
   }, []);
@@ -164,47 +173,72 @@ export const useDefibrillator = () => {
       });
     }, 100);
   }, [state.isCharging, state.isCharged, updateState]);
+  
+  const executeShock = useCallback(() => {
+    setState(s => {
+      if (!s.isCharged) return s;
+
+      if (audioService) {
+        audioService.stopAll();
+        audioService.playDAEChocDelivre();
+      }
+
+      updateState({ showShockDelivered: true, showCPRMessage: false });
+
+      shockMessageTimerRef.current = setTimeout(() => {
+        updateState({ showShockDelivered: false, showCPRMessage: true });
+        if (audioService) {
+          audioService.playCommencerRCP();
+        }
+      }, 2000);
+
+      cprMessageTimerRef.current = setTimeout(() => {
+        updateState({ showCPRMessage: false });
+      }, 4000);
+
+      return {
+        ...s,
+        shockCount: s.shockCount + 1,
+        isCharged: false,
+        chargeProgress: 0,
+        isShockButtonBlinking: false,
+        lastEvent: 'shockDelivered',
+      };
+    });
+  }, [audioService, updateState]);
+
+  const handleShockButtonPress = useCallback(() => {
+    if (!state.isCharged || !state.isSynchroMode) return;
+
+    updateState({ isShockButtonPressed: true, isShockButtonBlinking: true });
+    if (cardioversionTimerRef.current) clearTimeout(cardioversionTimerRef.current);
+
+    cardioversionTimerRef.current = setTimeout(() => {
+      executeShock();
+      cardioversionTimerRef.current = null;
+    }, 5000); // 5-second hold
+  }, [state.isCharged, state.isSynchroMode, executeShock, updateState]);
+
+  const handleShockButtonRelease = useCallback(() => {
+    updateState({ isShockButtonPressed: false, isShockButtonBlinking: false });
+
+    if (cardioversionTimerRef.current) {
+      clearTimeout(cardioversionTimerRef.current);
+      cardioversionTimerRef.current = null;
+      console.log("Cardioversion cancelled: button released too early.");
+    }
+  }, [updateState]);
 
   const deliverShock = useCallback(() => {
-    if (!state.isCharged) {
-      console.log("Shock not delivered: not charged.");
+    if (!state.isCharged || state.isSynchroMode) {
       return;
     }
-
-    const isCardioversion = state.isSynchroMode;
-    const delayInMs = isCardioversion ? 5000 : 0;
-
-    const executeShock = () => {
-      setState(s => {
-        if (!s.isCharged) return s;
-
-        if (audioService) {
-          audioService.stopAll();
-          audioService.playDAEChocDelivre();
-          setTimeout(() => audioService?.playCommencerRCP(), 2000);
-        }
-
-        return {
-          ...s,
-          shockCount: s.shockCount + 1,
-          isCharged: false,
-          chargeProgress: 0,
-          isShockButtonBlinking: false,
-          lastEvent: 'shockDelivered',
-        };
-      });
-    };
-
+    // For immediate non-synchro shocks
     updateState({ isShockButtonPressed: true });
-    setTimeout(() => updateState({ isShockButtonPressed: false }), 500);
+    setTimeout(() => updateState({ isShockButtonPressed: false }), 300);
+    executeShock();
+  }, [state.isCharged, state.isSynchroMode, executeShock, updateState]);
 
-    if (isCardioversion) {
-      updateState({ isShockButtonBlinking: true });
-      setTimeout(executeShock, delayInMs);
-    } else {
-      executeShock();
-    }
-  }, [state.isCharged, state.isSynchroMode, updateState]);
 
 
   const cancelCharge = useCallback(() => {
@@ -222,6 +256,8 @@ export const useDefibrillator = () => {
     setDisplayMode,
     startCharging,
     deliverShock,
+    handleShockButtonPress,
+    handleShockButtonRelease,
     cancelCharge,
     toggleSynchroMode,
     clearLastEvent,

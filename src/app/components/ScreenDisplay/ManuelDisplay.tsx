@@ -1,11 +1,7 @@
 import React, {
   forwardRef,
-  useImperativeHandle,
-  useState,
-  useEffect,
-  useRef,
 } from "react";
-import TwoLeadECGDisplay from "../graphsdata/TwoLeadECGDisplay"; // Import the new, self-contained component
+import TwoLeadECGDisplay from "../graphsdata/TwoLeadECGDisplay";
 import TimerDisplay from "../TimerDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
 import VitalsDisplay from "../VitalsDisplay";
@@ -24,6 +20,8 @@ interface ManuelDisplayProps {
   showVitalSigns?: boolean;
   onShowFCValueChange?: (showFCValue: boolean) => void;
   onShowVitalSignsChange?: (showVitalSigns: boolean) => void;
+  showShockDelivered: boolean;
+  showCPRMessage: boolean;
 }
 
 export interface ManuelDisplayRef {
@@ -45,24 +43,11 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
       showVitalSigns = false,
       onShowFCValueChange,
       onShowVitalSignsChange,
+      showShockDelivered,
+      showCPRMessage,
     },
     ref,
   ) => {
-
-
-    const [showShockDelivered, setShowShockDelivered] = useState(false);
-    const [showCPRMessage, setShowCPRMessage] = useState(false);
-    const timer1Ref = useRef<NodeJS.Timeout | null>(null);
-    const timer2Ref = useRef<NodeJS.Timeout | null>(null);
-    const delayTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-    const clearAllTimers = () => {
-      if (timer1Ref.current) clearTimeout(timer1Ref.current);
-      if (timer2Ref.current) clearTimeout(timer2Ref.current);
-      if (delayTimerRef.current) clearTimeout(delayTimerRef.current);
-    };
-
-   
 
     return (
       <div className="absolute inset-3 bg-gray-900 rounded-lg">
@@ -76,7 +61,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <TimerDisplay onTimeUpdate={() => {}} />
+              <TimerDisplay onTimeUpdate={() => { }} />
             </div>
             <div className="flex items-end flex-col gap-2 px-3 justify-end">
               <div className="flex flex-row items-center gap-x-2">
@@ -121,6 +106,37 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
             onShowVitalSignsChange={onShowVitalSignsChange || (() => { })}
           />
 
+          <div className="h-6 flex items-center justify-center relative bg-black">
+            {isCharged && !showSynchroArrows && (
+              <div className="bg-white px-2 py-0.5 mt-1">
+                <span className="text-black text-xs font-bold">
+                  Délivrez le choc maintenant
+                </span>
+              </div>
+            )}
+            {isCharged && showSynchroArrows && (
+              <div className="bg-white px-2 py-0.5 mt-1">
+                <span className="text-black text-xs font-bold">
+                  Maintenez le bouton enfoncé pour délivrer le choc
+                </span>
+              </div>
+            )}
+            {showShockDelivered && (
+              <div className="bg-white px-2 py-0.5 mt-1">
+                <span className="text-black text-xs font-bold">
+                  Choc délivré
+                </span>
+              </div>
+            )}
+            {showCPRMessage && (
+              <div className="bg-white px-2 py-0.5 mt-1">
+                <span className="text-black text-xs font-bold">
+                  Commencez la réanimation cardio pulmonaire
+                </span>
+              </div>
+            )}
+          </div>
+
           {/* All in one ECG display containing defib info */}
           <div className="flex-grow border-b border-gray-600 flex flex-col bg-black">
             <TwoLeadECGDisplay
@@ -141,37 +157,14 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
           {/* Row 5 & 6 - Messages and Footer */}
 
           <div
-            className={`bg-black flex flex-col -mt-2 ${
-              showFCValue &&
-              (rhythmType === "fibrillationVentriculaire" ||
-                rhythmType === "fibrillationAtriale")
+            className={`bg-black flex flex-col -mt-2 ${showFCValue &&
+                (rhythmType === "fibrillationVentriculaire" ||
+                  rhythmType === "fibrillationAtriale")
                 ? "-mt-4"
                 : "mb-0"
-            }`}
+              }`}
           >
-            <div className="h-6 flex items-center justify-center relative mt-1">
-              {isCharged && (
-                <div className="bg-white px-2 py-0.5 ">
-                  <span className="text-black text-xs font-bold">
-                    Délivrez le choc maintenant
-                  </span>
-                </div>
-              )}
-              {showShockDelivered && (
-                <div className="bg-white px-2 py-0.5 ">
-                  <span className="text-black text-xs font-bold">
-                    Choc délivré
-                  </span>
-                </div>
-              )}
-              {showCPRMessage && (
-                <div className="bg-white px-2 py-0.5 ">
-                  <span className="text-black text-xs font-bold">
-                    Commencez la réanimation cardio pulmonaire
-                  </span>
-                </div>
-              )}
-            </div>
+
 
             <div className="flex items-center justify-between text-white text-xs px-2 mt-1">
               <div className="flex gap-2">
@@ -184,11 +177,10 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
               </div>
               <div className="flex items-center gap-12 px-7 mr-3">
                 <div
-                  className={`px-2 py-1  text-xs ${
-                    isCharged
+                  className={`px-2 py-1  text-xs ${isCharged
                       ? "bg-red-500 text-white"
                       : "bg-gray-500 text-gray-300"
-                  }`}
+                    }`}
                 >
                   <span>Annuler Charge</span>
                 </div>
@@ -203,5 +195,7 @@ const ManuelDisplay = forwardRef<ManuelDisplayRef, ManuelDisplayProps>(
     );
   },
 );
+
+ManuelDisplay.displayName = 'ManuelDisplay';
 
 export default ManuelDisplay;

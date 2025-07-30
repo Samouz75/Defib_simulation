@@ -19,6 +19,8 @@ interface DefibrillatorUIProps {
   handleRotaryValueChange: (value: number) => void;
   handleChargeButtonClick: () => void;
   handleShockButtonClick: () => void;
+  handleShockButtonPress: () => void;
+  handleShockButtonRelease: () => void;
   handleSynchroButtonClick: () => void;
   handleJoystickStepUp: () => void;
   handleJoystickStepDown: () => void;
@@ -38,6 +40,8 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
   handleRotaryValueChange,
   handleChargeButtonClick,
   handleShockButtonClick,
+  handleShockButtonPress,
+  handleShockButtonRelease,
   handleSynchroButtonClick,
   handleJoystickStepUp,
   handleJoystickStepDown,
@@ -78,67 +82,67 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
 
           {/* Buttons and Joystick Container */}
           <div className="flex items-center gap-10 mb-6">
-                  {/* Colonnes de boutons */}
-                  <div className="flex-1">
-                    <div className="flex gap-4 mb-6 items-center justify-center">
-                      {[...Array(4)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center gap-2"
-                        >
-                          <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
+            {/* Colonnes de boutons */}
+            <div className="flex-1">
+              <div className="flex gap-4 mb-6 items-center justify-center">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
 
-                          <button
-                            key={i}
-                            className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
-                            onClick={() => {
-                              if (canVibrate) navigator.vibrate(5);
-                              audioService.playClickSound("soft");
-                              // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
-                              if (defibrillator.displayMode === "Stimulateur") {
-                                if (i === 3) {
-                                  handleStimulatorSettingsButton();
-                                }  else if (i === 1) {
-                                  handleStimulatorStartButton();
-                                }
-                              } else if (
-                                defibrillator.displayMode === "Manuel"
-                              ) {
-                                if (i === 3) {
-                                  handleCancelChargeButton();
-                                }
-                              } 
-                            }}
-                          ></button>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* 4 boutons du bas */}
-                    <div className="flex gap-4 items-center justify-center">
-                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                        <Triangle className="w-7 h-7 text-white" />
-                      </button>
-                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                        <FlagTriangleRight className="w-7 h-7 text-white" />
-                      </button>
-                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                        <CopyMinus className="w-6 h-6 text-white" />
-                      </button>
-                      <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
-                        <Printer className="w-7 h-7 text-white" />
-                      </button>
-                    </div>
+                    <button
+                      key={i}
+                      className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all touch-manipulation"
+                      onClick={() => {
+                        if (canVibrate) navigator.vibrate(5);
+                        audioService.playClickSound("soft");
+                        // Boutons 3 et 4 (index 2 et 3) en mode stimulateur
+                        if (defibrillator.displayMode === "Stimulateur") {
+                          if (i === 3) {
+                            handleStimulatorSettingsButton();
+                          } else if (i === 1) {
+                            handleStimulatorStartButton();
+                          }
+                        } else if (
+                          defibrillator.displayMode === "Manuel"
+                        ) {
+                          if (i === 3) {
+                            handleCancelChargeButton();
+                          }
+                        }
+                      }}
+                    ></button>
                   </div>
+                ))}
+              </div>
 
-                  {/* Joystick */}
-                  <Joystick
+              {/* 4 boutons du bas */}
+              <div className="flex gap-4 items-center justify-center">
+                <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                  <Triangle className="w-7 h-7 text-white" />
+                </button>
+                <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                  <FlagTriangleRight className="w-7 h-7 text-white" />
+                </button>
+                <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                  <CopyMinus className="w-6 h-6 text-white" />
+                </button>
+                <button className="w-28 h-14 bg-gray-600 hover:bg-gray-500 active:bg-gray-400 p-4 rounded-lg border-2 border-gray-500 transition-all flex items-center justify-center touch-manipulation">
+                  <Printer className="w-7 h-7 text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Joystick */}
+            <Joystick
               onStepUp={handleJoystickStepUp}
               onStepDown={handleJoystickStepDown}
               onClick={handleJoystickClick}
-                  />
-                </div>
-              </div>
+            />
+          </div>
+        </div>
 
 
         {/* Right Side Panel */}
@@ -170,6 +174,11 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
               <button
                 className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${defibrillator.isShockButtonPressed ? "scale-95 bg-orange-300 border-orange-200" : isShockButtonBlinking ? "bg-orange-500 border-orange-400 shadow-lg  animate-[glowing-light_1s_infinite]" : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"}`}
                 onClick={() => { handleShockButtonClick(); if (canVibrate) navigator.vibrate(10); }}
+                onMouseDown={() => { handleShockButtonPress(); if (canVibrate) navigator.vibrate(10); }}
+                onMouseUp={handleShockButtonRelease}
+                onMouseLeave={handleShockButtonRelease}
+                onTouchStart={() => { handleShockButtonPress(); if (canVibrate) navigator.vibrate(10); }}
+                onTouchEnd={handleShockButtonRelease}
               >
                 <div className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${defibrillator.isShockButtonPressed ? "from-orange-300 to-orange-400" : "from-orange-400 to-orange-500"}`}>
                   <div className="absolute left-2"><span className="text-black text-xs font-bold">Choc</span></div>

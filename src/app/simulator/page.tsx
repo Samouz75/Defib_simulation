@@ -74,7 +74,7 @@ const SimulatorPageContent: React.FC = () => {
   const handleExitScenario = () => {
     scenarioPlayer.stopScenario();
     defibrillator.resetState();
-    
+
   };
 
   // --- Event Handlers ---
@@ -261,7 +261,7 @@ const SimulatorPageContent: React.FC = () => {
       case "ARRET": return <ARRETDisplay />;
       case "DAE": return <DAEDisplay {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
       case "Moniteur": return <MonitorDisplay ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
-      case "Manuel": return <ManuelDisplay ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
+      case "Manuel": return <ManuelDisplay ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode, showShockDelivered: defibrillator.showShockDelivered, showCPRMessage: defibrillator.showCPRMessage }} />;
       case "Stimulateur": return (
         <StimulateurDisplay
           ref={stimulateurDisplayRef}
@@ -276,9 +276,9 @@ const SimulatorPageContent: React.FC = () => {
           isPacing={defibrillator.isPacing}
           onPacerModeChange={defibrillator.setPacerMode}
           onTogglePacing={defibrillator.toggleIsPacing}
-          showFCValue={showFCValue} 
-          onShowFCValueChange={setShowFCValue} 
-          showVitalSigns={showVitalSigns} 
+          showFCValue={showFCValue}
+          onShowFCValueChange={setShowFCValue}
+          showVitalSigns={showVitalSigns}
           onShowVitalSignsChange={setShowVitalSigns}
         />
       );
@@ -292,6 +292,8 @@ const SimulatorPageContent: React.FC = () => {
     handleRotaryValueChange,
     handleChargeButtonClick,
     handleShockButtonClick,
+    handleShockButtonPress: defibrillator.handleShockButtonPress,
+    handleShockButtonRelease: defibrillator.handleShockButtonRelease,
     handleSynchroButtonClick,
     handleJoystickStepUp,
     handleJoystickStepDown,
@@ -330,7 +332,7 @@ const SimulatorPageContent: React.FC = () => {
             transformOrigin: 'center',
             transition: 'transform 0.2s ease-out'
           }}
-          >
+        >
           <DefibrillatorUI {...defibrillatorUIProps} />
         </div>
       </main>
