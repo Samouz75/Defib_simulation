@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import TimerDisplay from "../TimerDisplay";
 import ECGDisplay from "../graphsdata/ECGDisplay";
 import type { RhythmType } from "../graphsdata/ECGRhythms";
@@ -27,6 +27,7 @@ interface StimulateurDisplayProps {
     seconds: number;
     totalSeconds: number;
   };
+  onOpenHelpModal?: () => void;
 }
 
 export interface StimulateurDisplayRef {
@@ -60,18 +61,20 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   showVitalSigns = false,
   onShowFCValueChange,
   onShowVitalSignsChange,
-  timerProps
+  timerProps,
+  onOpenHelpModal,
 }, ref) => {
 
 
   const [showMenu, setShowMenu] = useState(false);
   const [showStimulationModeMenu, setShowStimulationModeMenu] = useState(false);
-
-
-
   const [showReglagesStimulateur, setShowReglagesStimulateur] = useState(false);
   const [showReglagesStimulateurMenu, setShowReglagesStimulateurMenu] = useState(false);
   const [showIntensiteMenu, setShowIntensiteMenu] = useState(false);
+
+  // Temporary state for editing values
+  const [tempPacerFrequency, setTempPacerFrequency] = useState(pacerFrequency);
+  const [tempPacerIntensity, setTempPacerIntensity] = useState(pacerIntensity);
 
 
   // États pour la navigation au joystick
@@ -85,7 +88,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
 
   // Configuration des menus
   const menuConfigs = {
-    main: ['Mode stimulation', 'Volume', 'Courbes affichées', 'Mesures/Alarmes', 'Infos patient'],
+    main: ['Mode stimulation', 'Volume', 'Courbes affichées', 'Mesures/Alarmes', 'Infos patient', 'Aide', 'Fin'],
     settings: ['Fréquence stimulation', 'Intensité stimulation', 'Fin'],
     stimMode: ['Sentinelle', 'Fixe'] as PacerMode[]
   };
@@ -133,24 +136,17 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
 
   useImperativeHandle(ref, () => ({
     triggerReglagesStimulateur: () => {
-      // Si un autre menu est ouvert, ne rien faire
-      if (isAnyMenuOpen() && !showReglagesStimulateur) {
-        return;
-      }
+      if (isAnyMenuOpen() && !showReglagesStimulateur) return;
       setShowReglagesStimulateur(!showReglagesStimulateur);
-      setSelectedMenuIndex(0); // Reset selection
+      setSelectedMenuIndex(0);
     },
     triggerMenu: () => {
-      // Si un autre menu est ouvert, ne rien faire
-      if (isAnyMenuOpen() && !showMenu) {
-        return;
-      }
+      if (isAnyMenuOpen() && !showMenu) return;
       setShowMenu(!showMenu);
-      setSelectedMenuIndex(0); // Reset selection
+      setSelectedMenuIndex(0);
     },
     isMenuOpen: isAnyMenuOpen,
     triggerStimulation: onTogglePacing,
-
     navigateUp: () => {
       const menuItems = getCurrentMenuItems();
       if (menuItems.length > 0) {
@@ -164,29 +160,35 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
       }
     },
     selectCurrentItem: () => {
-      // Si on est en mode édition de valeur, fermer le menu
       if (showReglagesStimulateurMenu) {
+        onFrequencyChange(tempPacerFrequency);
         setShowReglagesStimulateurMenu(false);
         return;
       }
       if (showIntensiteMenu) {
+        onIntensityChange(tempPacerIntensity);
         setShowIntensiteMenu(false);
         return;
       }
 
-      // Sinon, utiliser la logique normale de navigation
       const actions = {
         main: [
-          () => { setShowStimulationModeMenu(true); setShowMenu(false); setSelectedMenuIndex(0); }
+          () => { setShowStimulationModeMenu(true); setShowMenu(false); setSelectedMenuIndex(0); },
+          () => console.log("Volume selected"),
+          () => console.log("Courbes affichées selected"),
+          () => console.log("Mesures/Alarmes selected"),
+          () => console.log("Infos patient selected"),
+          () => { onOpenHelpModal?.(); setShowMenu(false); },
+          () => setShowMenu(false)
         ],
         settings: [
-          () => { setShowReglagesStimulateurMenu(true); setShowReglagesStimulateur(false); },
-          () => { setShowIntensiteMenu(true); setShowReglagesStimulateur(false); },
+          () => { setTempPacerFrequency(pacerFrequency); setShowReglagesStimulateurMenu(true); setShowReglagesStimulateur(false); },
+          () => { setTempPacerIntensity(pacerIntensity); setShowIntensiteMenu(true); setShowReglagesStimulateur(false); },
           () => setShowReglagesStimulateur(false)
         ],
         stimMode: [
-          () => { onPacerModeChange("Sentinelle"); setShowStimulationModeMenu(false); }, // UPDATED
-          () => { onPacerModeChange("Fixe"); setShowStimulationModeMenu(false); }        // UPDATED
+          () => { onPacerModeChange("Sentinelle"); setShowStimulationModeMenu(false); },
+          () => { onPacerModeChange("Fixe"); setShowStimulationModeMenu(false); }
         ]
       };
 
@@ -198,16 +200,16 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
     },
     incrementValue: () => {
       if (showReglagesStimulateurMenu) {
-        onFrequencyChange(pacerFrequency + 5);
+        setTempPacerFrequency(f => Math.min(200, f + 5));
       } else if (showIntensiteMenu) {
-        onIntensityChange(pacerIntensity + 5);
+        setTempPacerIntensity(i => Math.min(200, i + 5));
       }
     },
     decrementValue: () => {
       if (showReglagesStimulateurMenu) {
-        onFrequencyChange(pacerFrequency - 5);
+        setTempPacerFrequency(f => Math.max(30, f - 5));
       } else if (showIntensiteMenu) {
-        onIntensityChange(pacerIntensity - 5);
+        setTempPacerIntensity(i => Math.max(5, i - 5));
       }
     },
     isInValueEditMode: () => {
@@ -228,34 +230,32 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
             </div>
           </div>
 
-            {/* Section centre - Timer */}
-            <div className="flex items-center justify-center">
-              <TimerDisplay
-                {...timerProps}
-              />
-            </div>
+          {/* Section centre - Timer */}
+          <div className="flex items-center justify-center">
+            <TimerDisplay {...timerProps} />
+          </div>
 
-            {/* Section droite - Date et icône */}
-            <div className="flex items-center gap-2 px-3 justify-end">
-              <div className="text-white text-xs">
-                {new Date()
-                  .toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })
-                  .replace(".", "")}{" "}
-                {new Date().toLocaleTimeString("fr-FR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
-              </div>
-              <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
-                <div className="w-2 h-1.5 bg-white rounded-xs"></div>
-              </div>
+          {/* Section droite - Date et icône */}
+          <div className="flex items-center gap-2 px-3 justify-end">
+            <div className="text-white text-xs">
+              {new Date()
+                .toLocaleDateString("fr-FR", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                .replace(".", "")}{" "}
+              {new Date().toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
+            </div>
+            <div className="w-4 h-3 bg-green-500 rounded-sm flex items-center justify-center">
+              <div className="w-2 h-1.5 bg-white rounded-xs"></div>
             </div>
           </div>
+        </div>
 
         {/* Rangée 2 - Paramètres médicaux */}
         <VitalsDisplay
@@ -343,23 +343,23 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
           </div>
         </div>
 
-          {/* Menu Principal */}
-          {showMenu &&
-            renderMenu("Menu principal", menuConfigs.main, () =>
-              setShowMenu(false),
-            )}
+        {/* Menu Principal */}
+        {showMenu &&
+          renderMenu("Menu principal", menuConfigs.main, () =>
+            setShowMenu(false),
+          )}
 
-          {/* Menu Mode Stimulation */}
-          {showStimulationModeMenu &&
-            renderMenu("Mode stimulation", menuConfigs.stimMode, () =>
-              setShowStimulationModeMenu(false),
-            )}
+        {/* Menu Mode Stimulation */}
+        {showStimulationModeMenu &&
+          renderMenu("Mode stimulation", menuConfigs.stimMode, () =>
+            setShowStimulationModeMenu(false),
+          )}
 
-          {/* Menu Réglages Stimulateur */}
-          {showReglagesStimulateur &&
-            renderMenu("Réglages stimulateur", menuConfigs.settings, () =>
-              setShowReglagesStimulateur(false),
-            )}
+        {/* Menu Réglages Stimulateur */}
+        {showReglagesStimulateur &&
+          renderMenu("Réglages stimulateur", menuConfigs.settings, () =>
+            setShowReglagesStimulateur(false),
+          )}
 
         {/* Menu Fréquence Stimulation */}
         {showReglagesStimulateurMenu && (
@@ -380,8 +380,8 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{pacerFrequency}</span>
-                    <span className="text-black text-sm">ppm</span>
+                    <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{tempPacerFrequency}</span>
+                    <span className="text-black text-sm">bpm</span>
                   </div>
                 </div>
                 <div className="bg-gray-400 px-2 py-1 border border-gray-600 rounded text-black text-sm font-medium">
@@ -416,7 +416,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{pacerIntensity}</span>
+                    <span className="text-black text-2xl font-bold font-mono min-w-[60px] text-center">{tempPacerIntensity}</span>
                     <span className="text-black text-sm">mA</span>
                   </div>
                 </div>
@@ -436,5 +436,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
     </div>
   );
 });
+
+StimulateurDisplay.displayName = 'StimulateurDisplay';
 
 export default StimulateurDisplay;
