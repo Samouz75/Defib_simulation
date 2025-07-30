@@ -12,7 +12,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_1",
     title: "Scénario 1 - ACR défibrillation en mode manuel ",
     description:
-      "Vous êtes aux urgences. Un homme de 62 ans, aux antécédents de diabète, hypertension artérielle, est installé dans un box pour douleur thoracique typique depuis 2h. Durant l'examen le patient est inconscient et ne respire pas. L'alerte est donnée et le chariot d'urgence est amené au lit du malade qui présente un arrêt cardio-respiratoire. Le massage cardiaque externe est débuté et vous posez les électrodes de défibrillation sur le torse du patient. Vous devez utiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
+      "Un homme de 62 ans hypertendu amené aux urgences par la BSPP est installé dans un box pour douleur thoracique apparue depuis 2h. Lorsque vous venez l’examiner, le patient est inconscient et ne respire pas, sans témoins du début de l’arrêt cardio pulmonaire. L'alerte est donnée et le chariot d'urgence est amené au lit du malade. La réanimation cardio pulmonaire est débutée et vous posez les électrodes de défibrillation sur le torse du patient. Vous devez utiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
     objectives: [
       "Connecter les électrodes et vérifier le bon positionnement sur le torse",
       "Allumer le défibrillateur en position moniteur",
@@ -28,7 +28,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_2",
     title: "Scénario 2 - ACR défibrillation en mode DAE ",
     description:
-      "Vous êtes dans le service des urgences portes UHCD. Monsieur A. âgé de 58 ans, aux antécédents d'hypertension artérielle, dyslipidémie est hospitalisé en chambre 202 pour une embolie pulmonaire. Son voisin alerte l'infirmière car le patient ne répond pas. L'infirmière découvre M. A. en arrêt cardio respiratoire et amène le chariot d'urgence après avoir alerté ses collègues. Vous devez utiliser le défibrillateur en mode DAE pour mener à bien la réanimation cardio pulmonaire.",
+      "Un homme âgé de 58 ans est hospitalisé chambre 2 aux UHCD pour une embolie pulmonaire. Lors de son tour de nuit, l'infirmière le découvre en arrêt cardio respiratoire et amène le chariot d'urgence après avoir donné l’alerte. Vous devez utiliser le défibrillateur en mode DAE pour mener à bien la réanimation cardio pulmonaire. ",
     objectives: [
       "Allumer le défibrillateur en mode DAE",
       "Connecter le connecteur et brancher les électrodes sur la poitrine du patient",
@@ -41,7 +41,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_3",
     title: "Scénario 3 - Entraînement électrosystolique",
     description:
-      "Vous êtes médecin au déchocage aux urgences. Madame G. âgée de 60 ans, aux antécédents de diabète est prise en charge pour une syncope il y a 1h. L'ECG montre un BAV 3 à 30/min. La patiente présente de nouveau un malaise et présente une hypotension avec des marbrures. Vous placez les électrodes du défibrillateur sur la poitrine de la patiente et vous devez utiliser le défibrillateur pour électro-entraîner le cœur de la patiente.",
+      "Une femme âgée de 60 ans se présentant aux urgences est prise en charge au déchocage pour une syncope. L'ECG montre un BAV III à 30 bpm. Malgré un traitement médicamenteux initial, la patiente présente une perte de connaissance brutale associée à une hypotension artérielle et des marbrures. Vous décidez de réaliser un entraînement électro systolique à l’aide du défibrillateur. Vous placez les électrodes à 3 brins ainsi que les électrodes de défibrillation sur la poitrine de la patiente. Vous devez utiliser le défibrillateur en mode sentinelle pour délivrer un courant à la fréquence de 60 bpm avec une intensité croissante à partir de 10mA jusqu’à obtenir une capture. ",
     objectives: [
       "Positionner la molette verte sur stimulation",
       "Choisir le mode sentinelle",
@@ -57,7 +57,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_4",
     title: "Scénario 4 - Cardioversion",
     description:
-      "Vous êtes médecin de déchocage aux urgences. Monsieur L. âgé de 80 ans, aux antécédents d'hypertension et d'embolie pulmonaire anticoagulée au long cours, est pris en charge pour des palpitations depuis 6h. L'ECG montre une ACFA à 160/min, le traitement médicamenteux est un échec et le patient présente une syncope associée à une hypotension artérielle. Vous placez les électrodes sur la poitrine du patient et vous utilisez le défibrillateur pour réaliser une cardioversion électrique.",
+      "« Un homme âgé de 80 ans, aux antécédents d'hypertension et d'embolie pulmonaire anticoagulée au long cours, est pris en charge aux urgences pour des palpitations depuis 6h. L'ECG montre une ACFA à 160 bpm, le traitement médicamenteux est un échec et le patient présente une syncope associée à une hypotension artérielle. Vous placez les électrodes de défibrillation sur la poitrine du patient et vous devez utiliser le défibrillateur pour réaliser une cardioversion électrique a 150 joules.",
     objectives: [
       "Allumer le défibrillateur",
       "Positionnez la molette sur 150 Joules",
