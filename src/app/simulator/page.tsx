@@ -1,22 +1,31 @@
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import { useStopwatch } from 'react-timer-hook';
-import MonitorDisplay, { type MonitorDisplayRef } from "../components/ScreenDisplay/MonitorDisplay";
+import { useStopwatch } from "react-timer-hook";
+import MonitorDisplay, {
+  type MonitorDisplayRef,
+} from "../components/ScreenDisplay/MonitorDisplay";
 import DAEDisplay from "../components/ScreenDisplay/DAEDisplay";
 import ARRETDisplay from "../components/ScreenDisplay/ARRETDisplay";
-import StimulateurDisplay, { type StimulateurDisplayRef } from "../components/ScreenDisplay/StimulateurDisplay";
-import ManuelDisplay, { type ManuelDisplayRef } from "../components/ScreenDisplay/ManuelDisplay";
+import StimulateurDisplay, {
+  type StimulateurDisplayRef,
+} from "../components/ScreenDisplay/StimulateurDisplay";
+import ManuelDisplay, {
+  type ManuelDisplayRef,
+} from "../components/ScreenDisplay/ManuelDisplay";
 import Header from "../components/Header";
 import { useDefibrillator, type DisplayMode } from "../hooks/useDefibrillator";
 import { RotaryMappingService } from "../services/RotaryMappingService";
-import { useScenarioPlayer, type ScenarioConfig } from "../hooks/useScenarioPlayer";
+import {
+  useScenarioPlayer,
+  type ScenarioConfig,
+} from "../hooks/useScenarioPlayer";
 import { useElectrodeValidation } from "../hooks/useElectrodeValidation";
 import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay";
 import { RhythmType } from "../components/graphsdata/ECGRhythms";
 import DefibrillatorUI from "../components/DefibrillatorUI";
 import { AudioProvider } from "../context/AudioContext";
-import { useResponsiveScale } from '../hooks/useResponsiveScale';
+import { useResponsiveScale } from "../hooks/useResponsiveScale";
 
 const SimulatorPageContent: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -27,13 +36,12 @@ const SimulatorPageContent: React.FC = () => {
   const scale = useResponsiveScale(1024, 768);
 
   // --- State Management Hooks ---
-  const [manualRhythm, setManualRhythm] = useState<RhythmType>('sinus');
+  const [manualRhythm, setManualRhythm] = useState<RhythmType>("sinus");
   const [manualHeartRate, setManualHeartRate] = useState(70);
 
   const defibrillator = useDefibrillator();
   const electrodeValidation = useElectrodeValidation();
   const timer = useStopwatch({ autoStart: true });
-
 
   const fullSimulationState = {
     ...defibrillator,
@@ -43,13 +51,14 @@ const SimulatorPageContent: React.FC = () => {
 
   // --- UI and Interaction State ---
   const [daePhase, setDaePhase] = useState<string | null>(null);
-  const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(null);
+  const [daeShockFunction, setDaeShockFunction] = useState<(() => void) | null>(
+    null,
+  );
   const [isBooting, setIsBooting] = useState(false);
   const [targetMode, setTargetMode] = useState<DisplayMode | null>(null);
   const [bootProgress, setBootProgress] = useState(0);
   const [showFCValue, setShowFCValue] = useState(true);
   const [showVitalSigns, setShowVitalSigns] = useState(true);
-
 
   // --- Timers ---
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,7 +71,8 @@ const SimulatorPageContent: React.FC = () => {
 
   // Auto-reset timer at 30 minutes
   useEffect(() => {
-    if (timer.totalSeconds >= 1800) { // 30 minutes
+    if (timer.totalSeconds >= 1800) {
+      // 30 minutes
       timer.reset();
     }
   }, [timer.totalSeconds, timer.reset]);
@@ -73,7 +83,9 @@ const SimulatorPageContent: React.FC = () => {
       defibrillator.resetState();
       timer.reset();
 
-      const scenarioModule = await import(`../data/scenarios/${scenarioId}.json`);
+      const scenarioModule = await import(
+        `../data/scenarios/${scenarioId}.json`
+      );
       const scenarioConfig: ScenarioConfig = scenarioModule.default;
 
       scenarioPlayer.startScenario(scenarioConfig);
@@ -94,7 +106,8 @@ const SimulatorPageContent: React.FC = () => {
 
     if (newMode === "ARRET") {
       if (bootTimeoutRef.current) clearTimeout(bootTimeoutRef.current);
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      if (progressIntervalRef.current)
+        clearInterval(progressIntervalRef.current);
 
       setIsBooting(false);
       setTargetMode(null);
@@ -117,24 +130,27 @@ const SimulatorPageContent: React.FC = () => {
       setBootProgress(0);
 
       progressIntervalRef.current = setInterval(() => {
-        setBootProgress(prev => Math.min(prev + 2, 100));
+        setBootProgress((prev) => Math.min(prev + 2, 100));
       }, 100);
 
       bootTimeoutRef.current = setTimeout(() => {
         if (targetModeRef.current) {
-          defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
+          defibrillator.setDisplayMode(
+            targetModeRef.current,
+            isScenarioRunning,
+          );
         }
         setIsBooting(false);
         setTargetMode(null);
         setBootProgress(0);
-        if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+        if (progressIntervalRef.current)
+          clearInterval(progressIntervalRef.current);
         bootTimeoutRef.current = null;
       }, 5000);
     } else {
       defibrillator.setDisplayMode(newMode, isScenarioRunning);
     }
   };
-
 
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
@@ -152,7 +168,11 @@ const SimulatorPageContent: React.FC = () => {
   };
 
   const handleShockButtonClick = () => {
-    if (defibrillator.displayMode === "DAE" && daePhase === "attente_choc" && daeShockFunction) {
+    if (
+      defibrillator.displayMode === "DAE" &&
+      daePhase === "attente_choc" &&
+      daeShockFunction
+    ) {
       daeShockFunction();
     } else if (defibrillator.displayMode === "Manuel") {
       defibrillator.deliverShock();
@@ -163,7 +183,9 @@ const SimulatorPageContent: React.FC = () => {
 
   // --- Joystick Handlers ---
   const handleJoystickStepUp = () => {
-    let displayRef: React.RefObject<StimulateurDisplayRef | MonitorDisplayRef | null> | null = null;
+    let displayRef: React.RefObject<
+      StimulateurDisplayRef | MonitorDisplayRef | null
+    > | null = null;
     if (defibrillator.displayMode === "Stimulateur") {
       displayRef = stimulateurDisplayRef;
     } else if (defibrillator.displayMode === "Moniteur") {
@@ -181,7 +203,9 @@ const SimulatorPageContent: React.FC = () => {
   };
 
   const handleJoystickStepDown = () => {
-    let displayRef: React.RefObject<StimulateurDisplayRef | MonitorDisplayRef | null> | null = null;
+    let displayRef: React.RefObject<
+      StimulateurDisplayRef | MonitorDisplayRef | null
+    > | null = null;
     if (defibrillator.displayMode === "Stimulateur") {
       displayRef = stimulateurDisplayRef;
     } else if (defibrillator.displayMode === "Moniteur") {
@@ -199,7 +223,9 @@ const SimulatorPageContent: React.FC = () => {
   };
 
   const handleJoystickClick = () => {
-    let displayRef: React.RefObject<StimulateurDisplayRef | MonitorDisplayRef | ManuelDisplayRef | any> | null = null;
+    let displayRef: React.RefObject<
+      StimulateurDisplayRef | MonitorDisplayRef | ManuelDisplayRef | any
+    > | null = null;
 
     if (defibrillator.displayMode === "Stimulateur") {
       displayRef = stimulateurDisplayRef;
@@ -218,39 +244,51 @@ const SimulatorPageContent: React.FC = () => {
     }
   };
 
-  const handleStimulatorSettingsButton = () => stimulateurDisplayRef.current?.triggerReglagesStimulateur();
-  const handleStimulatorMenuButton = () => stimulateurDisplayRef.current?.triggerMenu();
+  const handleStimulatorSettingsButton = () =>
+    stimulateurDisplayRef.current?.triggerReglagesStimulateur();
+  const handleStimulatorMenuButton = () =>
+    stimulateurDisplayRef.current?.triggerMenu();
   const handleStimulatorStartButton = () => defibrillator.toggleIsPacing();
   const handleCancelChargeButton = () => defibrillator.cancelCharge();
-  const handleMonitorMenuButton = () => monitorDisplayRef.current?.triggerMenu();
-
+  const handleMonitorMenuButton = () =>
+    monitorDisplayRef.current?.triggerMenu();
 
   // --- DAE Callbacks ---
-  const handleDaePhaseChange = useCallback((phase: string) => setDaePhase(phase), []);
+  const handleDaePhaseChange = useCallback(
+    (phase: string) => setDaePhase(phase),
+    [],
+  );
 
   // --- Getters for effective state ---
-  const getEffectiveRhythm = (): RhythmType => scenarioPlayer.isScenarioActive ? defibrillator.rhythmType : manualRhythm;
-  const getEffectiveHeartRate = (): number => scenarioPlayer.isScenarioActive ? defibrillator.heartRate : manualHeartRate;
+  const getEffectiveRhythm = (): RhythmType =>
+    scenarioPlayer.isScenarioActive ? defibrillator.rhythmType : manualRhythm;
+  const getEffectiveHeartRate = (): number =>
+    scenarioPlayer.isScenarioActive ? defibrillator.heartRate : manualHeartRate;
 
   // --- Render Logic ---
   const renderScreenContent = () => {
     if (isBooting) {
-      return <div className="h-full flex flex-col items-center justify-center bg-black text-white">    <div className="flex flex-col items-center space-y-8">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-green-400 mb-4">MARIUS</h1>
-          <div className="text-sm text-gray-400">Efficia DFM100</div>
+      return (
+        <div className="h-full flex flex-col items-center justify-center bg-black text-white">
+          {" "}
+          <div className="flex flex-col items-center space-y-8">
+            <div className="text-center">
+              <h1 className="text-6xl font-bold text-green-400 mb-4">MARIUS</h1>
+              <div className="text-sm text-gray-400">Efficia DFM100</div>
+            </div>
+            <div className="w-64 h-2 bg-gray-700 rounded">
+              <div
+                className="h-full bg-green-500 rounded transition-all duration-100"
+                style={{ width: `${bootProgress}%` }}
+              ></div>
+            </div>
+            <div className="text-center text-sm text-gray-300">
+              <div>Démarrage en cours...</div>
+              <div className="mt-2">Passage en mode {targetMode}</div>
+            </div>
+          </div>
         </div>
-        <div className="w-64 h-2 bg-gray-700 rounded">
-          <div
-            className="h-full bg-green-500 rounded transition-all duration-100"
-            style={{ width: `${bootProgress}%` }}
-          ></div>
-        </div>
-        <div className="text-center text-sm text-gray-300">
-          <div>Démarrage en cours...</div>
-          <div className="mt-2">Passage en mode {targetMode}</div>
-        </div>
-      </div></div>;
+      );
     }
 
     const effectiveRhythm = getEffectiveRhythm();
@@ -259,36 +297,92 @@ const SimulatorPageContent: React.FC = () => {
     const timerProps = {
       minutes: timer.minutes,
       seconds: timer.seconds,
-      totalSeconds: timer.totalSeconds
+      totalSeconds: timer.totalSeconds,
     };
 
     switch (defibrillator.displayMode) {
-      case "ARRET": return <ARRETDisplay />;
-      case "DAE": return <DAEDisplay timerProps={timerProps} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onPhaseChange: handleDaePhaseChange, onShockReady: setDaeShockFunction, onElectrodePlacementValidated: electrodeValidation.validateElectrodes, energy: "150", showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode }} />;
-      case "Moniteur": return <MonitorDisplay timerProps={timerProps} ref={monitorDisplayRef} rhythmType={effectiveRhythm} showSynchroArrows={defibrillator.isSynchroMode} heartRate={effectiveHeartRate} showFCValue={showFCValue} onShowFCValueChange={setShowFCValue} showVitalSigns={showVitalSigns} onShowVitalSignsChange={setShowVitalSigns} />;
-      case "Manuel": return <ManuelDisplay timerProps={timerProps} ref={manuelDisplayRef} {...{ ...defibrillator, rhythmType: effectiveRhythm, heartRate: effectiveHeartRate, onCancelCharge: defibrillator.cancelCharge, energy: defibrillator.manualEnergy, showFCValue: showFCValue, onShowFCValueChange: setShowFCValue, showVitalSigns: showVitalSigns, onShowVitalSignsChange: setShowVitalSigns, showSynchroArrows: defibrillator.isSynchroMode, showShockDelivered: defibrillator.showShockDelivered, showCPRMessage: defibrillator.showCPRMessage }} />;
-      case "Stimulateur": return (
-        <StimulateurDisplay
-          timerProps={timerProps}
-          ref={stimulateurDisplayRef}
-          rhythmType={effectiveRhythm}
-          showSynchroArrows={defibrillator.isSynchroMode}
-          heartRate={effectiveHeartRate}
-          pacerFrequency={defibrillator.pacerFrequency}
-          pacerIntensity={defibrillator.pacerIntensity}
-          onFrequencyChange={defibrillator.setPacerFrequency}
-          onIntensityChange={defibrillator.setPacerIntensity}
-          pacerMode={defibrillator.pacerMode}
-          isPacing={defibrillator.isPacing}
-          onPacerModeChange={defibrillator.setPacerMode}
-          onTogglePacing={defibrillator.toggleIsPacing}
-          showFCValue={showFCValue}
-          onShowFCValueChange={setShowFCValue}
-          showVitalSigns={showVitalSigns}
-          onShowVitalSignsChange={setShowVitalSigns}
-        />
-      );
-      default: return <ARRETDisplay />;
+      case "ARRET":
+        return <ARRETDisplay />;
+      case "DAE":
+        return (
+          <DAEDisplay
+            timerProps={timerProps}
+            {...{
+              ...defibrillator,
+              rhythmType: effectiveRhythm,
+              heartRate: effectiveHeartRate,
+              onPhaseChange: handleDaePhaseChange,
+              onShockReady: setDaeShockFunction,
+              onElectrodePlacementValidated:
+                electrodeValidation.validateElectrodes,
+              energy: "150",
+              showFCValue: showFCValue,
+              onShowFCValueChange: setShowFCValue,
+              showVitalSigns: showVitalSigns,
+              onShowVitalSignsChange: setShowVitalSigns,
+              showSynchroArrows: defibrillator.isSynchroMode,
+            }}
+          />
+        );
+      case "Moniteur":
+        return (
+          <MonitorDisplay
+            timerProps={timerProps}
+            ref={monitorDisplayRef}
+            rhythmType={effectiveRhythm}
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={effectiveHeartRate}
+            showFCValue={showFCValue}
+            onShowFCValueChange={setShowFCValue}
+            showVitalSigns={showVitalSigns}
+            onShowVitalSignsChange={setShowVitalSigns}
+          />
+        );
+      case "Manuel":
+        return (
+          <ManuelDisplay
+            timerProps={timerProps}
+            ref={manuelDisplayRef}
+            {...{
+              ...defibrillator,
+              rhythmType: effectiveRhythm,
+              heartRate: effectiveHeartRate,
+              onCancelCharge: defibrillator.cancelCharge,
+              energy: defibrillator.manualEnergy,
+              showFCValue: showFCValue,
+              onShowFCValueChange: setShowFCValue,
+              showVitalSigns: showVitalSigns,
+              onShowVitalSignsChange: setShowVitalSigns,
+              showSynchroArrows: defibrillator.isSynchroMode,
+              showShockDelivered: defibrillator.showShockDelivered,
+              showCPRMessage: defibrillator.showCPRMessage,
+            }}
+          />
+        );
+      case "Stimulateur":
+        return (
+          <StimulateurDisplay
+            timerProps={timerProps}
+            ref={stimulateurDisplayRef}
+            rhythmType={effectiveRhythm}
+            showSynchroArrows={defibrillator.isSynchroMode}
+            heartRate={effectiveHeartRate}
+            pacerFrequency={defibrillator.pacerFrequency}
+            pacerIntensity={defibrillator.pacerIntensity}
+            onFrequencyChange={defibrillator.setPacerFrequency}
+            onIntensityChange={defibrillator.setPacerIntensity}
+            pacerMode={defibrillator.pacerMode}
+            isPacing={defibrillator.isPacing}
+            onPacerModeChange={defibrillator.setPacerMode}
+            onTogglePacing={defibrillator.toggleIsPacing}
+            showFCValue={showFCValue}
+            onShowFCValueChange={setShowFCValue}
+            showVitalSigns={showVitalSigns}
+            onShowVitalSignsChange={setShowVitalSigns}
+          />
+        );
+      default:
+        return <ARRETDisplay />;
     }
   };
 
@@ -315,52 +409,72 @@ const SimulatorPageContent: React.FC = () => {
 
   return (
     <div className="h-screen bg-[#0B1222] flex flex-col relative">
-             <Header
-         onStartScenario={handleStartScenario}
-         currentRhythm={manualRhythm}
-         onRhythmChange={setManualRhythm}
-         heartRate={manualHeartRate}
-         onHeartRateChange={setManualHeartRate}
-         isScenarioActive={scenarioPlayer.isScenarioActive}
-         isComplete={scenarioPlayer.isComplete}
-         onExitScenario={handleExitScenario}
-         scenarioTitle={scenarioPlayer.scenarioConfig?.title}
-         currentStepNumber={scenarioPlayer.currentStep ? scenarioPlayer.currentStep.step + 1 : 0}
-         totalSteps={scenarioPlayer.scenarioConfig?.steps.length ?? 0}
-         showStepNotifications={scenarioPlayer.showStepNotifications}
-         onToggleStepNotifications={scenarioPlayer.toggleStepNotifications}
-       />
+      <Header
+        onStartScenario={handleStartScenario}
+        currentRhythm={manualRhythm}
+        onRhythmChange={setManualRhythm}
+        heartRate={manualHeartRate}
+        onHeartRateChange={setManualHeartRate}
+        isScenarioActive={scenarioPlayer.isScenarioActive}
+        isComplete={scenarioPlayer.isComplete}
+        onExitScenario={handleExitScenario}
+        scenarioTitle={scenarioPlayer.scenarioConfig?.title}
+        currentStepNumber={
+          scenarioPlayer.currentStep ? scenarioPlayer.currentStep.step + 1 : 0
+        }
+        totalSteps={scenarioPlayer.scenarioConfig?.steps.length ?? 0}
+        showStepNotifications={scenarioPlayer.showStepNotifications}
+        onToggleStepNotifications={scenarioPlayer.toggleStepNotifications}
+      />
 
-       <main className="h-[94vh] flex-grow flex items-center justify-center p-2 portrait:hidden">
-         <div className="relative"
-           style={{
-             transform: `scale(${scale})`,
-             transformOrigin: 'center',
-             transition: 'transform 0.2s ease-out'
-           }}
-         >
-           <DefibrillatorUI {...defibrillatorUIProps} />
-         </div>
-       </main>
+      <main className="h-[94vh] flex-grow flex items-center justify-center p-2 portrait:hidden">
+        <div
+          className="relative"
+          style={{
+            transform: `scale(${scale})`,
+            transformOrigin: "center",
+            transition: "transform 0.2s ease-out",
+          }}
+        >
+          <DefibrillatorUI {...defibrillatorUIProps} />
+        </div>
+      </main>
 
       {/* Scenario-specific overlays can now be rendered conditionally here */}
-       {scenarioPlayer.isScenarioActive && (
-         <>
-           {scenarioPlayer.currentStep && !scenarioPlayer.isComplete && scenarioPlayer.showStepNotifications && (
-             <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
-               <h3 className="text-sm font-bold text-gray-800 mb-1">Étape {scenarioPlayer.currentStep.step + 1}</h3>
-               <p className="text-gray-600 text-sm">{scenarioPlayer.currentStep.description}</p>
-             </div>
-           )}
-           {scenarioPlayer.isComplete && (
-             <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-green-100 rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
-               <h3 className="text-lg font-bold text-green-800 mb-1">Félicitations !</h3>
-               <p className="text-green-700 text-sm">Scénario terminé avec succès.</p>
-             </div>
-           )}
-           {scenarioPlayer.failureMessage && <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 portrait:hidden"><div className="bg-red-500 text-white p-8 rounded-lg text-center"><h2 className="text-2xl font-bold">Erreur Critique</h2><p>{scenarioPlayer.failureMessage}</p></div></div>}
-         </>
-       )}
+      {scenarioPlayer.isScenarioActive && (
+        <>
+          {scenarioPlayer.currentStep &&
+            !scenarioPlayer.isComplete &&
+            scenarioPlayer.showStepNotifications && (
+              <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
+                <h3 className="text-sm font-bold text-gray-800 mb-1">
+                  Étape {scenarioPlayer.currentStep.step + 1}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {scenarioPlayer.currentStep.description}
+                </p>
+              </div>
+            )}
+          {scenarioPlayer.isComplete && (
+            <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-green-100 rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
+              <h3 className="text-lg font-bold text-green-800 mb-1">
+                Félicitations !
+              </h3>
+              <p className="text-green-700 text-sm">
+                Scénario terminé avec succès.
+              </p>
+            </div>
+          )}
+          {scenarioPlayer.failureMessage && (
+            <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 portrait:hidden">
+              <div className="bg-red-500 text-white p-8 rounded-lg text-center">
+                <h2 className="text-2xl font-bold">Erreur Critique</h2>
+                <p>{scenarioPlayer.failureMessage}</p>
+              </div>
+            </div>
+          )}
+        </>
+      )}
       {!showFCValue && defibrillator.displayMode != "ARRET" && (
         <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-100 bg-blue-500 text-white text-[11px] px-2 py-1 rounded-lg shadow-lg animate-pulse">
           Cliquez sur les constantes (FC, SpO2, PNI) pour les afficher
