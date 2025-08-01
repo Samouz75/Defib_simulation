@@ -315,52 +315,52 @@ const SimulatorPageContent: React.FC = () => {
 
   return (
     <div className="h-screen bg-[#0B1222] flex flex-col relative">
-      <Header
-        onStartScenario={handleStartScenario}
-        currentRhythm={manualRhythm}
-        onRhythmChange={setManualRhythm}
-        heartRate={manualHeartRate}
-        onHeartRateChange={setManualHeartRate}
-        isScenarioActive={scenarioPlayer.isScenarioActive}
-        isComplete={scenarioPlayer.isComplete}
-        onExitScenario={handleExitScenario}
-        scenarioTitle={scenarioPlayer.scenarioConfig?.title}
-        currentStepNumber={scenarioPlayer.currentStep ? scenarioPlayer.currentStep.step + 1 : 0}
-        totalSteps={scenarioPlayer.scenarioConfig?.steps.length ?? 0}
-        showStepNotifications={scenarioPlayer.showStepNotifications}
-        onToggleStepNotifications={scenarioPlayer.toggleStepNotifications}
-      />
+             <Header
+         onStartScenario={handleStartScenario}
+         currentRhythm={manualRhythm}
+         onRhythmChange={setManualRhythm}
+         heartRate={manualHeartRate}
+         onHeartRateChange={setManualHeartRate}
+         isScenarioActive={scenarioPlayer.isScenarioActive}
+         isComplete={scenarioPlayer.isComplete}
+         onExitScenario={handleExitScenario}
+         scenarioTitle={scenarioPlayer.scenarioConfig?.title}
+         currentStepNumber={scenarioPlayer.currentStep ? scenarioPlayer.currentStep.step + 1 : 0}
+         totalSteps={scenarioPlayer.scenarioConfig?.steps.length ?? 0}
+         showStepNotifications={scenarioPlayer.showStepNotifications}
+         onToggleStepNotifications={scenarioPlayer.toggleStepNotifications}
+       />
 
-      <main className="h-[94vh] flex-grow flex items-center justify-center p-2">
-        <div className="relative"
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: 'center',
-            transition: 'transform 0.2s ease-out'
-          }}
-        >
-          <DefibrillatorUI {...defibrillatorUIProps} />
-        </div>
-      </main>
+       <main className="h-[94vh] flex-grow flex items-center justify-center p-2 portrait:hidden">
+         <div className="relative"
+           style={{
+             transform: `scale(${scale})`,
+             transformOrigin: 'center',
+             transition: 'transform 0.2s ease-out'
+           }}
+         >
+           <DefibrillatorUI {...defibrillatorUIProps} />
+         </div>
+       </main>
 
       {/* Scenario-specific overlays can now be rendered conditionally here */}
-      {scenarioPlayer.isScenarioActive && (
-        <>
-          {scenarioPlayer.currentStep && !scenarioPlayer.isComplete && scenarioPlayer.showStepNotifications && (
-            <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4">
-              <h3 className="text-sm font-bold text-gray-800 mb-1">Étape {scenarioPlayer.currentStep.step + 1}</h3>
-              <p className="text-gray-600 text-sm">{scenarioPlayer.currentStep.description}</p>
-            </div>
-          )}
-          {scenarioPlayer.isComplete && (
-            <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-green-100 rounded-lg shadow-2xl border-2 border-green-500 p-4">
-              <h3 className="text-lg font-bold text-green-800 mb-1">Félicitations !</h3>
-              <p className="text-green-700 text-sm">Scénario terminé avec succès.</p>
-            </div>
-          )}
-          {scenarioPlayer.failureMessage && <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div className="bg-red-500 text-white p-8 rounded-lg text-center"><h2 className="text-2xl font-bold">Erreur Critique</h2><p>{scenarioPlayer.failureMessage}</p></div></div>}
-        </>
-      )}
+       {scenarioPlayer.isScenarioActive && (
+         <>
+           {scenarioPlayer.currentStep && !scenarioPlayer.isComplete && scenarioPlayer.showStepNotifications && (
+             <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
+               <h3 className="text-sm font-bold text-gray-800 mb-1">Étape {scenarioPlayer.currentStep.step + 1}</h3>
+               <p className="text-gray-600 text-sm">{scenarioPlayer.currentStep.description}</p>
+             </div>
+           )}
+           {scenarioPlayer.isComplete && (
+             <div className="fixed bottom-4 right-4 z-50 max-w-sm w-full bg-green-100 rounded-lg shadow-2xl border-2 border-green-500 p-4 portrait:hidden">
+               <h3 className="text-lg font-bold text-green-800 mb-1">Félicitations !</h3>
+               <p className="text-green-700 text-sm">Scénario terminé avec succès.</p>
+             </div>
+           )}
+           {scenarioPlayer.failureMessage && <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 portrait:hidden"><div className="bg-red-500 text-white p-8 rounded-lg text-center"><h2 className="text-2xl font-bold">Erreur Critique</h2><p>{scenarioPlayer.failureMessage}</p></div></div>}
+         </>
+       )}
       {!showFCValue && defibrillator.displayMode != "ARRET" && (
         <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-100 bg-blue-500 text-white text-[11px] px-2 py-1 rounded-lg shadow-lg animate-pulse">
           Cliquez sur les constantes (FC, SpO2, PNI) pour les afficher
