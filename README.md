@@ -3,7 +3,7 @@
 
 ## 🏥 Project Context
 
-This app was developed during a 2-month internship in the Emergency Department at Saint-Louis Hospital (Paris). The project was technically overseen by Marc Dinh (Engineering School Professor) and under the medical supervision of Dr. Sami Ellouze (Emergency Physician). The goal was creating an accessible online training platform for defibrillation techniques.
+This app was developed during a 2-month internship in the Emergency Department of Saint-Louis Hospital (Paris). The project was technically overseen by Marc Dinh (Engineering School Professor) and under the medical supervision of Dr. Sami Ellouze (Emergency Physician). The goal was creating an accessible online training platform for defibrillation techniques based on the **Philips Efficia DFM100**.
 
 ## 🎯 Project Overview
 
@@ -17,10 +17,11 @@ The current version offers **free access** to realistic defibrillator simulation
 Users can practice essential defibrillation skills through authentic hospital scenarios in a safe, controlled environment available 24/7.
 
 ### Version 2 (In Development) - Professional Training Suite
-The upcoming version will feature:
+The upcoming version wi  ll feature:
 - **Real-time connectivity** with physical training mannequins
-- **Advanced vital signs monitoring**
-- **Targeted training** for hospital staff to enhance emergency response efficiency
+- **Double defibrilation scenarios**
+- **Opening of a global simulation platform** with other simulation tools such as blood glucose meter, Hemocue, ECG device, respirator... 
+
 
 ## ✨ Key Features
 
@@ -31,7 +32,7 @@ The upcoming version will feature:
 - **Stimulator Mode** - Cardiac pacing 
 
 ### 📊 Realistic Medical Scenarios
-- **Ventricular Fibrillation** - Emergency defibrillation with manual defibrillator
+- **ACR defibrillation in manual mode**
 - **AED Training** - Automated external defibrillator operation
 - **Cardiac Pacing** - Emergency pacing for heart blocks
 - **Cardioversion** - Synchronized cardioversion for arrhythmias
@@ -47,7 +48,6 @@ The upcoming version will feature:
 - Rotary knobs for energy selection
 - LED indicators and status displays
 - Audio feedback and voice instructions
-- Electrode placement validation
 
 ## 🛠️ Technologies Used
 
@@ -87,22 +87,6 @@ npm run dev
 4. **Open your browser**
 Navigate to `http://localhost:3000` to access the simulator
 
-### Production Build
-```bash
-npm run build
-npm start
-```
-
-## 🎓 Educational Objectives
-
-This simulator helps users develop critical skills:
-- **ECG rhythm recognition** and interpretation
-- **Proper electrode placement** techniques
-- **Equipment operation** proficiency
-- **Emergency decision-making** under pressure
-- **Protocol adherence** in cardiac emergencies
-- **Team coordination** during resuscitation
-
 ## 🌐 Live Demo
 
 Visit the live application: [Defibrillator Simulator](https://defib-simulation.vercel.app/)
@@ -126,4 +110,3 @@ We welcome contributions from the medical and development communities:
 
 ---
 
-**⚠️ Disclaimer**: This simulator is for educational purposes only. It does not replace proper medical training or certification. Always follow your institution's protocols and guidelines for actual emergency situations.
