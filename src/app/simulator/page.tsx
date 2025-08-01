@@ -100,54 +100,91 @@ const SimulatorPageContent: React.FC = () => {
     timer.reset();
   };
 
-  // --- Event Handlers ---
   const handleModeChange = (newMode: DisplayMode) => {
     const isScenarioRunning = scenarioPlayer.isScenarioActive;
-
+  
     if (newMode === "ARRET") {
-      if (bootTimeoutRef.current) clearTimeout(bootTimeoutRef.current);
-      if (progressIntervalRef.current)
+      if (bootTimeoutRef.current) {
+        clearTimeout(bootTimeoutRef.current);
+        bootTimeoutRef.current = null;
+      }
+      if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
-
+        progressIntervalRef.current = null;
+      }
+  
       setIsBooting(false);
       setTargetMode(null);
       setBootProgress(0);
-
+  
       electrodeValidation.resetElectrodeValidation();
       defibrillator.setDisplayMode("ARRET", isScenarioRunning);
-      timer.reset(); // Reset timer only when going to ARRET
+      timer.reset();
       return;
     }
-
-    if (isBooting) {
-      setTargetMode(newMode);
-      return;
-    }
-
-    if (defibrillator.displayMode === "ARRET") {
-      setIsBooting(true);
+  
+    if (isBooting && targetMode !== newMode) {
+      if (bootTimeoutRef.current) {
+        clearTimeout(bootTimeoutRef.current);
+        bootTimeoutRef.current = null;
+      }
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+  
       setTargetMode(newMode);
       setBootProgress(0);
-
+  
       progressIntervalRef.current = setInterval(() => {
         setBootProgress((prev) => Math.min(prev + 2, 100));
       }, 100);
-
+  
       bootTimeoutRef.current = setTimeout(() => {
         if (targetModeRef.current) {
-          defibrillator.setDisplayMode(
-            targetModeRef.current,
-            isScenarioRunning,
-          );
+          defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
         }
         setIsBooting(false);
         setTargetMode(null);
         setBootProgress(0);
-        if (progressIntervalRef.current)
+        if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+        bootTimeoutRef.current = null;
+      }, 5000);
+  
+      return;
+    }
+  
+    if (isBooting && targetMode === newMode) {
+      return;
+    }
+  
+    if (defibrillator.displayMode === "ARRET") {
+      setIsBooting(true);
+      setTargetMode(newMode);
+      setBootProgress(0);
+  
+      progressIntervalRef.current = setInterval(() => {
+        setBootProgress((prev) => Math.min(prev + 2, 100));
+      }, 100);
+  
+      bootTimeoutRef.current = setTimeout(() => {
+        if (targetModeRef.current) {
+          defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
+        }
+        setIsBooting(false);
+        setTargetMode(null);
+        setBootProgress(0);
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
         bootTimeoutRef.current = null;
       }, 5000);
     } else {
+      // Direct mode change when not coming from ARRET and not booting
       defibrillator.setDisplayMode(newMode, isScenarioRunning);
     }
   };
