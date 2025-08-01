@@ -93,38 +93,6 @@ npm run build
 npm start
 ```
 
-## 📋 Available Scenarios
-
-### Scenario 1: Ventricular Fibrillation
-**Objectives**: 
-- Connect electrodes and verify proper chest placement
-- Switch defibrillator to monitor mode
-- Analyze VF rhythm and stop CPR for analysis
-- Set energy level to 150 joules
-- Charge and deliver shock
-
-### Scenario 2: AED Training  
-**Objectives**:
-- Power on defibrillator in AED mode
-- Follow audio instructions
-- Connect electrodes with proper placement
-- Allow rhythm analysis
-- Deliver recommended shock
-
-### Scenario 3: Cardiac Pacing
-**Objectives**:
-- Connect monitoring electrodes
-- Identify heart block rhythm
-- Configure pacing parameters
-- Initiate emergency pacing
-
-### Scenario 4: Cardioversion
-**Objectives**:
-- Monitor atrial fibrillation
-- Enable synchronization mode
-- Set appropriate energy level
-- Perform synchronized cardioversion
-
 ## 🎓 Educational Objectives
 
 This simulator helps users develop critical skills:
