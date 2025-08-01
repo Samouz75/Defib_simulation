@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Settings, Info, Power, FileText, Github, Home, HelpCircle } from 'lucide-react';
+import { ChevronDown, Settings, Power, FileText, Github, Home, HelpCircle } from 'lucide-react';
 import { useModals } from '../hooks/useModals';
 import AboutModal from './modals/AboutModal';
 import SettingsModal from './modals/SettingsModal';
 import ScenariosListModal from './modals/ScenariosListModal';
 import ScenarioModal from './modals/ScenarioModal';
-import HelpModal from './modals/HelpModal'; // Import the new modal
+import HelpModal from './modals/HelpModal'; 
 
 interface DropdownMenuProps {
   onMenuItemSelect?: (action: string) => void;
@@ -47,9 +47,6 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         break;
       case 'settings':
         modals.openSettings();
-        break;
-      case 'about':
-        modals.openAbout();
         break;
       case 'help':
         modals.openHelp();
@@ -97,11 +94,6 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       id: 'help',
       label: 'Aide',
       icon: <HelpCircle className="w-4 h-4" />,
-    },
-    {
-      id: 'about',
-      label: 'À propos',
-      icon: <Info className="w-4 h-4" />,
     },
     {
       id: 'github',
@@ -166,11 +158,6 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       </div>
 
       {/* Modals */}
-      <AboutModal
-        isOpen={modals.showAboutModal}
-        onClose={modals.closeAbout}
-      />
-
       <SettingsModal
         isOpen={modals.showSettingsModal}
         onClose={modals.closeSettings}
