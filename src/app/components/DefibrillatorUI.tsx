@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   FlagTriangleRight,
   Triangle,
@@ -9,9 +9,9 @@ import {
 import Joystick from "./buttons/Joystick";
 import RotativeKnob from "./buttons/RotativeKnob";
 import Synchro from "./buttons/Synchro";
-import { DefibrillatorState } from '../hooks/useDefibrillator';
-import { RotaryMappingService } from '../services/RotaryMappingService';
-import { useAudio } from '../context/AudioContext';
+import { DefibrillatorState } from "../hooks/useDefibrillator";
+import { RotaryMappingService } from "../services/RotaryMappingService";
+import { useAudio } from "../context/AudioContext";
 
 interface DefibrillatorUIProps {
   defibrillator: DefibrillatorState;
@@ -55,18 +55,25 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
   daePhase,
 }) => {
   const audioService = useAudio();
-  const canVibrate = ('vibrate' in navigator);
+  const canVibrate = "vibrate" in navigator;
   // Helper function to get the correct angle for the rotary knob based on the current state
   const getCurrentRotaryAngle = (): number => {
     switch (defibrillator.displayMode) {
-      case "DAE": return -35;
-      case "ARRET": return 0;
-      case "Moniteur": return 35;
-      case "Stimulateur": return 240;
+      case "DAE":
+        return -35;
+      case "ARRET":
+        return 0;
+      case "Moniteur":
+        return 35;
+      case "Stimulateur":
+        return 240;
       case "Manuel":
-        const point = RotaryMappingService.getMappingPoints().find(p => p.value === defibrillator.manualEnergy);
+        const point = RotaryMappingService.getMappingPoints().find(
+          (p) => p.value === defibrillator.manualEnergy,
+        );
         return point ? point.angle : 60; // Default to 1-10 if not found
-      default: return 0;
+      default:
+        return 0;
     }
   };
 
@@ -86,10 +93,7 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
             <div className="flex-1">
               <div className="flex gap-4 mb-6 items-center justify-center">
                 {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col items-center gap-2"
-                  >
+                  <div key={i} className="flex flex-col items-center gap-2">
                     <div className="w-2 h-8 bg-gray-600 -mt-5 rounded-full"></div>
 
                     <button
@@ -105,9 +109,7 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
                           } else if (i === 1) {
                             handleStimulatorStartButton();
                           }
-                        } else if (
-                          defibrillator.displayMode === "Manuel"
-                        ) {
+                        } else if (defibrillator.displayMode === "Manuel") {
                           if (i === 3) {
                             handleCancelChargeButton();
                           }
@@ -144,26 +146,38 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
           </div>
         </div>
 
-
         {/* Right Side Panel */}
         <div className="w-80 bg-gray-700 rounded-xl p-4">
           <div className="relative flex flex-col items-center">
             <div className="flex items-center gap-4 -mt-0">
               <span className="text-white -mt-45 text-2xl font-bold">1</span>
-              <RotativeKnob initialValue={getCurrentRotaryAngle()} onValueChange={handleRotaryValueChange} />
+              <RotativeKnob
+                initialValue={getCurrentRotaryAngle()}
+                onValueChange={handleRotaryValueChange}
+              />
             </div>
           </div>
           <div className="space-y-4 mt-18">
-            <Synchro onClick={handleSynchroButtonClick} isActive={defibrillator.isSynchroMode} />
+            <Synchro
+              onClick={handleSynchroButtonClick}
+              isActive={defibrillator.isSynchroMode}
+            />
             {/* Charge Button */}
             <div className="flex items-center gap-4">
               <span className="text-white text-2xl font-bold">2</span>
               <button
                 className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${defibrillator.isChargeButtonPressed ? "scale-95 bg-yellow-300 border-yellow-200" : "bg-yellow-500 border-yellow-400 hover:bg-yellow-400 active:bg-yellow-300"}`}
-                onClick={() => { handleChargeButtonClick(); if (canVibrate) navigator.vibrate(10); }}
+                onClick={() => {
+                  handleChargeButtonClick();
+                  if (canVibrate) navigator.vibrate(10);
+                }}
               >
-                <div className={`w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative transition-all ${defibrillator.isChargeButtonPressed ? "from-yellow-300 to-yellow-400" : ""}`}>
-                  <div className="absolute left-2"><span className="text-black text-xs font-bold">Charge</span></div>
+                <div
+                  className={`w-full h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-md flex items-center justify-center relative transition-all ${defibrillator.isChargeButtonPressed ? "from-yellow-300 to-yellow-400" : ""}`}
+                >
+                  <div className="absolute left-2">
+                    <span className="text-black text-xs font-bold">Charge</span>
+                  </div>
                   <div className="w-10 h-10 border-3 border-yellow-800 rounded-lg"></div>
                 </div>
               </button>
@@ -172,17 +186,56 @@ const DefibrillatorUI: React.FC<DefibrillatorUIProps> = ({
             <div className="flex items-center gap-4">
               <span className="text-white text-2xl font-bold">3</span>
               <button
-                className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform ${defibrillator.isShockButtonPressed ? "scale-95 bg-orange-300 border-orange-200" : isShockButtonBlinking ? "bg-orange-500 border-orange-400 shadow-lg  animate-[glowing-light_1s_infinite]" : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"}`}
-                onClick={() => { handleShockButtonClick(); if (canVibrate) navigator.vibrate(10); }}
-                onMouseDown={() => { handleShockButtonPress(); if (canVibrate) navigator.vibrate(10); }}
+                className={`flex-1 h-16 rounded-lg transition-all touch-manipulation transform no-text-selection ${
+                  defibrillator.isShockButtonPressed
+                    ? "scale-95 bg-orange-300 border-orange-200"
+                    : isShockButtonBlinking
+                      ? "bg-orange-500 border-orange-400 shadow-lg animate-[glowing-light_1s_infinite]"
+                      : "bg-orange-500 border-orange-400 hover:bg-orange-400 active:bg-orange-300"
+                }`}
+                style={{
+                  userSelect: "none",
+                  WebkitUserSelect: "none",
+                  msUserSelect: "none",
+                  MozUserSelect: "none",
+                  WebkitTouchCallout: "none",
+                  WebkitTapHighlightColor: "transparent",
+                  touchAction: "manipulation",
+                }}
+                onClick={() => {
+                  handleShockButtonClick();
+                  if (canVibrate) navigator.vibrate(10);
+                }}
+                onMouseDown={() => {
+                  handleShockButtonPress();
+                  if (canVibrate) navigator.vibrate(10);
+                }}
                 onMouseUp={handleShockButtonRelease}
                 onMouseLeave={handleShockButtonRelease}
-                onTouchStart={() => { handleShockButtonPress(); if (canVibrate) navigator.vibrate(10); }}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  handleShockButtonPress();
+                  if (canVibrate) navigator.vibrate(10);
+                }}
                 onTouchEnd={handleShockButtonRelease}
+                onContextMenu={(e) => e.preventDefault()}
+                onDragStart={(e) => e.preventDefault()}
               >
-                <div className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all ${defibrillator.isShockButtonPressed ? "from-orange-300 to-orange-400" : "from-orange-400 to-orange-500"}`}>
-                  <div className="absolute left-2"><span className="text-black text-xs font-bold">Choc</span></div>
-                  <div className="w-10 h-10 border-3 border-orange-800 rounded-full flex items-center justify-center"><Zap className="w-6 h-6 text-white" /></div>
+                <div
+                  className={`w-full h-full bg-gradient-to-r rounded-md flex items-center justify-center relative transition-all no-text-selection ${
+                    defibrillator.isShockButtonPressed
+                      ? "from-orange-300 to-orange-400"
+                      : "from-orange-400 to-orange-500"
+                  }`}
+                >
+                  <div className="absolute left-2 no-text-selection">
+                    <span className="text-black text-xs font-bold no-text-selection">
+                      Choc
+                    </span>
+                  </div>
+                  <div className="w-10 h-10 border-3 border-orange-800 rounded-full flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-white" />
+                  </div>
                 </div>
               </button>
             </div>
