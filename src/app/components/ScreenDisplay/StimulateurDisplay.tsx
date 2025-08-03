@@ -268,7 +268,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
         />
         <div className="h-4 w-full flex items-center justify-center px-4 text-sm bg-white mb-1 flex-col">
           <span className="text-black text-xs">
-            Connecter le câble ECG Fixez les fils d'electrodes.
+            Appuyer sur début stimulation pour démarrer
           </span>
         </div>
 
@@ -309,7 +309,7 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
             </div>
 
             <div className="flex flex-row gap-2 ml-3 py-3">
-              <span className="font-bold text-lg font-mono">{pacerFrequency} ppm</span>
+              <span className="font-bold text-lg font-mono">{pacerFrequency} bpm</span>
               <span className="font-bold text-lg font-mono">{pacerIntensity} mA</span>
             </div>
           </div>

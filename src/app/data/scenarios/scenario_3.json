@@ -1,6 +1,6 @@
 {
     "id": "scenario_3",
-    "title": "Electro Entrainement",
+    "title": "Entrainement electrosystolique",
     "description": "Un patient de 62 ans en arrêt cardio-respiratoire. Le massage cardiaque externe est en cours. Utilisez le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
     "initialState": {
         "rhythmType": "bav3",

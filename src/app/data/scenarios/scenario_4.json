@@ -1,10 +1,10 @@
 {
     "id": "scenario_1",
-    "title": "Fibrillation Ventriculaire (Mode Manuel)",
+    "title": "Cardioversion",
     "description": "Monsieur L. âgé de 80 ans, aux antécédents d'hypertension et d'embolie pulmonaire anticoagulée au long cours, est pris en charge pour des palpitations depuis 6h. L'ECG montre une ACFA à 160/min, le traitement médicamenteux est un échec et le patient présente une syncope associée à une hypotension artérielle.",
     "initialState": {
         "rhythmType": "fibrillationAtriale",
-        "heartRate": 160
+        "heartRate": 200
     },
     "steps": [
         {
