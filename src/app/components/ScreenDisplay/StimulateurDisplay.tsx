@@ -6,6 +6,11 @@ import type { PacerMode } from "../../hooks/useDefibrillator";
 import VitalsDisplay from "../VitalsDisplay";
 
 interface StimulateurDisplayProps {
+  //ModifCodeSam
+  bloodPressure?: { systolic: number; diastolic: number; map?: number };
+  isScenario4?: boolean;
+
+//ModifCodeSam
   rhythmType?: RhythmType;
   showSynchroArrows?: boolean;
   heartRate?: number;
@@ -63,6 +68,10 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
   onShowVitalSignsChange,
   timerProps,
   onOpenHelpModal,
+  //ModifCodeSam
+  bloodPressure,
+  isScenario4,
+  //ModifCodeSam
 }, ref) => {
 
 
@@ -259,6 +268,11 @@ const StimulateurDisplay = forwardRef<StimulateurDisplayRef, StimulateurDisplayP
 
         {/* Rangée 2 - Paramètres médicaux */}
         <VitalsDisplay
+          //ModifCodeSam
+          bloodPressure={bloodPressure} 
+          isScenario4={isScenario4}
+          //ModifCodeSam
+          
           rhythmType={rhythmType}
           heartRate={heartRate}
           showFCValue={showFCValue}

@@ -3,6 +3,9 @@ import type { RhythmType } from './graphsdata/ECGRhythms';
 import { useAlarms } from '../hooks/useAlarms';
 
 interface VitalsDisplayProps {
+       //ModifCodeSam
+bloodPressure?: { systolic: number; diastolic: number; map?: number };
+//ModifCodeSam
     rhythmType: RhythmType;
     heartRate: number;
     showFCValue: boolean;
@@ -11,12 +14,16 @@ interface VitalsDisplayProps {
     onShowVitalSignsChange: (show: boolean) => void;
     isScenario4?: boolean;
     isScenario1Completed?: boolean;
+ 
 }
 
 const VitalsDisplay: React.FC<VitalsDisplayProps> = ({
     rhythmType,
     heartRate,
     showFCValue,
+    //ModifCodeSam
+    bloodPressure,
+    //ModifCodeSam
     onShowFCValueChange,
     showVitalSigns,
     onShowVitalSignsChange,
@@ -35,8 +42,16 @@ const VitalsDisplay: React.FC<VitalsDisplayProps> = ({
             return () => clearInterval(interval);
         }
     }, [rhythmType]);
-
+//ModifCodeSam
+useEffect(() => {
+  if (isScenario4) {
+    setShowPNIValues(true); // 👉 affiche la TA dès l'ouverture du scénario 4
+  }
+}, [isScenario4]);
+//ModifCodeSam
     return (
+        
+        
         <div className="h-1/4 border-b border-gray-600 flex items-center text-sm bg-black px-2">
             {/* FC (Fréquence Cardiaque) */}
             <div
@@ -139,19 +154,29 @@ const VitalsDisplay: React.FC<VitalsDisplayProps> = ({
                 </div>
                 <div className="flex flex-row items-center gap-x-1 mt-1">
                     <div className="text-white text-4xl min-w-[100px] text-center">
-                        {rhythmType === "fibrillationVentriculaire" ||
-                            rhythmType === "fibrillationAtriale"
+                        {rhythmType === "fibrillationVentriculaire"
                             ? "-?-"
                             : showPNIValues
-                                ? "110/80"
+                            //ModifCodeSam
+                               ? `${bloodPressure?.systolic ?? '--'}/${bloodPressure?.diastolic ?? '--'}`
+                                //ModifCodeSam
                                 : "--"}
                     </div>
                     <div className="text-white text-xs min-w-[30px] text-center">
-                        {rhythmType === "fibrillationVentriculaire" ||
-                            rhythmType === "fibrillationAtriale"
+                        {rhythmType === "fibrillationVentriculaire"
                             ? ""
                             : showPNIValues
-                                ? "(80)"
+                            //ModifCodeSam
+                               ? `(${(() => {
+     const sys = bloodPressure?.systolic;
+     const dia = bloodPressure?.diastolic;
+     const map = bloodPressure?.map ?? (
+       sys != null && dia != null ? dia + (sys - dia) / 3 : undefined
+     );
+     return map != null ? Math.round(map) : '--';
+   })()})`
+   
+                                //ModifCodeSam
                                 : ""}
                     </div>
                     <div className="flex flex-col items-center w-8">

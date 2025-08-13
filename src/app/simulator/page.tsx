@@ -22,12 +22,22 @@ import {
 } from "../hooks/useScenarioPlayer";
 import { useElectrodeValidation } from "../hooks/useElectrodeValidation";
 import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay";
+
+
+
+//ModifcodeSam
+import { emit } from "../../lib/eventBus";
+//ModifcodeSam
+
+
+
 import { RhythmType } from "../components/graphsdata/ECGRhythms";
 import DefibrillatorUI from "../components/DefibrillatorUI";
 import { AudioProvider } from "../context/AudioContext";
 import { useResponsiveScale } from "../hooks/useResponsiveScale";
 
 const SimulatorPageContent: React.FC = () => {
+ 
   const containerRef = useRef<HTMLDivElement>(null);
   const stimulateurDisplayRef = useRef<StimulateurDisplayRef>(null);
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
@@ -59,6 +69,31 @@ const SimulatorPageContent: React.FC = () => {
   const [bootProgress, setBootProgress] = useState(0);
   const [showFCValue, setShowFCValue] = useState(true);
   const [showVitalSigns, setShowVitalSigns] = useState(true);
+
+   //ModifCodeSam
+   // helper
+// helper MAP
+const computeMAP = (sys: number, dia: number) => dia + (sys - dia) / 3;
+
+// état BP typé + valeur initiale
+const [bloodPressure, setBloodPressure] = useState<{
+  systolic: number;
+  diastolic: number;
+  map: number;
+}>({
+  systolic: 83,
+  diastolic: 54,
+  map: computeMAP(83, 54),
+});
+
+// helper pour ne jamais oublier la MAP
+const updateBP = (sys: number, dia: number) =>
+  setBloodPressure({
+    systolic: sys,
+    diastolic: dia,
+    map: computeMAP(sys, dia),
+  });
+  //ModifCodeSam
 
   // --- Timers ---
   const bootTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -302,6 +337,98 @@ const SimulatorPageContent: React.FC = () => {
   const getEffectiveHeartRate = (): number =>
     scenarioPlayer.isScenarioActive ? defibrillator.heartRate : manualHeartRate;
 
+      //ModifCodeSam
+
+
+// scenar 3 (ton existant, mais avec map)
+
+
+useEffect(() => {
+  const bp = scenarioPlayer.scenarioConfig?.initialState?.bloodPressure;
+  if (scenarioPlayer.isScenarioActive && bp?.systolic != null && bp?.diastolic != null) {
+    updateBP(bp.systolic, bp.diastolic);
+  }
+}, [
+  scenarioPlayer.isScenarioActive,
+  scenarioPlayer.scenarioConfig?.initialState?.bloodPressure,
+]);
+
+
+
+
+// Ajout des scenarios
+const isScenario1 = scenarioPlayer.scenarioConfig?.id === "scenario_1";
+const isScenario2 = scenarioPlayer.scenarioConfig?.id === "scenario_2";
+const isScenario3 = scenarioPlayer.scenarioConfig?.id === "scenario_3";
+const currentStep = scenarioPlayer.currentStep?.step;
+
+//Scennario3 modifsTA
+
+// Scénario 3 : quand on capte à 90 mA en Stimulateur -> TA 116/73
+const s3BPAppliedRef = useRef(false);
+
+useEffect(() => {
+  const isS3 = scenarioPlayer.scenarioConfig?.id === "scenario_3";
+
+  // reset le garde-fou quand on change de scénario ou qu'on stoppe
+  if (!scenarioPlayer.isScenarioActive || !isS3) {
+    s3BPAppliedRef.current = false;
+    return;
+  }
+
+  const inStim = defibrillator.displayMode === "Stimulateur";
+  const pacingOn = defibrillator.isPacing === true;
+  const captured = (defibrillator.pacerIntensity ?? 0) >= 90;
+
+  if (!s3BPAppliedRef.current && inStim && pacingOn && captured) {
+    updateBP(116, 73);
+    s3BPAppliedRef.current = true; // éviter les répétitions
+  }
+}, [
+  scenarioPlayer.isScenarioActive,
+  scenarioPlayer.scenarioConfig?.id,
+  defibrillator.displayMode,
+  defibrillator.isPacing,
+  defibrillator.pacerIntensity,
+]);
+
+
+
+//Scenario1 modif TA
+useEffect(() => {
+  if (isScenario1 && currentStep === 3 && defibrillator.showShockDelivered) {
+    updateBP(110, 75);
+  }
+}, [isScenario1, currentStep, defibrillator.showShockDelivered]);
+
+//Scenario2 modif TA
+useEffect(() => {
+  if (isScenario2 && daePhase === "choc") {
+    updateBP(115, 80);
+  }
+}, [isScenario2, daePhase]);
+
+//Scenario4 modif TA
+const isScenario4 = scenarioPlayer.scenarioConfig?.id === "scenario_4";
+
+useEffect(() => {
+  if (!isScenario4) return;
+  // choc en Manuel OU en DAE (au cas où)
+  const shock = daePhase === "choc" || defibrillator.showShockDelivered === true;
+  if (shock) {
+    updateBP(112, 85);
+  }
+}, [isScenario4, daePhase, defibrillator.showShockDelivered]);
+
+useEffect(() => {
+  if (scenarioPlayer.scenarioConfig?.id === "scenario_4") {
+    setShowVitalSigns(true); // Affiche aussi SpO2 et Pouls
+    // Si ton affichage TA dépend d'une variable interne dans VitalsDisplay
+    // tu peux aussi envoyer un event ou gérer un state global
+  }
+}, [scenarioPlayer.scenarioConfig?.id]);
+//ModifCodeSam
+
   // --- Render Logic ---
   const renderScreenContent = () => {
     if (isBooting) {
@@ -331,6 +458,8 @@ const SimulatorPageContent: React.FC = () => {
     const effectiveRhythm = getEffectiveRhythm();
     const effectiveHeartRate = getEffectiveHeartRate();
 
+
+
     const timerProps = {
       minutes: timer.minutes,
       seconds: timer.seconds,
@@ -350,8 +479,10 @@ const SimulatorPageContent: React.FC = () => {
               heartRate: effectiveHeartRate,
               onPhaseChange: handleDaePhaseChange,
               onShockReady: setDaeShockFunction,
-              onElectrodePlacementValidated:
-                electrodeValidation.validateElectrodes,
+              onElectrodePlacementValidated: () => {
+  electrodeValidation.validateElectrodes();
+  emit("stepValidated"); // ✅
+},
               energy: "150",
               showFCValue: showFCValue,
               onShowFCValueChange: setShowFCValue,
@@ -359,11 +490,19 @@ const SimulatorPageContent: React.FC = () => {
               onShowVitalSignsChange: setShowVitalSigns,
               showSynchroArrows: defibrillator.isSynchroMode,
             }}
+            //ModifCodeSam
+            bloodPressure={bloodPressure}
+            isScenario4={isScenario4}
+            //ModifCodeSam
           />
         );
       case "Moniteur":
         return (
           <MonitorDisplay
+           //ModifCodeSam
+bloodPressure={bloodPressure}
+isScenario4={isScenario4} 
+            //ModifCodeSam
             timerProps={timerProps}
             ref={monitorDisplayRef}
             rhythmType={effectiveRhythm}
@@ -378,6 +517,10 @@ const SimulatorPageContent: React.FC = () => {
       case "Manuel":
         return (
           <ManuelDisplay
+          //ModifCodeSam
+          bloodPressure={bloodPressure}
+          isScenario4={isScenario4} 
+          //ModifCodeSam
             timerProps={timerProps}
             ref={manuelDisplayRef}
             {...{
@@ -399,6 +542,10 @@ const SimulatorPageContent: React.FC = () => {
       case "Stimulateur":
         return (
           <StimulateurDisplay
+          //ModifCodeSam
+          bloodPressure={bloodPressure}
+          isScenario4={isScenario4} 
+          //ModifCodeSam
             timerProps={timerProps}
             ref={stimulateurDisplayRef}
             rhythmType={effectiveRhythm}
@@ -476,6 +623,7 @@ const SimulatorPageContent: React.FC = () => {
           <DefibrillatorUI {...defibrillatorUIProps} />
         </div>
       </main>
+  
 
       {/* Scenario-specific overlays can now be rendered conditionally here */}
       {scenarioPlayer.isScenarioActive && (
@@ -546,6 +694,8 @@ const SimulatorPageContent: React.FC = () => {
     </div>
   );
 };
+
+  
 
 const SimulatorPage: React.FC = () => (
   <AudioProvider>

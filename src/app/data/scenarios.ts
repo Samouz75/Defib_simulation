@@ -12,7 +12,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_1",
     title: "Scénario 1 - ACR défibrillation en mode manuel ",
     description:
-      "Un homme de 62 ans pris en charge aux urgences pour une douleur thoracique est retrouvé en arrêt cardio circulatoire. La réanimation cardio pulmonaire est débutée, les électrodes de défibrillation sont posées sur le torse du patient.\n\nObjectif:\nUtiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
+      "Un homme de 62 ans pris en charge aux urgences pour une douleur thoracique est retrouvé en arrêt cardio circulatoire. La réanimation cardio pulmonaire est débutée, les électrodes de défibrillation sont posées sur le torse du patient.\n\nObjectif :\nUtiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
     objectives: [
       "Connecter les électrodes et vérifier le bon positionnement sur le torse",
       "Allumer le défibrillateur en position moniteur",
