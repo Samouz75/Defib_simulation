@@ -38,9 +38,10 @@ const Timeline: React.FC<TimelineProps> = ({
       description: [
         "Création d'une interface physique permettant de connecter l'application à un mannequin de simulation ",
         "Création en impression 3D d'un boitier proche du DFM100 pour l'utiliser lors des séances de simulation",
-        "Completer les fonctionnalités manquantes du DFM100, proposer d'autres interfaces (Corpuls, Zoll ...), implémenter une banque de tracé ECG, proposer de nouveaux scénarios comme la double défibrillation",
+        "Completer les fonctionnalités manquantes du DFM100, proposer d'autres interfaces (Corpuls, Zoll ...)", 
+        "Développer de nouveaux scénarios (double défibrillation)",
         "Création d'une commande permettant la modification à distance des parametres vitaux et des tracés ECG",
-        "Développement d'une plateforme de simulation globale open source avec d'autres outils : lecteur glycémie, HemoCue, appareil ECG, respirateur..."
+        "Développement d'une plateforme de simulation globale open source avec d'autres simulateurs (appareil ECG, respirateur...)"
       ],
       status: "upcoming",
 

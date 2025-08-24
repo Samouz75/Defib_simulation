@@ -132,10 +132,6 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
         audioService.playDAEInstructions();
         timers.push(setTimeout(() => {
           audioService.playDAEElectrodeReminder();
-          // ⬇️ Attend la fin des messages avant de passer à l’analyse
-          timers.push(setTimeout(() => {
-            setPhase("analyse");
-          }, 4000)); // délai pour finir l’audio
         }, 3500));
       }, 1000));
       break;
@@ -246,13 +242,7 @@ const DAEDisplay: React.FC<DAEDisplayProps> = ({
               </div>        
 <button
 //ModifcodeSam
-  onClick={() => {
-    if (phase === "placement") {
-      setPhase("analyse");                      // Change de phase localement
-      onElectrodePlacementValidated?.();        // Signale que les électrodes sont placées
-      emit("stepValidated");                    // 🔥 Déclenche l’étape 2 du scénario
-    }
-  }}
+  onClick={handlePlacementValidate}
   className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded-lg text-xl transition-colors duration-200 mb-7"
   //ModifcodeSam
               

@@ -12,7 +12,7 @@ export const SCENARIOS: Scenario[] = [
     id: "scenario_1",
     title: "Scénario 1 - ACR défibrillation en mode manuel ",
     description:
-      "Un homme de 62 ans pris en charge aux urgences pour une douleur thoracique est retrouvé en arrêt cardio circulatoire. La réanimation cardio pulmonaire est débutée, les électrodes de défibrillation sont posées sur le torse du patient.\n\nObjectif :\nUtiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
+      "Un homme de 62 ans pris en charge aux urgences pour une douleur thoracique est retrouvé en arrêt cardio respiratoire. La réanimation cardio pulmonaire est débutée, les électrodes de défibrillation sont posées sur le torse du patient.\n\nObjectif :\nUtiliser le défibrillateur en mode manuel pour délivrer un choc de 150 Joules.",
     objectives: [
       "Connecter les électrodes et vérifier le bon positionnement sur le torse",
       "Allumer le défibrillateur en position moniteur",
@@ -71,7 +71,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario_5',
     title: 'Scénario 5 - Simulation in situ',
-    description: 'Ce scénario peut être réalisé avec votre équipe de simulation. Vous prenez en charge un patient retrouvé en arrêt cardio circulatoire.\n\nObjectif:\nUtiliser le défibrillateur pour mener à bien la réanimation cardiopulmonaire.\n\nN.B. : L’application n’étant pas connectée à votre mannequin, vous devez cliquer sur la fenêtre ou s’affiche la FC après avoir posé vos électrodes de défibrillation pour révéler le rythme, vous ne verrez pas l’activité électrique de votre massage cardiaque lors de la RCP.',
+    description: 'Ce scénario peut être réalisé avec votre équipe de simulation. Vous prenez en charge un patient retrouvé en arrêt cardio respiratoire.\n\nObjectif:\nUtiliser le défibrillateur pour mener à bien la réanimation cardiopulmonaire.\n\nN.B. : L’application n’étant pas connectée à votre mannequin, vous devez cliquer sur la fenêtre ou s’affiche la FC après avoir posé vos électrodes de défibrillation pour révéler le rythme, vous ne verrez pas l’activité électrique de votre massage cardiaque lors de la RCP.',
     objectives: [
       
     ],
