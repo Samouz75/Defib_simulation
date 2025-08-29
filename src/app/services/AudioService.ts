@@ -273,9 +273,9 @@ class AudioService {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-    oscillator.frequency.linearRampToValueAtTime(880, audioContext.currentTime + 5);
+    oscillator.type = "triangle";
+oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+oscillator.stop(audioContext.currentTime + 0.2);
 
     gainNode.gain.setValueAtTime(0.1 * this.settings.volume, audioContext.currentTime);
 

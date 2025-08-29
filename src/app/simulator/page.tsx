@@ -26,6 +26,7 @@ import ElectrodeValidationOverlay from "../components/ElectrodeValidationOverlay
 
 
 //ModifcodeSam
+import { useAudio } from "../context/AudioContext"; 
 import { emit } from "../../lib/eventBus";
 //ModifcodeSam
 
@@ -42,6 +43,9 @@ const SimulatorPageContent: React.FC = () => {
   const stimulateurDisplayRef = useRef<StimulateurDisplayRef>(null);
   const manuelDisplayRef = useRef<ManuelDisplayRef>(null);
   const monitorDisplayRef = useRef<MonitorDisplayRef>(null);
+//CodeModifSam
+const audio = useAudio();
+//CodeModifSam
 
   const scale = useResponsiveScale(1024, 768);
 
@@ -130,6 +134,8 @@ const updateBP = (sys: number, dia: number) =>
   };
 
   const handleExitScenario = () => {
+    //ModifCodeSam
+    try { audio.stopAll(); } catch {} 
     scenarioPlayer.stopScenario();
     defibrillator.resetState();
     timer.reset();
@@ -139,6 +145,9 @@ const updateBP = (sys: number, dia: number) =>
     const isScenarioRunning = scenarioPlayer.isScenarioActive;
   
     if (newMode === "ARRET") {
+      //ModifCodeSam
+      try { audio.stopAll(); } catch {}
+      //ModifCodeSam
       if (bootTimeoutRef.current) {
         clearTimeout(bootTimeoutRef.current);
         bootTimeoutRef.current = null;
