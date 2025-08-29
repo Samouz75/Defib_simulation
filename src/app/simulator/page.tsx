@@ -108,6 +108,12 @@ const updateBP = (sys: number, dia: number) =>
     targetModeRef.current = targetMode;
   }, [targetMode]);
 
+  // --- Sync du mode d’affichage vers l’AudioService (bip machine on/off) ---
+useEffect(() => {
+  const mode = defibrillator.displayMode ?? "ARRET";
+  audio.updateOperatingMode(mode);
+}, [defibrillator.displayMode, audio]);
+
   // Auto-reset timer at 30 minutes
   useEffect(() => {
     if (timer.totalSeconds >= 1800) {
@@ -142,48 +148,45 @@ const updateBP = (sys: number, dia: number) =>
   };
 
   const handleModeChange = (newMode: DisplayMode) => {
-    const isScenarioRunning = scenarioPlayer.isScenarioActive;
-  
-    if (newMode === "ARRET") {
-      //ModifCodeSam
-      try { audio.stopAll(); } catch {}
-      //ModifCodeSam
-      if (bootTimeoutRef.current) {
-        clearTimeout(bootTimeoutRef.current);
-        bootTimeoutRef.current = null;
-      }
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-  
-      setIsBooting(false);
-      setTargetMode(null);
-      setBootProgress(0);
-  
-      electrodeValidation.resetElectrodeValidation();
-      defibrillator.setDisplayMode("ARRET", isScenarioRunning);
-      timer.reset();
-      return;
-    }
-  
-    if (isBooting && targetMode !== newMode) {
-      if (bootTimeoutRef.current) {
-        clearTimeout(bootTimeoutRef.current);
-        bootTimeoutRef.current = null;
-      }
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-  
-      setTargetMode(newMode);
-      setBootProgress(0);
-  
+  const isScenarioRunning = scenarioPlayer.isScenarioActive;
+
+  // 1) Gestion ARRET : on arrête vraiment tout et on reset (cas légitime)
+  if (newMode === "ARRET") {
+    try { audio.stopAll(); } catch {}
+    if (bootTimeoutRef.current) { clearTimeout(bootTimeoutRef.current); bootTimeoutRef.current = null; }
+    if (progressIntervalRef.current) { clearInterval(progressIntervalRef.current); progressIntervalRef.current = null; }
+
+    setIsBooting(false);
+    setTargetMode(null);
+    setBootProgress(0);
+
+    electrodeValidation.resetElectrodeValidation();
+    defibrillator.setDisplayMode("ARRET", isScenarioRunning);
+    timer.reset();
+    return;
+  }
+
+  // 2) Si on est DÉJÀ en boot, ne JAMAIS relancer le boot :
+  //    - on met simplement à jour la cible (sans clear des timers, sans reset du progress)
+  if (isBooting) {
+    setTargetMode(newMode);
+    return; // on laisse la barre continuer
+  }
+
+  // 3) Si on vient de ARRET : lancer UNE SEULE séquence de boot.
+  if (defibrillator.displayMode === "ARRET") {
+    setIsBooting(true);
+    setTargetMode(newMode);
+    // NE PAS reset ici: laisser la progression telle quelle si tu veux reprendre (ou set à 0 si tu veux toujours repartir de 0)
+    setBootProgress(0);
+
+    if (!progressIntervalRef.current) {
       progressIntervalRef.current = setInterval(() => {
-        setBootProgress((prev) => Math.min(prev + 2, 100));
+        setBootProgress(prev => Math.min(prev + 2, 100));
       }, 100);
-  
+    }
+
+    if (!bootTimeoutRef.current) {
       bootTimeoutRef.current = setTimeout(() => {
         if (targetModeRef.current) {
           defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
@@ -197,41 +200,14 @@ const updateBP = (sys: number, dia: number) =>
         }
         bootTimeoutRef.current = null;
       }, 5000);
-  
-      return;
     }
-  
-    if (isBooting && targetMode === newMode) {
-      return;
-    }
-  
-    if (defibrillator.displayMode === "ARRET") {
-      setIsBooting(true);
-      setTargetMode(newMode);
-      setBootProgress(0);
-  
-      progressIntervalRef.current = setInterval(() => {
-        setBootProgress((prev) => Math.min(prev + 2, 100));
-      }, 100);
-  
-      bootTimeoutRef.current = setTimeout(() => {
-        if (targetModeRef.current) {
-          defibrillator.setDisplayMode(targetModeRef.current, isScenarioRunning);
-        }
-        setIsBooting(false);
-        setTargetMode(null);
-        setBootProgress(0);
-        if (progressIntervalRef.current) {
-          clearInterval(progressIntervalRef.current);
-          progressIntervalRef.current = null;
-        }
-        bootTimeoutRef.current = null;
-      }, 5000);
-    } else {
-      // Direct mode change when not coming from ARRET and not booting
-      defibrillator.setDisplayMode(newMode, isScenarioRunning);
-    }
-  };
+    return;
+  }
+
+  // 4) Hors ARRET et hors boot : changement direct
+  defibrillator.setDisplayMode(newMode, isScenarioRunning);
+};
+
 
   const handleRotaryValueChange = (value: number) => {
     const newValue = RotaryMappingService.mapRotaryToValue(value);
@@ -626,7 +602,7 @@ isScenario4={isScenario4}
           style={{
             transform: `scale(${scale})`,
             transformOrigin: "center",
-            transition: "transform 0.2s ease-out",
+            transition: "none",
           }}
         >
           <DefibrillatorUI {...defibrillatorUIProps} />
