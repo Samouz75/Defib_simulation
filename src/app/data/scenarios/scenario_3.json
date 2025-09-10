@@ -130,9 +130,11 @@
     {
       "action": "updateState",
       "payload": {
+        "heartRate": 60,
         "bloodPressure": {
           "systolic": 116,
           "diastolic": 73
+          
         }
       }
     }
