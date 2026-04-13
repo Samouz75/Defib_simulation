@@ -1,5 +1,6 @@
+
 import { useAudio } from '@/app/context/AudioContext';
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 
 interface JoystickProps {
   onStepUp?: () => void;
@@ -21,11 +22,10 @@ const Joystick: React.FC<JoystickProps> = ({
   const [isPressed, setIsPressed] = useState(false);
 
   const joystickRef = useRef<HTMLDivElement>(null);
+  const activePointerIdRef = useRef<number | null>(null);
+
   const audioService = useAudio();
   const canVibrate = typeof navigator !== 'undefined' && 'vibrate' in navigator;
-
-  // Identifiant du pointer actif pour éviter les conflits multi-touch
-  const activePointerIdRef = useRef<number | null>(null);
 
   const snapAngles = useMemo(() => {
     if (numberOfSteps <= 0) return [0];
@@ -67,19 +67,24 @@ const Joystick: React.FC<JoystickProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
+    // ne démarre pas un drag si on clique avec un autre doigt/pointeur
+    if (activePointerIdRef.current !== null) return;
+
     activePointerIdRef.current = e.pointerId;
     setIsDragging(true);
 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
-      // certains navigateurs peuvent échouer silencieusement
+      // rien
     }
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     if (activePointerIdRef.current !== e.pointerId) return;
+
+    e.preventDefault();
 
     const currentPointerAngle = calculateAngleFromPoint(e.clientX, e.clientY);
     const newSnapAngle = findClosestSnapAngle(currentPointerAngle);
@@ -105,11 +110,17 @@ const Joystick: React.FC<JoystickProps> = ({
     }
   };
 
-  const handleDragEnd = (e?: React.PointerEvent<HTMLDivElement>) => {
-    if (e && activePointerIdRef.current !== e.pointerId) return;
+  const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerIdRef.current !== e.pointerId) return;
 
-    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // rien
+    }
+
     activePointerIdRef.current = null;
+    setIsDragging(false);
   };
 
   const handleCenterPress = () => {
@@ -123,7 +134,6 @@ const Joystick: React.FC<JoystickProps> = ({
     }, 120);
   };
 
-  // Sécurité si le composant est démonté pendant un drag
   useEffect(() => {
     return () => {
       activePointerIdRef.current = null;
@@ -144,17 +154,14 @@ const Joystick: React.FC<JoystickProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handleDragEnd}
         onPointerCancel={handleDragEnd}
-        onPointerLeave={handleDragEnd}
       >
-        {/* Partie rotative */}
         <div
           className="w-full h-full rounded-full flex items-center justify-center"
           style={{
             transform: `rotate(${angle}deg)`,
-            transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+            transition: isDragging ? 'none' : 'transform 0.12s ease-out',
           }}
         >
-          {/* Bouton central cliquable */}
           <div
             onPointerDown={(e) => {
               e.stopPropagation();
@@ -164,7 +171,7 @@ const Joystick: React.FC<JoystickProps> = ({
               handleCenterPress();
             }}
             className={`absolute rounded-full bg-black transition-all duration-150 cursor-pointer flex items-center justify-center z-10 ${
-              isPressed ? 'shadow-inner transform scale-95 bg-gray-800' : 'shadow-md'
+              isPressed ? 'shadow-inner scale-95 bg-gray-800' : 'shadow-md'
             }`}
             style={{
               width: `${size * 0.3}px`,
@@ -172,7 +179,6 @@ const Joystick: React.FC<JoystickProps> = ({
               touchAction: 'manipulation',
             }}
           >
-            {/* Repère visuel */}
             <div
               className="absolute w-1 h-3 bg-gray-300 rounded-full"
               style={{
@@ -181,14 +187,6 @@ const Joystick: React.FC<JoystickProps> = ({
                 transform: 'translateX(-50%)',
               }}
             />
-
-            <div className="hidden">
-              <div
-                className={`w-3 h-3 rounded-full transition-all ${
-                  isPressed ? 'bg-gray-500' : 'bg-gray-600'
-                }`}
-              ></div>
-            </div>
           </div>
         </div>
       </div>
